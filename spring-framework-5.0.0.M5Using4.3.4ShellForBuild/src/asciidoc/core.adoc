@@ -1,0 +1,34 @@
+[[spring-core]]
+= 核心技术
+
+[partintro]
+--
+这部分参考文档包含了所有完全集成到Spring框架中的那些技术。
+
+在这些中最重要的是Spring框架的控制反转（IoC）容器。对Spring框架IoC容器的彻底处理是紧随其后的Spring面向切面编程（AOP）技术的全面覆盖。Spring框架有它自己的AOP框架，这在概念上很容易理解，在Java企业级开发中成功了解决了AOP需求中80%的关键点。
+
+Spring也提供了AspectJ的全面集成（目前是最丰富的-在功能方面-并且确实在Java企业中是最成熟的AOP实现）。
+
+
+* <<beans>>
+* <<resources>>
+* <<validation>>
+* <<expressions>>
+* <<aop>>
+* <<aop-api>>
+--
+
+
+
+include::core-beans.adoc[leveloffset=+1]
+
+include::core-resources.adoc[leveloffset=+1]
+
+include::core-validation.adoc[leveloffset=+1]
+
+include::core-expressions.adoc[leveloffset=+1]
+
+include::core-aop.adoc[leveloffset=+1]
+
+include::core-aop-api.adoc[leveloffset=+1]
+
