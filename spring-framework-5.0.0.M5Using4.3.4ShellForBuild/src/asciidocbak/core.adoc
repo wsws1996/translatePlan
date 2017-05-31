@@ -1,17 +1,11 @@
 [[spring-core]]
-= 核心技术(Core Technologies )
+= 核心技术
 
 [partintro]
 --
-This part of the reference documentation covers all of those technologies that are absolutely integral to the Spring Framework. 
-
 这部分参考文档包含了所有完全集成到Spring框架中的那些技术。
 
-Foremost amongst these is the Spring Framework's Inversion of Control (IoC) container. A thorough treatment of the Spring Framework's IoC container is closely followed by comprehensive coverage of Spring's Aspect-Oriented Programming (AOP) technologies. The Spring Framework has its own AOP framework, which is conceptually easy to understand, and which successfully addresses the 80% sweet spot of AOP requirements in Java enterprise programming. 
-
 在这些中最重要的是Spring框架的控制反转（IoC）容器。对Spring框架IoC容器的彻底处理是紧随其后的Spring面向切面编程（AOP）技术的全面覆盖。Spring框架有它自己的AOP框架，这在概念上很容易理解，在Java企业级开发中成功了解决了AOP需求中80%的关键点。
-
-Coverage of Spring's integration with AspectJ (currently the richest - in terms of features - and certainly most mature AOP implementation in the Java enterprise space) is also provided. 
 
 Spring也提供了AspectJ的全面集成（目前是最丰富的-在功能方面-并且确实在Java企业中是最成熟的AOP实现）。
 

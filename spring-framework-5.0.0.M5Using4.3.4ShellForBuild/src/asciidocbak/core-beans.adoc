@@ -1,23 +1,15 @@
 [[beans]]
-= IoC容器(The IoC container)
+= IoC容器
 
 
 [[beans-introduction]]
-== Spring IoC容器和beans的介绍(Introduction to the Spring IoC container and beans)
-
-This chapter covers the Spring Framework implementation of the Inversion of Control (IoC) footnote:[See pass:specialcharacters,macros[<<background-ioc>>] ] principle. IoC is also known as __dependency injection__ (DI). It is a process whereby objects define their dependencies, that is, the other objects they work with, only through constructor arguments, arguments to a factory method, or properties that are set on the object instance after it is constructed or returned from a factory method. The container then __injects__ those dependencies when it creates the bean. This process is fundamentally the inverse, hence the name __Inversion of Control__ (IoC), of the bean itself controlling the instantiation or location of its dependencies by using direct construction of classes, or a mechanism such as the __Service Locator__ pattern. 
+== Spring IoC容器和beans的介绍
 
 这一章包含了Spring框架的控制反转(IoC)原理的实现footnote:[See pass:specialcharacters,macros[<<background-ioc>>]]原理。IoC也被称为__依赖注入__(DI)。它是一个处理过程，凭借对象定义依赖关系，也就是和它们一起工作的其它对象，只能通过构造函数参数，传递参数给工厂方法，在构造完成或工厂方法返回对象实例之后再设置对象实例的属性。当创建bean时容器再将这些依赖对象__注入进去__。这个过程从根本上颠倒了bean本身通过直接构建类或通过一种机制例如__服务定位器__模式来控制依赖对象的实例化或定位，因此命名为__控制翻转__（IoC）。
 
-The `org.springframework.beans` and `org.springframework.context` packages are the basis for Spring Framework's IoC container. The {api-spring-framework}/beans/factory/BeanFactory.html[`BeanFactory`] interface provides an advanced configuration mechanism capable of managing any type of object. {api-spring-framework}/context/ApplicationContext.html[`ApplicationContext`] is a sub-interface of `BeanFactory`. It adds easier integration with Spring's AOP features; message resource handling (for use in internationalization), event publication; and application-layer specific contexts such as the `WebApplicationContext` for use in web applications. 
-
 `org.springframework.beans` 和 `org.springframework.context` 包是Spring框架控制反转容器的基础。{api-spring-framework}/beans/factory/BeanFactory.html[`BeanFactory`]接口提供了一种能管理任何类型对象的高级配置机制。{api-spring-framework}/context/ApplicationContext.html[`ApplicationContext`]是 `BeanFactory` 的一个子接口。它增加了更容易集成Spring AOP的功能；消息资源处理（用在国际化中），事件发布；应用层特定上下文例如 `WebApplicationContext` 在web应用中的使用。
 
-In short, the `BeanFactory` provides the configuration framework and basic functionality, and the `ApplicationContext` adds more enterprise-specific functionality. The `ApplicationContext` is a complete superset of the `BeanFactory`, and is used exclusively in this chapter in descriptions of Spring's IoC container. For more information on using the `BeanFactory` instead of the `ApplicationContext,` refer to <<beans-beanfactory>>. 
-
 总之，`BeanFactory` 提供了配置框架和基本功能，`ApplicationContext` 增加了更多企业专用的功能。`ApplicationContext` 是 `BeanFactory` 的一个全面超集，在这章仅仅是用来描述Spring的IoC容器。关于用 `BeanFactory` 代替 `ApplicationContext` 的更多信息请参考<<beans-beanfactory>>。
-
-In Spring, the objects that form the backbone of your application and that are managed by the Spring IoC __container__ are called __beans__. A bean is an object that is instantiated, assembled, and otherwise managed by a Spring IoC container. Otherwise, a bean is simply one of many objects in your application. Beans, and the __dependencies__ among them, are reflected in the __configuration metadata__ used by a container. 
 
 在Spring中，被Spring IoC__容器__管理的那些形成你应用主干的对象被称为__beans__。bean是实例化、组装、以及其它的都被Spring IoC容器管理的对象。另外，bean仅仅是你应用中许多对象中的一个。Beans和它们之间的__依赖关系__，通过容器使用的__配置元数据__可以反映出来。
 
@@ -25,69 +17,41 @@ In Spring, the objects that form the backbone of your application and that are m
 
 
 [[beans-basics]]
-== 容器概述(Container overview)
-
-The interface `org.springframework.context.ApplicationContext` represents the Spring IoC container and is responsible for instantiating, configuring, and assembling the aforementioned beans. The container gets its instructions on what objects to instantiate, configure, and assemble by reading configuration metadata. The configuration metadata is represented in XML, Java annotations, or Java code. It allows you to express the objects that compose your application and the rich interdependencies between such objects. 
+== 容器概述
 
 `org.springframework.context.ApplicationContext` 接口代表了Spring IoC容器并且负责实例化、配置和组装前面提到的beans。容器通过读取配置元数据得到说明什么对象要实例化、配置和组装。配置元数据可以用XML、Java注解或Java代码表示。它允许你表示构成应用的对象和对象间丰富的依赖关系。
 
-Several implementations of the `ApplicationContext` interface are supplied out-of-the-box with Spring. In standalone applications it is common to create an instance of {api-spring-framework}/context/support/ClassPathXmlApplicationContext.html[`ClassPathXmlApplicationContext`] or {api-spring-framework}/context/support/FileSystemXmlApplicationContext.html[`FileSystemXmlApplicationContext`].  While XML has been the traditional format for defining configuration metadata you can instruct the container to use Java annotations or code as the metadata format by providing a small amount of XML configuration to declaratively enable support for these additional metadata formats. 
-
 Spring提供了一些可以直接使用的 `ApplicationContext` 接口实现。在单独的应用中通常是创建一个 {api-spring-framework}/context/support/ClassPathXmlApplicationContext.html[`ClassPathXmlApplicationContext`]实例或 {api-spring-framework}/context/support/FileSystemXmlApplicationContext.html[`FileSystemXmlApplicationContext`]实例。虽然XML是定义配置元数据的传统格式，但你可以指示容器支持使用Java注解或代码作为元数据的格式并通过提供少量的XML配置声明使容器支持这些额外的元数据格式。
-
-In most application scenarios, explicit user code is not required to instantiate one or more instances of a Spring IoC container. For example, in a web application scenario, a simple eight (or so) lines of boilerplate web descriptor XML in the `web.xml` file of the application will typically suffice (see <<context-create>>). If you are using the https://spring.io/tools/sts[Spring Tool Suite] Eclipse-powered development environment this boilerplate configuration can be easily created with few mouse clicks or keystrokes. 
 
 在大多数应用场景中，不会要求用户用显式的代码来实例化一个或多个Spring IoC容器的。例如，在web应用场景中，在应用的 `web.xml` 文件中写一个简单的八行左右的样板web描述符XML就足够了（参考<<context-create>>）。如果你正在使用Eclipse支持的 https://spring.io/tools/sts[Spring工具套件]开发环境，可以很容易的通过点几下鼠标或键盘来创建样板配置。
 
-The following diagram is a high-level view of how Spring works. Your application classes are combined with configuration metadata so that after the `ApplicationContext` is created and initialized, you have a fully configured and executable system or application. 
-
 下面的图是从一个高层次的视野来看Spring是如何工作的。你的应用类与配置元数据结合起来为的是在ApplicationContext创建和初始化之后，你有一个完整配置并可执行的系统或应用。
 
-.Spring IoC容器(The Spring IoC container)
+.Spring IoC容器
 image::images/container-magic.png[width=250]
 
 
 
 [[beans-factory-metadata]]
-=== 配置元数据(Configuration metadata)
-
-As the preceding diagram shows, the Spring IoC container consumes a form of __configuration metadata__; this configuration metadata represents how you as an application developer tell the Spring container to instantiate, configure, and assemble the objects in your application. 
+=== 配置元数据
 
 如上图所示，Spring IoC容器使用了一种__配置元数据__的方式；配置元数据显示了你如何作为一个应用开发者告诉Spring容器去实例化、配置并组装应用中的对象。
-
-Configuration metadata is traditionally supplied in a simple and intuitive XML format, which is what most of this chapter uses to convey key concepts and features of the Spring IoC container. 
 
 传统上用简单直观的XML形式来提供配置元数据，这一章大部分使用这种方式来表达Spring IoC容器的核心概念及功能。
 
 [NOTE]
 ====
-XML-based metadata is __not__ the only allowed form of configuration metadata. The Spring IoC container itself is __totally__ decoupled from the format in which this configuration metadata is actually written. These days many developers choose <<beans-java,Java-based configuration>> for their Spring applications. 
-
 基于XML的元数据__不__是配置元数据的唯一许可形式。Spring IoC容器本身与配置元数据的实际书写形式是__完全__解耦的。目前许多开发者在他们的Spring应用中选用<<beans-java,基于Java的配置>>。
 ====
 
-
-For information about using other forms of metadata with the Spring container, see: 
-
 关于Spring容器中使用其它元数据形式的信息，请看：
-
-
-* <<beans-annotation-config,Annotation-based configuration>>: Spring 2.5 introduced  support for annotation-based configuration metadata. 
-* <<beans-java,Java-based configuration>>: Starting with Spring 3.0, many features  provided by the Spring JavaConfig project became part of the core Spring Framework.   Thus you can define beans external to your application classes by using Java rather   than XML files. To use these new features, see the `@Configuration`, `@Bean`, `@Import`   and `@DependsOn` annotations. 
-
 
 * <<beans-annotation-config,基于注解的配置>>：Spring 2.5引入对了基于注解的配置元数据的支持。
 * <<beans-java,基于Java的配置>>：从Spring 3.0开始，Spring JavaConfig工程提供的许多功能成为Spring框架核心中的一部分。因此你可以通过Java而不是XML文件在你的应用程序的类之外来定义beans。为了使用这些新功能，请看 `@Configuration`,`@Bean`,`@Import` 和 `@DependsOn` 注解。
 
-Spring configuration consists of at least one and typically more than one bean definition that the container must manage. XML-based configuration metadata shows these beans configured as `<bean/>` elements inside a top-level `<beans/>` element. Java configuration typically uses `@Bean` annotated methods within a `@Configuration` class. 
-
 Spring配置由至少一个且通常不止一个容器必须管理的bean定义组成。基于XML的配置元数据中，这些beans作为 `<bean/>` 元素被配置在顶层 `<beans/>` 元素中。Java配置通常在 `@Configuration` 类中使用 `@Bean` 注解的方法。
 
-These bean definitions correspond to the actual objects that make up your application. Typically you define service layer objects, data access objects (DAOs), presentation objects such as Struts `Action` instances, infrastructure objects such as Hibernate `SessionFactories`, JMS `Queues`, and so forth. Typically one does not configure fine-grained domain objects in the container, because it is usually the responsibility of DAOs and business logic to create and load domain objects. However, you can use Spring's integration with AspectJ to configure objects that have been created outside the control of an IoC container. See <<aop-atconfigurable,Using AspectJ to dependency-inject domain objects with Spring>>. 
-
 这些bean定义与组成你应用的实际对象相对应。通常你会定义服务层对象，数据访问层对象（DAOs），描述对象例如Struts的 `Action` 实例，底层对象例如Hibernate的 `SessionFactories`，JMS的 `Queues` 等等。容器中细粒度的domain objects通常是不配置的，因为一般是由DAOs和业务逻辑负责创建和加载domain objects。然而你可以使用Spring集成的AspectJ去配置已经在IoC容器控制之外创建好的对象。请看<<aop-atconfigurable,使用Spring的AspectJ来依赖注入domain objects>>。
-
-The following example shows the basic structure of XML-based configuration metadata: 
 
 下面的例子展示了基于XML配置元数据的基本结构：
 
@@ -113,16 +77,12 @@ The following example shows the basic structure of XML-based configuration metad
 	</beans>
 ----
 
-The `id` attribute is a string that you use to identify the individual bean definition. The `class` attribute defines the type of the bean and uses the fully qualified classname. The value of the id attribute refers to collaborating objects. The XML for referring to collaborating objects is not shown in this example; see <<beans-dependencies,Dependencies>> for more information. 
-
 `id` 属性是一个你用来识别私有bean定义的字符串。`class` 属性定义了bean的类型并且使用了完整限定类名称(即完整类路径名)。`id` 属性的值指的是协作对象。这个例子中没有展示引用协作对象的XML，更多信息请查看<<beans-dependencies,依赖>>。
 
 
 
 [[beans-factory-instantiation]]
-=== 实例化一个容器(Instantiating a container)
-
-Instantiating a Spring IoC container is straightforward. The location path or paths supplied to an `ApplicationContext` constructor are actually resource strings that allow the container to load configuration metadata from a variety of external resources such as the local file system, from the Java `CLASSPATH`, and so on. 
+=== 实例化一个容器
 
 实例化一个Spring IoC容器是简单的。一个或多个提供给一个 `ApplicationContext` 构造函数的定位路径实际上是资源字符串，可以让容器从各种例如本地文件系统，Java的 `CLASSPATH` 等外部资源中加载配置元数据。
 
@@ -135,13 +95,8 @@ Instantiating a Spring IoC container is straightforward. The location path or pa
 
 [NOTE]
 ====
-After you learn about Spring's IoC container, you may want to know more about Spring's `Resource` abstraction, as described in <<resources>>, which provides a convenient mechanism for reading an InputStream from locations defined in a URI syntax. In particular, `Resource` paths are used to construct applications contexts as described in <<resources-app-ctx>>. 
-
 在你学习Spring IoC容器之后，你可能想知道更多关于Spring的 `Resource` 抽象化的信息，就像在<<resources>>中描绘的那样，Resource抽象提供了一种方便的机制从URI语法定义的位置中读取输入流。尤其是 `Resource` 路径通常被用来构建应用程序上下文，正如<<resources-app-ctx>>描述的那样。
 ====
-
-
-The following example shows the service layer objects `(services.xml)` configuration file: 
 
 下面的例子是服务层对象`（services.xml）` 的配置文件：
 
@@ -166,8 +121,6 @@ The following example shows the service layer objects `(services.xml)` configura
 
 	</beans>
 ----
-
-The following example shows the data access objects `daos.xml` file: 
 
 下面的例子是数据访问对象 `daos.xml` 的文件：
 
@@ -194,19 +147,13 @@ The following example shows the data access objects `daos.xml` file:
 	</beans>
 ----
 
-In the preceding example, the service layer consists of the class `PetStoreServiceImpl`, and two data access objects of the type `JpaAccountDao` and `JpaItemDao` (based on the JPA Object/Relational mapping standard). The `property name` element refers to the name of the JavaBean property, and the `ref` element refers to the name of another bean definition. This linkage between `id` and `ref` elements expresses the dependency between collaborating objects. For details of configuring an object's dependencies, see <<beans-dependencies,Dependencies>>. 
-
 在之前的例子中，服务层由类 `PetStoreServiceImpl` 和两个类型为 `JpaAccountDao` 和 `JpaItemDao` 的数据访问对象（基于JPA对象/关系映射标准）组成。`property name` 元素指的是JavaBean属性的名称，`ref` 元素指的是另一个bean定义的名称。 `id` 和 `ref` 之间的连接表明了协作对象之间的依赖关系。配置对象依赖的更详细信息请看<<beans-dependencies,依赖>>。
 
 
 [[beans-factory-xml-import]]
-==== 组成基于XML的配置元数据(Composing XML-based configuration metadata)
-
-It can be useful to have bean definitions span multiple XML files. Often each individual XML configuration file represents a logical layer or module in your architecture. 
+==== 组成基于XML的配置元数据
 
 bean定义跨越多个XML文件是非常有用的。通常每一个独立的XML配置文件表示你架构中的一个逻辑层或模块。
-
-You can use the application context constructor to load bean definitions from all these XML fragments. This constructor takes multiple `Resource` locations, as was shown in the previous section. Alternatively, use one or more occurrences of the `<import/>` element to load bean definitions from another file or files. For example: 
 
 你可以使用应用上下文构造函数从所有XML片段中加载bean定义。如上小节所示，构造函数可以接收多个 `Resource` 位置。也可以使用一个或同时使用多个 `<import/>` 元素从另一个或另一些文件中加载bean定义。两者只能二选其一，例如：
 
@@ -223,31 +170,20 @@ You can use the application context constructor to load bean definitions from al
 	</beans>
 ----
 
-In the preceding example, external bean definitions are loaded from three files: `services.xml`, `messageSource.xml`, and `themeSource.xml`. All location paths are relative to the definition file doing the importing, so `services.xml` must be in the same directory or classpath location as the file doing the importing, while `messageSource.xml` and `themeSource.xml` must be in a `resources` location below the location of the importing file. As you can see, a leading slash is ignored, but given that these paths are relative, it is better form not to use the slash at all. The contents of the files being imported, including the top level `<beans/>` element, must be valid XML bean definitions according to the Spring Schema. 
-
 在上面的例子中，外部bean定义从 `services.xml`、`messageSource.xml` 和 `themeSource.xml` 三个文件中加载。所有位置路径都是相对于进行导入的定义文件的，因此 `services.xml` 必须跟进行导入的文件在同一个目录下或同一个classpath位置下，`messageSource.xml` 和 `themeSource.xml` 必须在进行导入的文件的位置下的一个 `resources` 位置中。如你所见，忽略了最前面的反斜杠，但考虑到给定的这些路径是相对的，最好是一点都不使用反斜杠。包括顶层的<beans/>元素在内，被导入的文件内容必须是依据Spring Schema有效的XML bean定义。
 
 [NOTE]
 ====
-It is possible, but not recommended, to reference files in parent directories using a relative "../" path. Doing so creates a dependency on a file that is outside the current application. In particular, this reference is not recommended for "classpath:" URLs (for example, "classpath:../services.xml"), where the runtime resolution process chooses the "nearest" classpath root and then looks into its parent directory. Classpath configuration changes may lead to the choice of a different, incorrect directory. 
-
 在父目录的引用文件使用”../“相对路径是可以的，但不推荐这样做。这样做会产生一个当前应用之外的文件依赖。尤其不推荐在”classpath:”URLs中这样引用文件（例如”classpath:../services.xml”），运行时解析处理会选择”最近的”classpath根目录，然后去寻找它的父目录。Classpath配置的更改可能会导致进入一个不同且不正确的目录。
-
-You can always use fully qualified resource locations instead of relative paths: for example, "file:C:/config/services.xml" or "classpath:/config/services.xml". However, be aware that you are coupling your application's configuration to specific absolute locations. It is generally preferable to keep an indirection for such absolute locations, for example, through "${...}" placeholders that are resolved against JVM system properties at runtime. 
 
 你可以总是使用完全限定资源位置（绝对路径）代替相对路径：例如，”file:C:/config/services.xml”或”classpath:/config/services.xml”。但是要注意你正在将你的应用配置与特定的绝对路径耦合。通常更可取的方式是间接的访问绝对路径，例如，通过”${…​}”占位符在运行时解析JVM系统属性。
 ====
-
-
-The import directive is a feature provided by the beans namespace itself. Further configuration features beyond plain bean definitions are available in a selection of XML namespaces provided by Spring, e.g. the "context" and the "util" namespace. 
 
 import指令是beans命名空间自己提供的功能。超出普通bean定义的更多的配置功能在Spring提供的可选的XML命名空间中可用。例如“context”和“util”命名空间。
 
 
 [[groovy-bean-definition-dsl]]
-==== Groovy Bean定义DSL(The Groovy Bean Definition DSL)
-
-As a further example for externalized configuration metadata, bean definitions can also be expressed in Spring's Groovy Bean Definition DSL, as known from the Grails framework. Typically, such configuration will live in a ".groovy" file with a structure as follows: 
+==== Groovy Bean定义DSL
 
 作为一个更进一步的具体的配置元数据的例子，bean定义也可以用Spring的Groovy Bean定义DSL来表示，就像Grails框架那样。通常来说，这样的配置将会以下面的结构存在于一个“.groovy”文件中。
 
@@ -273,20 +209,14 @@ As a further example for externalized configuration metadata, bean definitions c
     }
 ----
 
-This configuration style is largely equivalent to XML bean definitions and even supports Spring's XML configuration namespaces. It also allows for importing XML bean definition files through an "importBeans" directive. 
-
 这种配置文件风格大半都和XML bean定义相当，甚至支持Spring的XML配置的命名空间。它也允许通过一个“importBeans”指令引入XML bean定义文件。
 
 
 
 [[beans-factory-client]]
-=== 使用容器(Using the container)
-
-The `ApplicationContext` is the interface for an advanced factory capable of maintaining a registry of different beans and their dependencies. Using the method `T getBean(String name, Class<T> requiredType)` you can retrieve instances of your beans. 
+=== 使用容器
 
 `ApplicationContext` 是一个更高级的工厂接口，它能维护不同beans及其依赖的注册表。使用方法 `T getBean(String name, Class<T> requiredType)` 你可以取回你的beans实例。
-
-The `ApplicationContext` enables you to read bean definitions and access them as follows: 
 
 `ApplicationContext` 能让你用下面的方式读取bean定义及访问它们：
 
@@ -303,8 +233,6 @@ The `ApplicationContext` enables you to read bean definitions and access them as
 	List<String> userList = service.getUsernameList();
 ----
 
-With Groovy configuration, bootstrapping looks very similar, just a different context implementation class which is Groovy-aware (but also understands XML bean definitions): 
-
 以Groovy的配置方式，引导程序看起来是很相似的，只是有一个不同的上下文实现类是Groovy-aware的（但是也理解XML bean定义）：
 
 [source,java,indent=0]
@@ -312,8 +240,6 @@ With Groovy configuration, bootstrapping looks very similar, just a different co
 ----
 	ApplicationContext context = new GenericGroovyApplicationContext("services.groovy", "daos.groovy");
 ----
-
-The most flexible variant is `GenericApplicationContext` in combination with reader delegates, e.g. with `XmlBeanDefinitionReader` for XML files: 
 
 最灵活的变体是 `GenericApplicationContext` 和读取类代表的结合，例如：和XML文件的 `XmlBeanDefinitionReader` 结合：
 
@@ -325,8 +251,6 @@ The most flexible variant is `GenericApplicationContext` in combination with rea
     context.refresh();
 ----
 
-Or with `GroovyBeanDefinitionReader` for Groovy files: 
-
 或者和Groovy文件的 `GroovyBeanDefinitionReader` 结合:
 
 [source,java,indent=0]
@@ -337,11 +261,7 @@ Or with `GroovyBeanDefinitionReader` for Groovy files:
     context.refresh();
 ----
 
-Such reader delegates can be mixed and matched on the same `ApplicationContext`, reading bean definitions from diverse configuration sources, if desired. 
-
 如果需要的话，这样的读取类代表可以被混合并和同一个 `ApplicationContext` 匹配使用，以从不同的配置来源中读取读取bean定义。
-
-You can then use `getBean` to retrieve instances of your beans. The `ApplicationContext` interface has a few other methods for retrieving beans, but ideally your application code should never use them. Indeed, your application code should have no calls to the `getBean()` method at all, and thus no dependency on Spring APIs at all. For example, Spring's integration with web frameworks provides dependency injection for various web framework components such as controllers and JSF-managed beans, allowing you to declare a dependency on a specific bean through metadata (e.g. an autowiring annotation). 
 
 你可以用 `getBean` 取回你的beans实例。`ApplicationContext` 接口有一些其它的方法来取回beans，但理想的应用代码应该绝不使用它们。事实上，你的应用代码应该完全不调用 `getBean()` 方法，因此完全不依赖Spring APIs。例如，Spring和web框架的集成提供了各种web框架组件的依赖注入，例如控制器和JSF管理的beans，允许你通过元数据声明一个特定bean的依赖（例如：一个自动装配注解）。
 
@@ -8735,3 +8655,77 @@ generally recommended over the `BeanFactory`, except for a few situations such a
 embedded applications running on resource-constrained devices where memory consumption
 might be critical and a few extra kilobytes might make a difference. However, for
 most typical enterprise applications and systems, the `ApplicationContext` is what you
+will want to use. Spring makes __heavy__ use of the <<beans-factory-extension-bpp,
+`BeanPostProcessor` extension point>> (to effect proxying and so on). If you use only a
+plain `BeanFactory`, a fair amount of support such as transactions and AOP will not take
+effect, at least not without some extra steps on your part. This situation could be
+confusing because nothing is actually wrong with the configuration.
+
+The following table lists features provided by the `BeanFactory` and
+`ApplicationContext` interfaces and implementations.
+
+[[context-introduction-ctx-vs-beanfactory-feature-matrix]]
+.Feature Matrix
+|===
+| Feature| `BeanFactory`| `ApplicationContext`
+
+| Bean instantiation/wiring
+| Yes
+| Yes
+
+| Automatic `BeanPostProcessor` registration
+| No
+| Yes
+
+| Automatic `BeanFactoryPostProcessor` registration
+| No
+| Yes
+
+| Convenient `MessageSource` access (for i18n)
+| No
+| Yes
+
+| `ApplicationEvent` publication
+| No
+| Yes
+|===
+
+To explicitly register a bean post-processor with a `BeanFactory` implementation,
+you need to write code like this:
+
+[source,java,indent=0]
+[subs="verbatim,quotes"]
+----
+	DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
+	// populate the factory with bean definitions
+
+	// now register any needed BeanPostProcessor instances
+	MyBeanPostProcessor postProcessor = new MyBeanPostProcessor();
+	factory.addBeanPostProcessor(postProcessor);
+
+	// now start using the factory
+----
+
+To explicitly register a `BeanFactoryPostProcessor` when using a `BeanFactory`
+implementation, you must write code like this:
+
+[source,java,indent=0]
+[subs="verbatim,quotes"]
+----
+	DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
+	XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(factory);
+	reader.loadBeanDefinitions(new FileSystemResource("beans.xml"));
+
+	// bring in some property values from a Properties file
+	PropertyPlaceholderConfigurer cfg = new PropertyPlaceholderConfigurer();
+	cfg.setLocation(new FileSystemResource("jdbc.properties"));
+
+	// now actually do the replacement
+	cfg.postProcessBeanFactory(factory);
+----
+
+In both cases, the explicit registration step is inconvenient, which is one reason why
+the various `ApplicationContext` implementations are preferred above plain `BeanFactory`
+implementations in the vast majority of Spring-backed applications, especially when
+using ``BeanFactoryPostProcessor``s and ``BeanPostProcessor``s. These mechanisms implement
+important functionality such as property placeholder replacement and AOP.
