@@ -11,7 +11,7 @@ This chapter covers the Spring Framework implementation of the Inversion of Cont
 
 The `org.springframework.beans` and `org.springframework.context` packages are the basis for Spring Framework's IoC container. The {api-spring-framework}/beans/factory/BeanFactory.html[`BeanFactory`] interface provides an advanced configuration mechanism capable of managing any type of object. {api-spring-framework}/context/ApplicationContext.html[`ApplicationContext`] is a sub-interface of `BeanFactory`. It adds easier integration with Spring's AOP features; message resource handling (for use in internationalization), event publication; and application-layer specific contexts such as the `WebApplicationContext` for use in web applications. 
 
-`org.springframework.beans` 和 `org.springframework.context` 包是Spring框架控制反转容器的基础。{api-spring-framework}/beans/factory/BeanFactory.html[`BeanFactory`]接口提供了一种能管理任何类型对象的高级配置机制。{api-spring-framework}/context/ApplicationContext.html[`ApplicationContext`]是 `BeanFactory` 的一个子接口。它增加了更容易集成Spring AOP的功能；消息资源处理（用在国际化中），事件发布；应用层特定上下文例如 `WebApplicationContext` 在web应用中的使用。
+`org.springframework.beans` 和 `org.springframework.context` 包是Spring框架控制反转容器的基础。 {api-spring-framework}/beans/factory/BeanFactory.html[`BeanFactory`] 接口提供了一种能管理任何类型对象的高级配置机制。 {api-spring-framework}/context/ApplicationContext.html[`ApplicationContext`] 是 `BeanFactory` 的一个子接口。它增加了更容易集成Spring AOP的功能；消息资源处理（用在国际化中），事件发布；应用层特定上下文例如 `WebApplicationContext` 在web应用中的使用。
 
 In short, the `BeanFactory` provides the configuration framework and basic functionality, and the `ApplicationContext` adds more enterprise-specific functionality. The `ApplicationContext` is a complete superset of the `BeanFactory`, and is used exclusively in this chapter in descriptions of Spring's IoC container. For more information on using the `BeanFactory` instead of the `ApplicationContext,` refer to <<beans-beanfactory>>. 
 
@@ -41,7 +41,7 @@ In most application scenarios, explicit user code is not required to instantiate
 
 The following diagram is a high-level view of how Spring works. Your application classes are combined with configuration metadata so that after the `ApplicationContext` is created and initialized, you have a fully configured and executable system or application. 
 
-下面的图是从一个高层次的视野来看Spring是如何工作的。你的应用类与配置元数据结合起来为的是在ApplicationContext创建和初始化之后，你有一个完整配置并可执行的系统或应用。
+下面的图是从一个高层次的视野来看Spring是如何工作的。你的应用类与配置元数据结合起来为的是在 `ApplicationContext` 创建和初始化之后，你有一个完整配置并可执行的系统或应用。
 
 .Spring IoC容器(The Spring IoC container)
 image::images/container-magic.png[width=250]

@@ -584,9 +584,9 @@ There are basically two ways to switch off `commons-logging`:
 
 这儿有两种基础的方式关掉 `commons-logging`:
 
-. 从 `spring-core` 模块排除这个依赖（因为它是唯一的显式依赖 `commons-logging` 的模块）( Exclude the dependency from the `spring-core` module (as it is the only module that)
-  explicitly depends on `commons-logging`) . Depend on a special `commons-logging` dependency that replaces the library with   an empty jar (more details can be found in the   http://slf4j.org/faq.html#excludingJCL[SLF4J FAQ]) 
-
+. 从 `spring-core` 模块排除这个依赖（因为它是唯一的显式依赖 `commons-logging` 的模块）
+. Exclude the dependency from the `spring-core` module (as it is the only module that explicitly depends on `commons-logging`)
+. Depend on a special `commons-logging` dependency that replaces the library with an empty jar (more details can be found in the http://slf4j.org/faq.html#excludingJCL[SLF4J FAQ]) 
 . 依赖于一个特定的 `commons-logging` 依赖，用一个空jar替换这个依赖（更多细节可以在 http://slf4j.org/faq.html#excludingJCL[SLF4J FAQ]中找到）。
 
 To exclude commons-logging, add the following to your `dependencyManagement` section: 
