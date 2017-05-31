@@ -317,7 +317,6 @@ Spring框架的每次发布都会在下面的地方公布artifacts：
 
 [[overview-maven-bom]]
 ===== Maven“材料清单”依赖 =====
-
 在使用Maven时，有可能会偶然的将不同版本的Spring JARs混合起来。例如，你可能找到一个第三方库，或另一个Spring项目，通过传递依赖进入了一个更旧的版本。如果你忘了自己显式的声明一个直接依赖，会产生各种意想不到的问题。
 
 为了解决这种问题，Maven支持”材料清单”(BOM)依赖的概念。你可以在你的 `依赖管理` 部分导入 `spring-framework-bom` 来确保所有的Spring依赖（直接和传递的）都是同一个版本。
@@ -415,7 +414,6 @@ Spring框架的每次发布都会在下面的地方公布artifacts：
 尽管使用一个支持依赖管理的构建系统是获得Spring框架的推荐方式，但仍然可以下载发行版的Zip文件。
 
 发行版的zips是被发布到Spring Maven仓库（这只是为了我们的方便，为了下载它们你不需要Maven或任何其它的构建系统）。
-
 
 为了下载发行版zip，打开浏览器输入 http://repo.spring.io/release/org/springframework/spring ，然后选择你想要的版本的合适子文件夹。发行版文件以 `-dist.zip` 结尾，例如 +spring-framework-{spring-version}-RELEASE-dist.zip+。发行版也发行了 http://repo.spring.io/milestone/org/springframework/spring[milestones（里程碑）]版本和 http://repo.spring.io/snapshot/org/springframework/spring[快照]版本。
 
@@ -519,7 +517,6 @@ SLF4J提供跟许多常用日志框架的绑定，包括JCL，它做的恰恰相
 NOTE: Log4j 1.x已经寿命终止，下面的步骤适用于Log4j 2
 
 许多人使用 http://logging.apache.org/log4j[Log4j]作为配置和管理的日志框架。它有效且存在已久，当我们构建和测试Spring时，实际上这就是在运行时我们使用的东西。Spring也提供一些配置和初始化Log4j的工具，因此在某些模块有可选的Log4j的编译时依赖。
-
 
 为了使Log4j能与JCL一起工作，所有你需要做的就是把Log4j放到classpath中，并提供一个配置文件（`log4j2.xml`，`log4j2.properties`，或者是其他 http://logging.apache.org/log4j/2.x/manual/configuration.html[支持的配置文件格式]）。对于Maven用户最小的依赖声明如下：
 
