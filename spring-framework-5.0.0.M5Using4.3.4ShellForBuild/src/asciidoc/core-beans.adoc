@@ -929,17 +929,19 @@ Spring container that will create objects through an
 
 
 [[beans-dependencies]]
-== Dependencies
+== 依赖(Dependencies)
 A typical enterprise application does not consist of a single object (or bean in the
 Spring parlance). Even the simplest application has a few objects that work together to
 present what the end-user sees as a coherent application. This next section explains how
 you go from defining a number of bean definitions that stand alone to a fully realized
 application where objects collaborate to achieve a goal.
 
+标准企业应用不会由一个对象（或Spring用语中的bean）组成。即使是最简单的应用也是由一些对象共同工作，呈现给终端用户用户看到的是一个连贯的应用。接下来的一节阐述了如何从定义许多独立的bean定义到完全实现的应用，它是一个通过对象协作来实现目标的过程。
+
 
 
 [[beans-factory-collaborators]]
-=== Dependency Injection
+=== 依赖注入(Dependency Injection)
 
 __Dependency injection__ (DI) is a process whereby objects define their dependencies,
 that is, the other objects they work with, only through constructor arguments, arguments
@@ -950,18 +952,24 @@ the name __Inversion of Control__ (IoC), of the bean itself controlling the inst
 or location of its dependencies on its own by using direct construction of classes, or
 the __Service Locator__ pattern.
 
+__依赖注入__（DI）是一个处理过程，凭借对象之间依赖关系，也就是和它们一起工作的其它对象，只能通过构造函数参数，传递参数给工厂方法，在构造完成或工厂方法返回对象实例之后再设置对象实例的属性。当创建bean时容器再将这些依赖对象__注入__进去。这个过程从根本上颠倒了bean本身通过直接构建类或通过一种机制例如__服务定位器__模式来控制依赖对象的实例化或定位，因此命名为__控制反转__（IoC）。
+
 Code is cleaner with the DI principle and decoupling is more effective when objects are
 provided with their dependencies. The object does not look up its dependencies, and does
 not know the location or class of the dependencies. As such, your classes become easier
 to test, in particular when the dependencies are on interfaces or abstract base classes,
 which allow for stub or mock implementations to be used in unit tests.
 
+使用依赖注入原则会使代码更简洁，当对象有依赖关系提供时解耦更有效。对象不会查找它的依赖，不知道依赖的位置和依赖关系的类别。同样的，你的类也变的更容易测试，尤其是依赖于接口或抽象基类的时候，这种情况下会允许stub或mock实现在单元测试中被使用。（注：Stub和Mock都是软件测试中使用的东西，如有疑问请自行google或百度）。
+
 DI exists in two major variants, <<beans-constructor-injection,Constructor-based
 dependency injection>> and <<beans-setter-injection,Setter-based dependency injection>>.
 
+依赖有两个主要变种，<<beans-constructor-injection,基于构造函数的依赖注入>>和<<beans-setter-injection,基于Setter的依赖注入>>.。
+
 
 [[beans-constructor-injection]]
-==== Constructor-based dependency injection
+==== 基于构造函数的依赖注入(Constructor-based dependency injection)
 
 __Constructor-based__ DI is accomplished by the container invoking a constructor with a
 number of arguments, each representing a dependency. Calling a `static` factory method
@@ -970,6 +978,8 @@ treats arguments to a constructor and to a `static` factory method similarly. Th
 following example shows a class that can only be dependency-injected with constructor
 injection. Notice that there is nothing __special__ about this class, it is a POJO that
 has no dependencies on container specific interfaces, base classes or annotations.
+
+__基于构造函数的__依赖注入通过容器调用有参数的构造函数来实现，每个参数表示一个依赖。调用指定参数的 `静态` 工厂方法来构造bean是近似等价的，这里的讨论将给构造函数和 `静态` 工厂方法传参看成是类似的。接下来的例子展示了一个类仅能通过构建函数注入进行依赖注入。注意这个类没什么__特别__的，它是一个POJO，不依赖于容器特定的接口，基类或注解。
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -990,13 +1000,15 @@ has no dependencies on container specific interfaces, base classes or annotation
 ----
 
 [[beans-factory-ctor-arguments-resolution]]
-===== Constructor argument resolution
+===== 构造函数参数解析(Constructor argument resolution)
 
 Constructor argument resolution matching occurs using the argument's type. If no
 potential ambiguity exists in the constructor arguments of a bean definition, then the
 order in which the constructor arguments are defined in a bean definition is the order
 in which those arguments are supplied to the appropriate constructor when the bean is
 being instantiated. Consider the following class:
+
+构造函数参数解析使用参数类型进行匹配。如果bean定义的构造函数参数中不存在潜在的歧义，bean定义中定义构造函数参数的顺序为bean实例化时提供给恰当构造函数的参数顺序。细想下面的类：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -1017,6 +1029,8 @@ inheritance. Thus the following configuration works fine, and you do not need to
 the constructor argument indexes and/or types explicitly in the `<constructor-arg/>`
 element.
 
+不存在潜在的歧义，假设Bar类和Baz类之间不存在继承关系。因此下面的配置会工作良好，你不必在 `<constructor-arg/>` 元素中显式的指定构造函数参数索引的和/或类型。
+
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -1036,6 +1050,8 @@ When another bean is referenced, the type is known, and matching can occur (as w
 case with the preceding example). When a simple type is used, such as
 `<value>true</value>`, Spring cannot determine the type of the value, and so cannot match
 by type without help. Consider the following class:
+
+当引用另一个bean时，类型已知，匹配正确（像上面的例子一样）。当使用简单类型时，例如 `<value>true</value>`，Spring不能决定值的类型，因此没有帮助不能按类型匹配。考虑下面的例子：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -1058,11 +1074,13 @@ by type without help. Consider the following class:
 	}
 ----
 
-.[[beans-factory-ctor-arguments-type]]Constructor argument type matching
+.[[beans-factory-ctor-arguments-type]]构造函数参数类型匹配(Constructor argument type matching)
 --
 In the preceding scenario, the container __can__ use type matching with simple types if
 you explicitly specify the type of the constructor argument using the `type` attribute.
 For example:
+
+在上面的场景中，如果你用 `type` 属性显式的指定了构造参数的类型，对于简单类型容器__可以__使用类型匹配。例如：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -1074,10 +1092,12 @@ For example:
 ----
 --
 
-.[[beans-factory-ctor-arguments-index]]Constructor argument index
+.[[beans-factory-ctor-arguments-index]]构造函数参数索引(Constructor argument index)
 --
 Use the `index` attribute to specify explicitly the index of constructor arguments. For
 example:
+
+使用 `index` 属性来显式的指定构造函数参数的索引，例如：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -1091,11 +1111,15 @@ example:
 In addition to resolving the ambiguity of multiple simple values, specifying an index
 resolves ambiguity where a constructor has two arguments of the same type. Note that the
 __index is 0 based__.
+
+除了要解析多个简单值的歧义性之外，当构造函数有两个相同类型的的参数时，指定索引可以解决歧义问题。注意__索引__是从0开始的。
 --
 
-.[[beans-factory-ctor-arguments-name]]Constructor argument name
+.[[beans-factory-ctor-arguments-name]]构造函数参数名(Constructor argument name)
 --
 You can also use the constructor parameter name for value disambiguation:
+
+你也可以使用构造函数参数名字解决值的歧义问题:
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -1112,6 +1136,8 @@ If you can't compile your code with debug flag (or don't want to) you can use
 http://download.oracle.com/javase/6/docs/api/java/beans/ConstructorProperties.html[@ConstructorProperties]
 JDK annotation to explicitly name your constructor arguments. The sample class would
 then have to look as follows:
+
+记住，要使这个起作用你的代码必须使用调试模式进行编译，这样Spring可以从构造函数中查找参数名称。如果你不能用调试模式进行编译你的代码（或不想），你可以使用JDK注解 http://download.oracle.com/javase/6/docs/api/java/beans/ConstructorProperties.html[@ConstructorProperties]显式的命名你的构造函数参数。样板类如下所示：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -1134,15 +1160,19 @@ then have to look as follows:
 
 
 [[beans-setter-injection]]
-==== Setter-based dependency injection
+==== 基于Setter的依赖注入(Setter-based dependency injection)
 
 __Setter-based__ DI is accomplished by the container calling setter methods on your
 beans after invoking a no-argument constructor or no-argument `static` factory method to
 instantiate your bean.
 
+__基于Setter的__依赖注入在容器调用无参构造函数或无参 `静态` 工厂方法实例化你的bean之后，通过调用bean的setter方法来实现依赖注入。
+
 The following example shows a class that can only be dependency-injected using pure
 setter injection. This class is conventional Java. It is a POJO that has no dependencies
 on container specific interfaces, base classes or annotations.
+
+下面的例子显示了一个类只能通过纯粹的setter注入进行依赖注入。这个类是常见的Java类。它是一个不依赖于容器中特定接口、基类或注解的POJO。
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -1173,12 +1203,17 @@ definitions, annotated components (i.e., classes annotated with `@Component`,
 sources are then converted internally into instances of `BeanDefinition` and used to
 load an entire Spring IoC container instance.
 
-.Constructor-based or setter-based DI?
+
+`ApplicationContext` 支持基于构造函数和基于setter对它管理的bean进行依赖注入。它也支持一些依赖通过构造函数方法注入之后，使用基于setter的依赖注入。使用 `BeanDefinition` 形式配置依赖项，结合 `PropertyEditor` 实例可以将属性从一种形式转成另一种形式。然而大多数Spring用户直接使用这些类（例如以编程形式），而使用XML定义 `bean`，注解组件（例如类中使用  `@Component`，`@Controller` 注解等等），或在基于Java的 `@Configuration` 类使用 `@Bean` 方法。然后这些资源就在内部被转换为 `BeanDefinition` 实例并被用来加载整个的Spring IoC容器实例。
+
+.使用基于构造函数的依赖注入还是基于setter的依赖注入？(Constructor-based or setter-based DI?)
 ****
 Since you can mix constructor-based and setter-based DI, it is a good rule of thumb to
 use constructors for _mandatory dependencies_ and setter methods or configuration methods
 for _optional dependencies_. Note that use of the <<beans-required-annotation,@Required>>
 annotation on a setter method can be used to make the property a required dependency.
+
+你可以混合使用基于构造函数的依赖注入和基于setter的依赖注入，_强制依赖_ 使用构造函数注入，_可选依赖_ 使用setter方法或配置方法注入是一个很好的经验法则。注意在setter方法上使用<<beans-required-annotation,@Required>>注解可以使这个属性成为一个必须的依赖。
 
 The Spring team generally advocates constructor injection as it enables one to implement
 application components as _immutable objects_ and to ensure that required dependencies
@@ -1187,6 +1222,8 @@ are not `null`. Furthermore constructor-injected components are always returned 
 arguments is a _bad code smell_, implying that the class likely has too many
 responsibilities and should be refactored to better address proper separation of concerns.
 
+当实现的应用组件是 _不可变对象_ 时，Spring团队通常主张构造函数注入，这样可以确保所需的依赖 `非空`。此外，基于构造函数注入的组件总是以完全初始化状态返回客户（调用）代码。作为附注，含有许多构造函数参数的代码 _给人的感觉很差_，这意味着类可能有太多职责，应该进行重构以便更好的处理适当的关注点分离。
+
 Setter injection should primarily only be used for optional dependencies that can be
 assigned reasonable default values within the class. Otherwise, not-null checks must be
 performed everywhere the code uses the dependency. One benefit of setter injection is that
@@ -1194,17 +1231,23 @@ setter methods make objects of that class amenable to reconfiguration or re-inje
 later. Management through <<jmx,JMX MBeans>> is therefore a compelling use case for setter
 injection.
 
+setter注入应该主要用来可选依赖上，在类内可以给可选依赖指定合理的默认值。此外，在每处使用依赖的代码都要进行非空检查。setter注入的一个好处就是setter方法使类的对象在后面可以进行再配置或再注入。<<jmx,JMX MBeans>>的管理是setter注入一个非常好的案例。
+
 Use the DI style that makes the most sense for a particular class. Sometimes, when dealing
 with third-party classes for which you do not have the source, the choice is made for you.
 For example, if a third-party class does not expose any setter methods, then constructor
 injection may be the only available form of DI.
+
+使用依赖注入的方式对于特定的类是最有意义的。有时候，当处理没有源码的第三方类时，使用哪种方式取决于你。例如，如果第三方库没有提供任何setter方法，构造函数注入可能是依赖注入唯一可行的方式。
 ****
 
 
 [[beans-dependency-resolution]]
-==== Dependency resolution process
+==== 依赖解析过程(Dependency resolution process)
 
 The container performs bean dependency resolution as follows:
+
+容器按下面的过程处理bean依赖解析：
 
 * The `ApplicationContext` is created and initialized with configuration metadata that
   describes all the beans. Configuration metadata can be specified via XML, Java code, or
@@ -1220,6 +1263,11 @@ The container performs bean dependency resolution as follows:
   can convert a value supplied in string format to all built-in types, such as `int`,
   `long`, `String`, `boolean`, etc.
 
+* 创建 `ApplicationContext` 并使用描述所有bean的配置元数据初始化 `ApplicationContext`，配置元数据可以通过XML，Java代码或注解指定。
+* 对于每一个bean，它的依赖通过属性、构造函数参数、或静态工厂方法参数的形式表示（如果你使用它替代标准的构造函数）。__当bean在实际创建时__，这些依赖会提供给bean。
+* 每个属性或构造函数参数或者是要根据实际定义设置的值，或者是容器中另一个bean的引用。
+* 每个属性或构造函数参数都是一个从指定形式转成属性或构造函数参数的实际类型的值。默认情况下Spring可以转换任何以Spring格式提供的值到所有的内置类型，例如 `int`，`long`，`String`，`boolean` 等。
+
 The Spring container validates the configuration of each bean as the container is created.
 However, the bean properties themselves are not set until the bean __is actually created__.
 Beans that are singleton-scoped and set to be pre-instantiated (the default) are created
@@ -1229,10 +1277,14 @@ graph of beans to be created, as the bean's dependencies and its dependencies'
 dependencies (and so on) are created and assigned. Note that resolution mismatches among
 those dependencies may show up late, i.e. on first creation of the affected bean.
 
-.Circular dependencies
+当容器创建后Spring容器会验证每个bean的配置。然而，bean属性本身只有bean__实际被创建时__才会进行设置。作用域是单例的bean和被设置为pre-instantiated（默认）的bean当容器创建时会进行创建（默认情况）。作用域是在<<beans-factory-scopes>>中定义的。否则，只有需要的时候才会创建bean。bean的创建可能会引起beans图的创建，当bean的依赖和它的依赖的依赖（等等）创建和赋值的时候。注意这些依赖中解析不匹配可能会在后面出现，例如，受影响的bean第一次创建时。
+
+.循环依赖(Circular dependencies)
 ****
 If you use predominantly constructor injection, it is possible to create an unresolvable
 circular dependency scenario.
+
+如果你主要使用构造函数注入，有可能会出现一个不能解决的循环依赖状况。
 
 For example: Class A requires an instance of class B through constructor injection, and
 class B requires an instance of class A through constructor injection. If you configure
@@ -1240,14 +1292,20 @@ beans for classes A and B to be injected into each other, the Spring IoC contain
 detects this circular reference at runtime, and throws a
 `BeanCurrentlyInCreationException`.
 
+例如，类A需要通过构造函数注入得到一个类B的实例，而类B需要通过构造函数注入获得一个类A的实例。如果你为类A和类B配置了互相注入的bean，Spring IoC容器在运行时检测到循环引用，会抛出 `BeanCurrentlyInCreationException`。
+
 One possible solution is to edit the source code of some classes to be configured by
 setters rather than constructors. Alternatively, avoid constructor injection and use
 setter injection only. In other words, although it is not recommended, you can configure
 circular dependencies with setter injection.
 
+一个可能的解决方案是编译某个类的源代码使其配置为通过setter注入而不是构造函数注入。供替代的选择是，避免构造函数注入仅用setter注入。换句话说，尽管是不被推荐的，但你可以通过setter注入配置循环依赖。
+
 Unlike the __typical__ case (with no circular dependencies), a circular dependency
 between bean A and bean B forces one of the beans to be injected into the other prior to
 being fully initialized itself (a classic chicken/egg scenario).
+
+不像__典型的__情况（没有循环依赖），在它自己被完全初始化之前bean A和bean B之间的循环依赖强制其中的一个bean被注入另一个bean中（典型的的鸡/蛋场景）。
 ****
 
 You can generally trust Spring to do the right thing. It detects configuration problems,
@@ -1263,6 +1321,8 @@ create these beans before they are actually needed, you discover configuration i
 when the `ApplicationContext` is created, not later. You can still override this default
 behavior so that singleton beans will lazy-initialize, rather than be pre-instantiated.
 
+通常情况下你可以信任Spring去做正确的事情。在容器加载时它检测配置问题，例如引用不存在的beans和循环依赖。当bean实际创建时，Spring设置属性和解析依赖尽可能的晚。这意味着Spring容器正确加载但后面可能会产生异常，当你请求一个对象时，创建对象或它的某个依赖时出现问题，这时容器就会抛出异常。例如，由于缺失或存在无效属性，bean会抛出异常。在真正需要这些beans之前创建它们，会花费一些前期时间和内存，这种可能推迟一些配置问题可见性的问题也就是为什么 `ApplicationContext` 的实现默认预实例化单例bean的原因。尽管在这些bean实际被需要之前创建它们会花费一些前期的时间和内存，但当 `ApplicationContext` 创建时你就会发现配置问题，而不是在创建之后。你仍可以重写这个默认行为以使单例bean延迟初始化而不是预先实例化。
+
 If no circular dependencies exist, when one or more collaborating beans are being
 injected into a dependent bean, each collaborating bean is __totally__ configured prior
 to being injected into the dependent bean. This means that if bean A has a dependency on
@@ -1273,12 +1333,16 @@ methods (such as a <<beans-factory-lifecycle-initializingbean,configured init me
 or the <<beans-factory-lifecycle-initializingbean,InitializingBean callback method>>)
 are invoked.
 
+如果没有循环依赖存在，当一个或更多协作beans注入到一个需要依赖的bean中，在注入需要依赖的bean之前，每个协作bean都是被__完全__配置的。这意味着如果bean A有个依赖为bean B，Spring IoC容器在调用bean A的setter方法之前会完整的配置bean B。换句话说，bean被实例化（如果不是预先实例化的单例），设置依赖和调用相关的生命周期方法（例如<<beans-factory-lifecycle-initializingbean,配置初始化方法>>或<<beans-factory-lifecycle-initializingbean,初始化bean回调方法>>）。
+
 
 [[beans-some-examples]]
-==== Examples of dependency injection
+==== 依赖注入的例子(Examples of dependency injection)
 
 The following example uses XML-based configuration metadata for setter-based DI. A small
 part of a Spring XML configuration file specifies some bean definitions:
+
+下面的例子使用基于XML的配置元数据进行基于setter的依赖注入。Spring XML配置文件中的一小部分指定了一些bean的定义：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -1325,6 +1389,8 @@ part of a Spring XML configuration file specifies some bean definitions:
 In the preceding example, setters are declared to match against the properties specified
 in the XML file. The following example uses constructor-based DI:
 
+在上面的例子中，setter声明匹配XML文件中指定的属性。下面的例子使用了基于构造函数的依赖注入：
+
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -1366,8 +1432,12 @@ in the XML file. The following example uses constructor-based DI:
 The constructor arguments specified in the bean definition will be used as arguments to
 the constructor of the `ExampleBean`.
 
+bean定义中指定的构造函数参数将作为 `ExampleBean` 的构造函数参数使用。
+
 Now consider a variant of this example, where instead of using a constructor, Spring is
 told to call a `static` factory method to return an instance of the object:
+
+现在考虑这个例子的一个变种，不使用构造函数，而是Spring调用 `静态` 工厂方法返回对象的一个实例：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -1413,6 +1483,8 @@ contains the `static` factory method, although in this example it is. An instanc
 (non-static) factory method would be used in an essentially identical fashion (aside
 from the use of the `factory-bean` attribute instead of the `class` attribute), so
 details will not be discussed here.
+
+`静态` 工厂方法的参数通过 `<constructor-arg/>` 元素提供，与构造函数实际上使用的完全一样。虽然这个例子中工厂方法返回的类的类型与包含 `静态` 工厂方法的类的类型一样，但它们可以不一样。工厂方法的实例（非静态）会被以一种本质上完全一样的形式使用（除了使用 `factory-bean` 属性代替 `class` 属性之外），因此这儿不讨论这些细节。
 
 
 
