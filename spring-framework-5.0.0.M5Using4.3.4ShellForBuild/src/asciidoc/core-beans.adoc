@@ -1489,21 +1489,25 @@ details will not be discussed here.
 
 
 [[beans-factory-properties-detailed]]
-=== Dependencies and configuration in detail
+=== 依赖和配置的细节(Dependencies and configuration in detail)
 
 As mentioned in the previous section, you can define bean properties and constructor
 arguments as references to other managed beans (collaborators), or as values defined
 inline. Spring's XML-based configuration metadata supports sub-element types within its
 `<property/>` and `<constructor-arg/>` elements for this purpose.
 
+ 正如上一节提到的那样，你可以定义bean的属性和构造函数参数作为其它被管理bean（协作者）的引用，或者作为行内定义值。为了实现这个功能，Spring的基于XML的配置元数据在它的 `<property/>` 和 `<constructor-arg/>` 中支持子元素类型。
+
 
 [[beans-value-element]]
-==== Straight values (primitives, Strings, and so on)
+==== 直接使用值（基本类型，字符串等等）(Straight values (primitives, Strings, and so on))
 
 The `value` attribute of the `<property/>` element specifies a property or constructor
 argument as a human-readable string representation. Spring's
 <<core-convert-ConversionService-API, conversion service>> is used to convert these
 values from a `String` to the actual type of the property or argument.
+
+`<property/>` 元素的 `value` 属性指定了一个属性或构造函数参数作为可读的字符串表示。使用Spring的<<core-convert-ConversionService-API,转换服务>>将这些值从 `String` 转成属性或参数的真实类型。
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -1519,6 +1523,8 @@ values from a `String` to the actual type of the property or argument.
 
 The following example uses the <<beans-p-namespace,p-namespace>> for even more succinct
 XML configuration.
+
+下面的例子为了更简洁的XML配置使用了<<beans-p-namespace,p命名空间>>。
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -1545,7 +1551,11 @@ IDEA] or the https://spring.io/tools/sts[Spring Tool Suite] (STS)
 that support automatic property completion when you create bean definitions. Such IDE
 assistance is highly recommended.
 
+上面的XML是更简洁的；然而，错别字是在运行时发现而不是在设计时，除非你使用IDE例如 http://www.jetbrains.com/idea/[IntelliJ IDEA]或 https://spring.io/tools/sts[Spring工具套装](STS)，当你创建bean定义时它们支持自动的属性补全。IDE辅助是强烈推荐的。
+
 You can also configure a `java.util.Properties` instance as:
+
+你也可以配置 `java.util.Properties` 实例：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -1568,12 +1578,16 @@ The Spring container converts the text inside the `<value/>` element into a
 is a nice shortcut, and is one of a few places where the Spring team do favor the use of
 the nested `<value/>` element over the `value` attribute style.
 
+Spring容器通过JavaBeans的 `PropertyEditor` 机制将 `<value/>` 元素内部的文本转成 `java.util.Properties` 实例。这是一个很好的捷径，使用嵌入的 `<value/>` 元素而不是使用 `value` 属性的方式，是Spring团队支持的几个地方之一。
+
 [[beans-idref-element]]
-===== The idref element
+===== idref元素(The idref element)
 
 The `idref` element is simply an error-proof way to pass the __id__ (string value - not
 a reference) of another bean in the container to a `<constructor-arg/>` or `<property/>`
 element.
+
+在容器中传递另一个bean的__id__（字符串值，不是引用）到 `<constructor-arg/>` 或 `<property/>` 元素时，`idref` 元素是一种简单的的误差检验方式。
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -1589,6 +1603,8 @@ element.
 
 The above bean definition snippet is __exactly__ equivalent (at runtime) to the
 following snippet:
+
+上面的bean定义片段与下面的片段是__完全__等价的（运行时）：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -1608,11 +1624,15 @@ likely fatal results) when the `client` bean is actually instantiated. If the `c
 bean is a <<beans-factory-scopes,prototype>> bean, this typo and the resulting exception
 may only be discovered long after the container is deployed.
 
+第一种形式优于第二种形式，因为 `idref` 标签允许容器__在部署时__验证引用的bean，命名的bean实际存在。在第二种形式中，当值传给 `client` bean的 `targetName` 属性时没有进行验证。拼写错误只有在 `client` bean实际实例化时才会发现（最可能有严重后果）。如果 `client` bean是<<beans-factory-scopes,原型>>bean，拼写错误和产生的异常可能只有在容器部署很长时间之后才会发现。
+
 [NOTE]
 ====
 The `local` attribute on the `idref` element is no longer supported in the 4.0 beans xsd
 since it does not provide value over a regular `bean` reference anymore. Simply change
 your existing `idref local` references to `idref bean` when upgrading to the 4.0 schema.
+
+`idref` 元素的 `local` 属性在4.0 beans xsd中不再支持，因为它不再为合格的 `bean` 引用提供值。简单将你现有的 `idref local` 引用改成 `idref bean` 当更新到4.0 schema时。
 ====
 
 A common place (at least in versions earlier than Spring 2.0) where the `<idref/>` element
@@ -1620,9 +1640,11 @@ brings value is in the configuration of <<aop-pfb-1,AOP interceptors>> in a
 `ProxyFactoryBean` bean definition. Using `<idref/>` elements when you specify the
 interceptor names prevents you from misspelling an interceptor id.
 
+`<idref/>` 元素带来值的通常位置（至少在Spring 2.0之前）是在 `ProxyFactoryBean` bean定义中的<<aop-pfb-1,AOP拦截器>>配置中。当你指定拦截器名字时使用 `<idref/>` 元素来防止拼错拦截器id。
+
 
 [[beans-ref-element]]
-==== References to other beans (collaborators)
+==== 其它bean的引用（协作bean）(References to other beans (collaborators))
 
 The `ref` element is the final element inside a `<constructor-arg/>` or `<property/>`
 definition element. Here you set the value of the specified property of a bean to be a
@@ -1633,11 +1655,15 @@ be initialized already by the container.) All references are ultimately a refere
 another object. Scoping and validation depend on whether you specify the id/name of the
 other object through the `bean`, `local,` or `parent` attributes.
 
+`ref` 元素是 `<constructor-arg/>` 或 `<property/>` 定义元素内部的最终的元素。在这个元素中设置bean的指定属性的值，值为容器管理的另一个bean（协作bean）的引用。引用的bean是设置属性bean的依赖，在属性设置之前引用bean需要进行初始化。（如果协作bean是一个单例模式的bean，它可能已经被容器初始化了。）所有引用bean最终都是另一个对象的引用。作用域和验证是根据你是否通过 `bean`，`local`，或 `parent` 属性指定了另一个对象的id/name来决定的。
+
 Specifying the target bean through the `bean` attribute of the `<ref/>` tag is the most
 general form, and allows creation of a reference to any bean in the same container or
 parent container, regardless of whether it is in the same XML file. The value of the
 `bean` attribute may be the same as the `id` attribute of the target bean, or as one of
 the values in the `name` attribute of the target bean.
+
+通过 `<ref/>` 标签的 `bean` 属性指定目标bean是最常用的形式，允许创建同容器或父容器中任何bean的引用，不管它是否是在同一个XML文件中。`bean` 属性的值可能与目标bean的 `id` 属性值相同，或与目标bean的 `name` 属性值中的一个相同（一个bean的name可能有多个，前文已经解释过）。
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -1652,6 +1678,8 @@ values in the `name` attribute of the target bean, and the target bean must be i
 parent container of the current one. You use this bean reference variant mainly when you
 have a hierarchy of containers and you want to wrap an existing bean in a parent
 container with a proxy that will have the same name as the parent bean.
+
+通过 `parent` 属性指定目标bean会引用当前容器的父容器中的bean。`parent` 属性的值可能与目标bean的 `id` 属性值或其中一个`name`属性值相同，目标bean必须在当前容器的父容器中。你主要在当你有一个容器分层而且你想用一个和父容器中bean名字相同的代理包装一个已经在父容器中存在的bean时使用这个bean引用的变体（也就是parent引用）（这个过程类似于继承，即子容器中的bean继承了父容器bean的属性）。
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -1680,14 +1708,18 @@ container with a proxy that will have the same name as the parent bean.
 The `local` attribute on the `ref` element is no longer supported in the 4.0 beans xsd
 since it does not provide value over a regular `bean` reference anymore. Simply change
 your existing `ref local` references to `ref bean` when upgrading to the 4.0 schema.
+
+`idref` 元素的 `local` 属性在4.0 beans xsd中不再支持，因为它不再为合格的bean引用提供值。简单将你现有的 `ref local` 引用改成 `ref bean` 当更新到4.0 schema时。
 ====
 
 
 [[beans-inner-beans]]
-==== Inner beans
+==== 内部bean(Inner beans)
 
 A `<bean/>` element inside the `<property/>` or `<constructor-arg/>` elements defines a
 so-called __inner bean__.
+
+`<property/>` 或 `<constructor-arg/>` 元素内的 `<bean/>` 元素中定义了一个所谓的__内部bean__。
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -1709,19 +1741,25 @@ creation: Inner beans are __always__ anonymous and they are __always__ created w
 bean. It is __not__ possible to inject inner beans into collaborating beans other than into
 the enclosing bean or to access them independently.
 
+内部bean定义不要求定义id或name；如果指定了，容器不用用这个值作为标识符。容器创建时也忽略 `scope` 标记：内部bean__总是__匿名的且它们__总是__和外部bean一起创建。除了注入到封闭bean中或独立的访问它们，__不__可能将内部bean注入到协作bean中。
+
 As a corner case, it is possible to receive destruction callbacks from a custom scope, e.g.
 for a request-scoped inner bean contained within a singleton bean: The creation of the inner
 bean instance will be tied to its containing bean, but destruction callbacks allow it to
 participate in the request scope's lifecycle. This is not a common scenario; inner beans
 typically simply share their containing bean's scope.
 
+作为一种角落的（很少出现的）情况，从自定义的域中有可能会收到销毁回调函数，例如，对于请求域内的内部bean包含单例bean：内部bean实例的创建会绑定到它的包含bean，但销毁回调函数允许它进入到请求域的生命周期中。这不是一个常见的场景；内部bean通常简单的共享它们的包含bean的作用域。
+
 
 [[beans-collection-elements]]
-==== Collections
+==== 集合(Collections)
 
 In the `<list/>`, `<set/>`, `<map/>`, and `<props/>` elements, you set the properties
 and arguments of the Java `Collection` types `List`, `Set`, `Map`, and `Properties`,
 respectively.
+
+在 `<list/>`，`<set/>`，`<map/>` 和 `<props/>` 元素中，你要分别设置Java `Collection` 类型 `List`，`Set`，`Map` 和 `Properties` 的属性和参数。
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -1762,6 +1800,8 @@ respectively.
 __The value of a map key or value, or a set value, can also again be any of the
 following elements:__
 
+__map的key或value，或者是set的value的值也可以是下面元素中的任何一个：__
+
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -1769,7 +1809,7 @@ following elements:__
 ----
 
 [[beans-collection-elements-merging]]
-===== Collection merging
+===== 集合合并(Collection merging)
 
 The Spring container also supports the __merging__ of collections. An application
 developer can define a parent-style `<list/>`, `<map/>`, `<set/>` or `<props/>` element,
@@ -1778,11 +1818,17 @@ override values from the parent collection. That is, the child collection's valu
 the result of merging the elements of the parent and child collections, with the child's
 collection elements overriding values specified in the parent collection.
 
+Spring容器也支持集合的__合并__。应用开发者可以定义父类型 `<list/>`，`<map/>`，`<set/>` 或 `<props/>` 元素，可以有继承和覆盖父集合的子类型元素 `<list/>`，`<map/>`，`<set/>` 或 `<props/>`。也就是说，子集合的值是父集合和子集合中元素合并的结果，子集合元素覆盖了父集合元素的值。
+
 __This section on merging discusses the parent-child bean mechanism. Readers unfamiliar
 with parent and child bean definitions may wish to read the
 <<beans-child-bean-definitions,relevant section>> before continuing.__
 
+__关于合并的这节讨论了父子bean机制。对父子bean定义不熟悉的读者在继续之前可能想去读<<beans-child-bean-definitions,有关的章节>>__。
+
 The following example demonstrates collection merging:
+
+下面的例子示范了集合合并：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -1814,6 +1860,8 @@ and instantiated by the container, the resulting instance has an `adminEmails`
 `Properties` collection that contains the result of the merging of the child's
 `adminEmails` collection with the parent's `adminEmails` collection.
 
+注意 `child` bean定义中的 `adminEmails` 属性下的 `<props/>` 元素使用了 `merge=true` 属性。当容器解析并实例化 `child` bean时，结果的实例含有 `adminEmails` `Properties` 集合，集合中的值包含子 `adminEmails` 集合和父 `adminEmails` 集合合并的结果。
+
 [literal]
 [subs="verbatim,quotes"]
 ----
@@ -1826,6 +1874,8 @@ The child `Properties` collection's value set inherits all property elements fro
 parent `<props/>`, and the child's value for the `support` value overrides the value in
 the parent collection.
 
+子 `Properties` 集合的值的集合继承了父 `<props/>` 中的所有属性元素，子集合中的 `support` 值覆盖了父集合中的值。
+
 This merging behavior applies similarly to the `<list/>`, `<map/>`, and `<set/>`
 collection types. In the specific case of the `<list/>` element, the semantics
 associated with the `List` collection type, that is, the notion of an `ordered`
@@ -1835,16 +1885,20 @@ exists. Hence no ordering semantics are in effect for the collection types that 
 the associated `Map`, `Set`, and `Properties` implementation types that the container
 uses internally.
 
+`<list/>` ， `<map/>` 和 `<set/>` 集合类型中的合并与上面类似。在特定的 `<list/>` 元素情况下，关于List集合类型的语义，也就是说，`有序` 集合值的概念仍然是保留的；父list中的值领先于所有子list中的值。在 `Map`，`Set` 和 `Properties` 集合类型，不存在顺序。因此，无序语义在容器内部使用的相关集合类型 `Map`，`Set` 和 `Properties` 的实现基础下是有效的。
+
 [[beans-collection-merge-limitations]]
-===== Limitations of collection merging
+===== 集合合并的限制(Limitations of collection merging)
 
 You cannot merge different collection types (such as a `Map` and a `List`), and if you
 do attempt to do so an appropriate `Exception` is thrown. The `merge` attribute must be
 specified on the lower, inherited, child definition; specifying the `merge` attribute on
 a parent collection definition is redundant and will not result in the desired merging.
 
+你不能合并不同的集合类型（例如 `Map` 和 `List`），如果你试图合并不同的集合类型会有适当的抛出 `Exception`。`merge` 属性必须在更低的、继承的子定义中指定；在父集合定义中指定 `merge` 属性是多余的并且不会产生要求的合并
+
 [[beans-collection-elements-strongly-typed]]
-===== Strongly-typed collection
+===== 强类型集合(Strongly-typed collection)
 
 With the introduction of generic types in Java 5, you can use strongly typed collections.
 That is, it is possible to declare a `Collection` type such that it can only contain
@@ -1852,6 +1906,8 @@ That is, it is possible to declare a `Collection` type such that it can only con
 strongly-typed `Collection` into a bean, you can take advantage of Spring's
 type-conversion support such that the elements of your strongly-typed `Collection`
 instances are converted to the appropriate type prior to being added to the `Collection`.
+
+随着Java 5中泛型的引入，你可以使用强类型集合。也就是说，声明一个 `Collection` 类型但它只能包含 `String` 元素（例子）是可能的。如果你使用Spring将一个强类型的 `Collection` 注入到bean中，你可以利用Spring的类型转换支持，例如在将元素添加到 `Collection` 之前，将你的强类型 `Collection` 实例中的元素转成恰当的类型
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -1888,13 +1944,17 @@ available by reflection. Thus Spring's type conversion infrastructure recognizes
 various value elements as being of type `Float`, and the string values `9.99, 2.75`, and
 `3.99` are converted into an actual `Float` type.
 
+当准备注入 `foo` bean的 `accounts` 属性时，强类型 `Map<String, Float>` 中元素类型的泛型信息可以通过反射得到。因此Spring的类型转换结构能识别各种值元素的类型为 `Float`，字符串 `9.99,2.75` 和 `3.99` 会被转换成实际的 `Float` 类型。
+
 
 [[beans-null-element]]
-==== Null and empty string values
+==== Null和空字符串(Null and empty string values)
 
 Spring treats empty arguments for properties and the like as empty `Strings`. The
 following XML-based configuration metadata snippet sets the email property to the empty
 `String` value ("").
+
+Spring把属性的空参数都处理为空 `Strings`。下面基于XML的配置元数据片段将email属性设为空 `String` 值(“”)
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -1906,6 +1966,8 @@ following XML-based configuration metadata snippet sets the email property to th
 
 The preceding example is equivalent to the following Java code:
 
+上面的例子与下面的Java代码是等价的：
+
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -1913,6 +1975,8 @@ The preceding example is equivalent to the following Java code:
 ----
 
 The `<null/>` element handles `null` values. For example:
+
+`<null/>` 元素处理 `null` 值。例如：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -1926,6 +1990,8 @@ The `<null/>` element handles `null` values. For example:
 
 The above configuration is equivalent to the following Java code:
 
+上面的配置与下面的Java代码等价。
+
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -1934,18 +2000,24 @@ The above configuration is equivalent to the following Java code:
 
 
 [[beans-p-namespace]]
-==== XML shortcut with the p-namespace
+==== XML 使用p命名空间的缩写(XML shortcut with the p-namespace)
 
 The p-namespace enables you to use the `bean` element's attributes, instead of nested
 `<property/>` elements, to describe your property values and/or collaborating beans.
+
+p命名空间可以让你不需要嵌入 `<property/>` 元素便能使用 `bean` 元素的属性来描述你的属性值和/或协作beans。
 
 Spring supports extensible configuration formats <<xsd-configuration,with namespaces>>, which are
 based on an XML Schema definition. The `beans` configuration format discussed in this
 chapter is defined in an XML Schema document. However, the p-namespace is not defined in
 an XSD file and exists only in the core of Spring.
 
+Spring支持<<xsd-configuration,含有命名空间的>>扩展配置形式，命名空间是基于XML Schema定义的。本章讨论的 `beans` 配置形式是在XML Schema文档中定义的。但是p命名空间不能在XSD文件中定义并且只在Spring core中存在。
+
 The following example shows two XML snippets that resolve to the same result: The first
 uses standard XML format and the second uses the p-namespace.
+
+下面的例子显示了两个XML片段，解析结果是相同的：第一个是标准的XML形式，第二个使用了p命名空间。
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -1970,8 +2042,12 @@ This tells Spring to include a property declaration. As previously mentioned, th
 p-namespace does not have a schema definition, so you can set the name of the attribute
 to the property name.
 
+这个例子显示了bean定义中p命名空间中有个一个叫email的属性。这会通知Spring包含属性声明。如前面所述，p命名空间没有schema定义，因此你可以将特性值（attribute）设到属性值（property）上。
+
 This next example includes two more bean definitions that both have a reference to
 another bean:
+
+下面的例子包括两个bean定义，且它们都引用了另一个bean：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -2006,6 +2082,8 @@ attribute to do the exact same thing. In this case `spouse` is the property name
 whereas the `-ref` part indicates that this is not a straight value but rather a
 reference to another bean.
 
+正如你所看到的，这个例子不仅包括使用了p命名空间的属性值，而且使用了一种特定的形式来声明属性引用。然而第一个bean定义使用 `<property name="spouse" ref="jane"/>` 创建了一个从bean `john` 到bean `jane` 的引用，第二个bean定义使用 `p:spouse-ref="jane"` 作为一个特性做了完全一样的事情。在 `spouse` 是属性名的情况下，`-ref` 部分表示这不是一个直接的值而是另一个bean的引用。
+
 [NOTE]
 ====
 The p-namespace is not as flexible as the standard XML format. For example, the format
@@ -2013,17 +2091,23 @@ for declaring property references clashes with properties that end in `Ref`, whe
 standard XML format does not. We recommend that you choose your approach carefully and
 communicate this to your team members, to avoid producing XML documents that use all
 three approaches at the same time.
+
+p命名空间不如标准的XML格式灵活，例如，声明的属性引用的格式会与以 `Ref` 结尾的属性相冲突，而标准XML格式则不会。我们建议你仔细的选择你的方法并就此事与你的团队成员交流，避免生成的XML文档同时使用了三种方式。
 ====
 
 
 [[beans-c-namespace]]
-==== XML shortcut with the c-namespace
+==== XML 使用c命名空间的缩写(XML shortcut with the c-namespace)
 
 Similar to the <<beans-p-namespace>>, the __c-namespace__, newly introduced in Spring
 3.1, allows usage of inlined attributes for configuring the constructor arguments rather
 then nested `constructor-arg` elements.
 
+与<<beans-p-namespace>>类似，在Spring 3.1新引入的__c命名空间__允许使用内联属性配置构造函数参数而不用嵌入 `constructor-arg` 元素。
+
 Let's review the examples from <<beans-constructor-injection>> with the `c:` namespace:
+
+让我们重新回顾一下<<beans-constructor-injection>>中的例子并使用 `c:` 命名空间：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -2055,9 +2139,13 @@ references) for setting the constructor arguments by their names. And just as we
 needs to be declared even though it is not defined in an XSD schema (but it exists
 inside the Spring core).
 
+`c:` 命名空间遵循与 `p:` 命名空间相同的约定（在bean引用时带着 `-ref`）在通过名字设置构造函数参数时。同样的，它也需要进行声明，虽然它没有在XSD schema中定义（但在Spring core中存在）。
+
 For the rare cases where the constructor argument names are not available (usually if
 the bytecode was compiled without debugging information), one can use fallback to the
 argument indexes:
+
+对于很少出现的不能找到构造函数参数名字的情况（通常如果字节码是编译好的且没有调试信息），可以应急使用参数索引：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -2070,6 +2158,8 @@ argument indexes:
 ====
 Due to the XML grammar, the index notation requires the presence of the leading `_` as
 XML attribute names cannot start with a number (even though some IDE allow it).
+
+由于XML语法，索引符号需要前面加上 `_`，因为XML属性名字不能以数字开头（即使一些IDE允许）。
 ====
 
 In practice, the constructor resolution
@@ -2077,13 +2167,17 @@ In practice, the constructor resolution
 arguments so unless one really needs to, we recommend using the name notation
 through-out your configuration.
 
+在实践中，构造函数解析<<beans-factory-ctor-arguments-resolution,机制>>能有效匹配参数，因此除非真的需要，否则我们推荐在配置中始终使用名字符号。
+
 
 [[beans-compound-property-names]]
-==== Compound property names
+==== 混合属性名字(Compound property names)
 
 You can use compound or nested property names when you set bean properties, as long as
 all components of the path except the final property name are not `null`. Consider the
 following bean definition.
+
+当你设置bean属性时，你可以使用混合的或嵌套的属性名字，只要路径中除了最后的属性名之外所有组件都是非 `null`。考虑下面的bean定义。
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -2098,10 +2192,12 @@ property, and that final `sammy` property is being set to the value `123`. In or
 this to work, the `fred` property of `foo`, and the `bob` property of `fred` must not be
 `null` after the bean is constructed, or a `NullPointerException` is thrown.
 
+`foo` bean有一个 `fred` 属性，fred有一个 `bob` 属性，bob有一个 `sammy` 属性，最后的 `sammy` 属性设置值为123。为了这样的设置能够工作，`foo` 的 `fred` 属性，`fred` 的 `bob` 属性在bean创建后必须是非 `null` 否则就会抛出 `NullPointerException`。
+
 
 
 [[beans-factory-dependson]]
-=== Using depends-on
+=== 使用depends-on(Using depends-on)
 
 If a bean is a dependency of another that usually means that one bean is set as a
 property of another. Typically you accomplish this with the <<beans-ref-element, `<ref/>`
@@ -2111,6 +2207,8 @@ triggered, such as database driver registration. The `depends-on` attribute can
 explicitly force one or more beans to be initialized before the bean using this element
 is initialized. The following example uses the `depends-on` attribute to express a
 dependency on a single bean:
+
+如果一个bean是另一个bean的一个依赖，这通常意味着一个bean作为另一个bean的一个属性去设置。在基于XML的配置元数据中通常使用<<beans-ref-element,`<ref/>` 元素>>实现。然而有时beans之间的依赖关系是间接的；例如，类中的静态初始化程序需要触发，例如数据库驱动注册。`depends-on` 特性能显示的强制一个bean或多个beans在使用这个元素的bean初始化之前进行初始化。下面的例子使用 `depends-on` 特性表示一个单一bean的一个依赖：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -2122,6 +2220,8 @@ dependency on a single bean:
 To express a dependency on multiple beans, supply a list of bean names as the value of
 the `depends-on` attribute, with commas, whitespace and semicolons, used as valid
 delimiters:
+
+为了表示多个bean上的依赖关系，提供一个bean名字列表作为 `depends-on` 特性的值，用逗号，空格或分号作为有效分隔符：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -2141,12 +2241,14 @@ time dependency and, in the case of <<beans-factory-scopes-singleton,singleton>>
 only, a corresponding destroy time dependency. Dependent beans that define a
 `depends-on` relationship with a given bean are destroyed first, prior to the given bean
 itself being destroyed. Thus `depends-on` can also control shutdown order.
+
+`depends-on` 特性在bean定义中可以指定初始化时的依赖和仅在<<beans-factory-scopes-singleton,单例>>bean情况下对应的销毁时依赖。。依赖beans与给定bean之间定义了一个 `depends-on` 关系，依赖beans在给定bean本身被销毁之前首先被销毁。因此 `depends-on` 也可以控制销毁顺序。
 ====
 
 
 
 [[beans-factory-lazy-init]]
-=== Lazy-initialized beans
+===  延迟初始化beans(Lazy-initialized beans)
 
 By default, `ApplicationContext` implementations eagerly create and configure all
 <<beans-factory-scopes-singleton,singleton>> beans as part of the initialization
@@ -2157,8 +2259,12 @@ pre-instantiation of a singleton bean by marking the bean definition as
 lazy-initialized. A lazy-initialized bean tells the IoC container to create a bean
 instance when it is first requested, rather than at startup.
 
+默认情况下，作为初始化过程的一部分，`ApplicationContext` 实现时渴望创建并配置所有的<<beans-factory-scopes-singleton,单例>>bean。通常情况下，预实例化是可取的，因为配置中或周围环境中的错误可以立即发现，与几小时或几天后发现截然相反。当预实例化是__不__可取的时候，你可通过标记bean定义为延迟初始化来阻止单例bean的预实例化。延迟初始化的bean会通知IoC容器当第一次请求bean时创建一个bean实例，而不是在启动时创建。
+
 In XML, this behavior is controlled by the `lazy-init` attribute on the `<bean/>`
 element; for example:
+
+在XML中，延迟初始化通过 `<bean/>` 元素中的 `lazy-init` 特性来控制；例如：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -2171,13 +2277,19 @@ When the preceding configuration is consumed by an `ApplicationContext`, the bea
 `lazy` is not eagerly pre-instantiated when the `ApplicationContext` is starting up,
 whereas the `not.lazy` bean is eagerly pre-instantiated.
 
+当 `ApplicationContext` 读取到上面的配置，`ApplicationContext` 启动时名字为 `lazy` 的bean不会进行预实例化，而名字为 `not.lazy` 的bean会进行预实例化。
+
 However, when a lazy-initialized bean is a dependency of a singleton bean that is
 __not__ lazy-initialized, the `ApplicationContext` creates the lazy-initialized bean at
 startup, because it must satisfy the singleton's dependencies. The lazy-initialized bean
 is injected into a singleton bean elsewhere that is not lazy-initialized.
 
+然而，当延迟初始化的bean是一个__非__延迟初始化的单例bean的依赖时，`ApplicationContext` 会在启动时创建延迟初始化的bean，因为它必须提供单例bean的依赖。延迟初始化的bean会注入到单例bean中和其它非延迟初始化的地方。
+
 You can also control lazy-initialization at the container level by using the
 `default-lazy-init` attribute on the `<beans/>` element; for example:
+
+你也可以在容器级别通过 `<beans/>` 元素中的 `default-lazy-init` 特性控制延迟初始化；例如：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -2190,12 +2302,14 @@ You can also control lazy-initialization at the container level by using the
 
 
 [[beans-factory-autowire]]
-=== Autowiring collaborators
+===  自动注入协作bean(Autowiring collaborators)
 
 The Spring container can __autowire__ relationships between collaborating beans. You can
 allow Spring to resolve collaborators (other beans) automatically for your bean by
 inspecting the contents of the `ApplicationContext`. Autowiring has the following
 advantages:
+
+Spring容器能__自动装配__协作beans之间的关联关系。你可以允许Spring通过检查 `ApplicationContext` 中的内容自动的为你的bean解析协作者（其它bean）。自动装配有以下优势：
 
 * Autowiring can significantly reduce the need to specify properties or constructor
   arguments. (Other mechanisms such as a bean template
@@ -2207,22 +2321,29 @@ advantages:
   during development, without negating the option of switching to explicit wiring when
   the code base becomes more stable.
 
+* 自动装配能有效减少指定属性或构造函数参数的需要。（其它的机制例如<<beans-child-bean-definitions,在本章其它地方讨论的>>bean模板在这一点上也是非常有价值的。）
+* 当对象变化时自动装配能更新配置。例如，如果你需要增加一个类的依赖项，依赖项可以被自动满足的而不需要你去修改配置。因此自动装配在开发时尤其有用，当代码基础变的更稳定时可以改为显式装配。
+
 When using XML-based configuration metadata footnote:[See
 pass:specialcharacters,macros[<<beans-factory-collaborators>>]], you specify autowire
 mode for a bean definition with the `autowire` attribute of the `<bean/>` element. The
 autowiring functionality has four modes. You specify autowiring __per__ bean and thus
 can choose which ones to autowire.
 
+当使用基于XML的配置元数据时footnote:[See pass:specialcharacters,macros[<<beans-factory-collaborators>>]]，通过使用 `<bean/>` 元素的 `autowire` 特性你可以指定一个bean定义的自动装配模式。自动注入功能有四种模式。你可以指定__每个__bean的自动装配，因此你可以选择对哪个bean使用自动装配。
+
 [[beans-factory-autowiring-modes-tbl]]
-.Autowiring modes
+.自动装配模式(Autowiring modes)
 |===
-| Mode| Explanation
+| 模式(Mode)| 解析(Explanation)
 
 | no
 | (Default) No autowiring. Bean references must be defined via a `ref` element. Changing
   the default setting is not recommended for larger deployments, because specifying
   collaborators explicitly gives greater control and clarity. To some extent, it
   documents the structure of a system.
+
+  （默认）无自动装配。引用bean必须通过 `ref` 元素定义。对于更大的部署，不推荐更改默认设置，因为显式指定协作者更清晰并且更易控制。在某种程度上来说，它记录了系统的结构。
 
 | byName
 | Autowiring by property name. Spring looks for a bean with the same name as the
@@ -2231,15 +2352,21 @@ can choose which ones to autowire.
   __setMaster(..)__ method), Spring looks for a bean definition named `master`, and uses
   it to set the property.
 
+ 通过属性名称自动装配。Spring寻找与需要自动装配的属性同名的bean。例如，如果一个bean定义设置为通过名称自动装配，它有一个__master__属性（也就是说，它有一个__setMaster(..)__方法），Spring寻找名字为 `master` 的bean定义，使用它设置属性值。
+
 | byType
 | Allows a property to be autowired if exactly one bean of the property type exists in
   the container. If more than one exists, a fatal exception is thrown, which indicates
   that you may not use __byType__ autowiring for that bean. If there are no matching
   beans, nothing happens; the property is not set.
 
+ 如果容器中只含有给定属性类型的一个bean，那么可以允许按类型自动装配属性。如果此类型的bean不止一个，则会抛出致命的异常，这意味着你可能不能使用__byType__来自动注入那个bean。如果没有匹配的bean，则什么也不做；属性没有被设置。
+
 | constructor
 | Analogous to __byType__, but applies to constructor arguments. If there is not exactly
   one bean of the constructor argument type in the container, a fatal error is raised.
+
+ 与__byType__类似，但是应用到构造函数参数上的。如果容器中不是有且只有一个bean是构造函数参数的类型，将会抛出一个致命的错误。
 |===
 
 With __byType__ or __constructor__ autowiring mode, you can wire arrays and
@@ -2249,36 +2376,50 @@ strongly-typed Maps if the expected key type is `String`. An autowired Maps valu
 consist of all bean instances that match the expected type, and the Maps keys will
 contain the corresponding bean names.
 
+通过__byType__或__构造函数__自动装配模式，你可以配置数组和有类型的集合。在这种情况下容器内__所有__能匹配期望类型的自动装配候选对象将被提供合适的依赖项。如果期望的key类型是 `String` 类型，你可以自动装配强类型的Maps。自动装配的Maps的值将由所有匹配期望类型的bean实例组成，Maps的键将包含对应的bean名称。
+
 You can combine autowire behavior with dependency checking, which is performed after
 autowiring completes.
 
+你可以将依赖检查与自动装配相结合，它将在自动装配完成之后执行。
+
 
 [[beans-autowired-exceptions]]
-==== Limitations and disadvantages of autowiring
+==== 自动装配的限制与缺点(Limitations and disadvantages of autowiring)
 
 Autowiring works best when it is used consistently across a project. If autowiring is
 not used in general, it might be confusing to developers to use it to wire only one or
 two bean definitions.
 
+当自动装配在整个工程中一致的使用时其效果最好。如果通常情况下不使用自动装配，仅在一两个bean定义中使用自动装配开发人员可能感到非常困惑。
+
 Consider the limitations and disadvantages of autowiring:
+
+考虑一下自动装配的限制与缺点：
 
 * Explicit dependencies in `property` and `constructor-arg` settings always override
   autowiring. You cannot autowire so-called __simple__ properties such as primitives,
   `Strings`, and `Classes` (and arrays of such simple properties). This limitation is
   by-design.
+* `property` 和 `constructor-arg` 中显式依赖的设置总是会覆盖自动装配。你不能自动装配所谓的__简单__属性例如基本类型，`Strings` 和 `Classes`（和简单类型的数组）。这是设计上的限制。
 * Autowiring is less exact than explicit wiring. Although, as noted in the above table,
   Spring is careful to avoid guessing in case of ambiguity that might have unexpected
   results, the relationships between your Spring-managed objects are no longer
   documented explicitly.
+* 与显式配置相比，自动装配是更不确定的。尽管如上表所述，Spring小心的避免猜测以防歧义性引起无法预料的后果，但Spring管理的对象之间的关系不再被显式的记录。
 * Wiring information may not be available to tools that may generate documentation from
   a Spring container.
+* Spring容器中能产生文档的工具可能得不到配置信息。
 * Multiple bean definitions within the container may match the type specified by the
   setter method or constructor argument to be autowired. For arrays, collections, or
   Maps, this is not necessarily a problem. However for dependencies that expect a single
   value, this ambiguity is not arbitrarily resolved. If no unique bean definition is
   available, an exception is thrown.
+* setter方法或构造函数参数指定的类型进行自动装配时可能匹配到容器中多个bean的定义。对于数组，集合或Maps而言，这是一个不必要的问题。然而对于只期望一个值的依赖而言，这个歧义性不能武断的解决。如果不能获得唯一的bean定义，会抛出异常。
 
 In the latter scenario, you have several options:
+
+后面的方案中，你有一些选择：
 
 * Abandon autowiring in favor of explicit wiring.
 * Avoid autowiring for a bean definition by setting its `autowire-candidate` attributes
@@ -2288,6 +2429,10 @@ In the latter scenario, you have several options:
 * Implement the more fine-grained control available
   with annotation-based configuration, as described in <<beans-annotation-config>>.
 
+* 放弃自动装配支持显式配置。
+* 像下一节描述的一样通过设置bean定义的 `autowire-candidate` 特性为 `false` 来避免自动装配。
+* 通过设置它的 `<bean/>` 元素的 `primary` 特性为 `true` 来指定一个bean定义作为__主要的__候选bean。
+* 通过基于注解的配置实现更多细颗粒的控制，就像在<<beans-annotation-config>>中描述的那样。
 
 [[beans-factory-autowire-candidate]]
 ==== Excluding a bean from autowiring
