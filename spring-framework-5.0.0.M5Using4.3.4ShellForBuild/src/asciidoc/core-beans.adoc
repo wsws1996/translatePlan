@@ -2435,7 +2435,7 @@ In the latter scenario, you have several options:
 * 通过基于注解的配置实现更多细颗粒的控制，就像在<<beans-annotation-config>>中描述的那样。
 
 [[beans-factory-autowire-candidate]]
-==== Excluding a bean from autowiring
+==== 排除bean在自动装配之外(Excluding a bean from autowiring)
 
 On a per-bean basis, you can exclude a bean from autowiring. In Spring's XML format, set
 the `autowire-candidate` attribute of the `<bean/>` element to `false`; the container
@@ -2443,12 +2443,16 @@ makes that specific bean definition unavailable to the autowiring infrastructure
 (including annotation style configurations such as <<beans-autowired-annotation,
 `@Autowired`>>).
 
+在单个bean的基础上，你可以排除一个bean在自动装配之外。在Spring的XML形式中，设置 `<bean/>` 元素的 `autowire-candidate` 特性为 `false`；容器会使自动装配基础框架不能得到指定bean定义（包括注解类型的配置，例如<<beans-autowired-annotation,`@Autowired`>>）。
+
 [NOTE]
 ====
 The `autowire-candidate` attribute is designed to only affect type-based autowiring.
 It does not affect explicit references by name, which will get resolved even if the
 specified bean is not marked as an autowire candidate. As a consequence, autowiring
 by name will nevertheless inject a bean if the name matches.
+
+`autowire-candidate` 特性被设计用来只影响基于类型的自动装配，他不影响通过名称的显式引用，就算指定的bean没有被标注为autowire候选bean这些显式引用也会被解析。因此，如果名称匹配，通过名称的自动装配仍然会被注入一个bean。
 ====
 
 You can also limit autowire candidates based on pattern-matching against bean names. The
@@ -2459,15 +2463,19 @@ provide multiple patterns, define them in a comma-separated list. An explicit va
 `true` or `false` for a bean definitions `autowire-candidate` attribute always takes
 precedence, and for such beans, the pattern matching rules do not apply.
 
+你也可以根据bean名称的匹配模式限制自动装配的候选目标。顶层的 `<beans/>` 元素可以接收 `default-autowire-candidates` 特性中的一个或多个模式。例如，为了限制自动装配候选目标匹配任何名字以__Repository__结尾的bean，可以提供一个*Repository值。为了提供多种模式，可以定义一个以逗号为分隔符的列表。bean定义中 `autowire-candidate` 特性显示的值 `true` 或 `false` 最是优先起作用的，对于这些bean而言，模式匹配规则不起作用。
+
 These techniques are useful for beans that you never want to be injected into other
 beans by autowiring. It does not mean that an excluded bean cannot itself be configured
 using autowiring. Rather, the bean itself is not a candidate for autowiring other beans.
+
+这些技术对于那些你从不想通过自动装配方式注入到其它bean中的beans而言是很有用的。这不意味着一个被排除的bean它本身不能通过自动装配进行配置。更确切的说，这个bean本身不是一个其它bean进行自动装配的候选者。
 
 
 
 
 [[beans-factory-method-injection]]
-=== Method injection
+=== 方法注入(Method injection)
 
 In most application scenarios, most beans in the container are
 <<beans-factory-scopes-singleton,singletons>>. When a singleton bean needs to
@@ -2479,11 +2487,15 @@ perhaps on each method invocation on A. The container only creates the singleton
 once, and thus only gets one opportunity to set the properties. The container cannot
 provide bean A with a new instance of bean B every time one is needed.
 
+在大多数应用场景中，容器中的大多数bean是<<beans-factory-scopes-singleton,单例>>的。当一个单例bean需要与另一个单例bean协作时，或一个非单例bean需要与另一个非单例bean协作时，你通常通过定义一个bean作为另一个bean的一个属性来处理这个依赖关系。当bean的生命周期不同时问题就出现了。假设一个单例bean A需要使用非单例（标准）bean B时，也许A中的每一个方法调用都要使用bean B。容器仅创建单例bean A一次，因此仅有一次设置属性的机会。容器不能在每次bean A需要bean B时提供一个bean B的新的实例。
+
 A solution is to forego some inversion of control. You can <<beans-factory-aware,make
 bean A aware of the container>> by implementing the `ApplicationContextAware` interface,
 and by <<beans-factory-client,making a getBean("B") call to the container>> ask for (a
 typically new) bean B instance every time bean A needs it. The following is an example
 of this approach:
+
+一个解决方案是放弃一些控制反转。你可以通过实现 `ApplicationContextAware` 接口<<beans-factory-aware,使bean A感知到容器>>，每次bean A需要的时候就<<beans-factory-client,通过getBean("B")调用向容器>>请求（通常是新的）一个bean B的实例。下面是这种方法的一个例子
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -2524,14 +2536,18 @@ The preceding is not desirable, because the business code is aware of and couple
 Spring Framework. Method Injection, a somewhat advanced feature of the Spring IoC
 container, allows this use case to be handled in a clean fashion.
 
+前面所讲的是不可取的，因为业务代码能感知并耦合了Spring框架。方法注入，Spring IoC容器的一个有点高级的特性，允许使用一种干净的方式来处理这个案例。
+
 ****
 You can read more about the motivation for Method Injection in
 https://spring.io/blog/2004/08/06/method-injection/[this blog entry].
+
+你可以在 https://spring.io/blog/2004/08/06/method-injection/[这个博客记录]中了解更多关于方法注入的动机。
 ****
 
 
 [[beans-factory-lookup-method-injection]]
-==== Lookup method injection
+==== 查找方法注入(Lookup method injection)
 
 Lookup method injection is the ability of the container to override methods on
 __container managed beans__, to return the lookup result for another named bean in the
@@ -2539,6 +2555,8 @@ container. The lookup typically involves a prototype bean as in the scenario des
 in the preceding section. The Spring Framework implements this method injection by using
 bytecode generation from the CGLIB library to generate dynamically a subclass that
 overrides the method.
+
+查找方法注入是容器的一种覆盖__其管理的beans__中的方法的能力，可以返回容器中另一个命名bean查找结果。查找通常会涉及到一个标准bean，如前一小节中讲的那样。Spring框架实现了这种方法注入，它是通过使用CGLIB库生成的字节码来动态的产生一个覆盖这个方法的子类。
 
 [NOTE]
 ====
@@ -2552,12 +2570,19 @@ overrides the method.
   in particular not with `@Bean` methods in configuration classes, since the container
   is not in charge of creating the instance in that case and therefore cannot create
   a runtime-generated subclass on the fly.
+
+* 为了使动态子类化起作用，Spring bean容器要进行子类化的类不能是 `final` 类，要进行重写的方法也不是 `final` 方法。
+* 单元测试一个含有抽象方法的类需要你自己对这个类进行子类化，并且提供这个 `抽象` 方法的stub实现。
+* 实体方法对于要求获得实体类的组件扫描也是必需的。
+* 一个更关键的限制是查找方法不能与工厂方法一起工作，尤其是在配置类中不能与 `@Bean` 方法同时起作用，由于那种情况下容器不能控制实例的创建，因此不能在百忙之中创建一个运行时产生的子类。
 ====
 
 Looking at the `CommandManager` class in the previous code snippet, you see that the
 Spring container will dynamically override the implementation of the `createCommand()`
 method. Your `CommandManager` class will not have any Spring dependencies, as can be
 seen in the reworked example:
+
+看一下前面代码片中的 `CommandManager` 类，你可以看到Spring容器将会动态的覆盖 `createCommand()` 方法的实现。你的`CommandManager` 类不会有任何Spring依赖，重写的例子如下：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -2584,6 +2609,8 @@ seen in the reworked example:
 In the client class containing the method to be injected (the `CommandManager` in this
 case), the method to be injected requires a signature of the following form:
 
+客户类中包含要注入的方法（在这个例子中是 `CommandManager`），要注入的方法需要下面形式的一个签名：
+
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -2593,6 +2620,8 @@ case), the method to be injected requires a signature of the following form:
 If the method is `abstract`, the dynamically-generated subclass implements the method.
 Otherwise, the dynamically-generated subclass overrides the concrete method defined in
 the original class. For example:
+
+如果这个方法是 `抽象` 的，动态产生的子类会实现这个方法。另外，动态产生的子类会覆盖原来的类中定义的实体方法。例如：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -2614,8 +2643,12 @@ the `myCommand` bean as a prototype, if that is actually what is needed. If it i
  as a <<beans-factory-scopes-singleton,singleton>>, the same instance of the `myCommand`
 bean is returned each time.
 
+无论什么时候识别为__commandManager__的bean需要一个__myCommand__bean的新实例，它都会调用它自己的 `createCommand()` 方法。如果真的需要的话，你必须小心的部署 `myCommand` bean为一个原型。如果它被部署为一个<<beans-factory-scopes-singleton,单例>>，每次都会返回同一个 `myCommand` 实例。
+
 Alternatively, within the annotation-based component model, you may declare a lookup
 method through the `@Lookup` annotation:
+
+供替代的选择是：在基于注解的组件模型中，你可以使用 `@Lookup` 注解声明查找方法。
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -2635,6 +2668,8 @@ method through the `@Lookup` annotation:
 
 Or, more idiomatically, you may rely on the target bean getting resolved against the
 declared return type of the lookup method:
+
+或者更习惯的用法是，你可以依靠对查找方法返回类型的声明对目标bean进行解析：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -2657,26 +2692,36 @@ stub implementation, in order for them to be compatible with Spring's component
 scanning rules where abstract classes get ignored by default. This limitation does not
 apply in case of explicitly registered or explicitly imported bean classes.
 
+注意，你通常会使用实体stub实现来声明这种带注解的查找方法，以使它们与Spring的组件扫描规则兼容，默认情况下会忽略抽象类。 此限制不适用于显式注册或显式导入的bean类的情况。
+
 [TIP]
 ====
 Another way of accessing differently scoped target beans is an `ObjectFactory`/
 `Provider` injection point. Check out <<beans-factory-scopes-other-injection>>.
 
+另一种访问不同作用域的目标bean的方法是 `ObjectFactory`/ `Provider` 注入点。查看<<beans-factory-scopes-other-injection>>。
+
 The interested reader may also find the `ServiceLocatorFactoryBean` (in the
 `org.springframework.beans.factory.config` package) to be of use.
+
+感兴趣的读者也可以找到 `ServiceLocatorFactoryBean`（在 `org.springframework.beans.factory.config` 包中）来用一用。
 ====
 
 
 [[beans-factory-arbitrary-method-replacement]]
-==== Arbitrary method replacement
+==== 任意的方法替换(Arbitrary method replacement)
 
 A less useful form of method injection than lookup method injection is the ability to
 replace arbitrary methods in a managed bean with another method implementation. Users
 may safely skip the rest of this section until the functionality is actually needed.
 
+一种比查找方法注入更少使用的方法注入的形式是用另一种方法实现替换受管理的bean中任意方法的能力。用户可以安全跳过本节剩下的部分，直到这个方法真正需要的时候再看。
+
 With XML-based configuration metadata, you can use the `replaced-method` element to
 replace an existing method implementation with another, for a deployed bean. Consider
 the following class, with a method computeValue, which we want to override:
+
+在基于XML的配置元数据中，对于一个已部署的bean，你可以通过 `replaced-method` 元素用另一个方法实现替换现有的方法实现。考虑下面的类，有一个我们想覆盖的computeValue方法：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -2694,6 +2739,8 @@ the following class, with a method computeValue, which we want to override:
 
 A class implementing the `org.springframework.beans.factory.support.MethodReplacer`
 interface provides the new method definition.
+
+实现了 `org.springframework.beans.factory.support.MethodReplacer` 接口的类提供了一种新的方法定义。
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -2716,6 +2763,8 @@ interface provides the new method definition.
 The bean definition to deploy the original class and specify the method override would
 look like this:
 
+部署最初的类的bean定义和指定的重写方法如下：
+
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -2736,6 +2785,8 @@ exist within the class. For convenience, the type string for an argument may be 
 substring of the fully qualified type name. For example, the following all match
 `java.lang.String`:
 
+你可以在 `<replaced-method/>` 元素中使用一个或多个包含 `<arg-type/>` 元素来指出要覆盖的方法的方法签名。只有类中进行了方法重载且有多个重载变种的时候，参数的签名才是必需的。为了简便，字符串类型的参数可能是全拼类型名称的一个子串。例如，下面的所有写法都能匹配 `java.lang.String`：
+
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -2748,15 +2799,19 @@ Because the number of arguments is often enough to distinguish between each poss
 choice, this shortcut can save a lot of typing, by allowing you to type only the
 shortest string that will match an argument type.
 
+因为参数数目经常是足够区分每个可能的选择的，通过允许打出最短的匹配参数类型的字符串，这个缩写可以让你少打许多字。
+
 
 
 
 [[beans-factory-scopes]]
-== Bean scopes
+==  Bean的作用域(Bean scopes)
 When you create a bean definition, you create a __recipe__ for creating actual instances
 of the class defined by that bean definition. The idea that a bean definition is a
 recipe is important, because it means that, as with a class, you can create many object
 instances from a single recipe.
+
+当你创建bean定义时，你创建了一个__配方__用于创建bean定义中定义的类的实例。bean定义是配方的想法是很重要的，因为这意味着对于一个类，你可以根据一个配方创建许多对象实例。
 
 You can control not only the various dependencies and configuration values that are to
 be plugged into an object that is created from a particular bean definition, but also
@@ -2767,37 +2822,53 @@ class level. Beans can be defined to be deployed in one of a number of scopes: o
 the box, the Spring Framework supports six scopes, five of which are available only if
 you use a web-aware `ApplicationContext`.
 
+你不仅能管理要插入对象中的的各种依赖和配置值，而且能管理对象的__作用域__，对象是从特定的bean定义中创建的。这种方法是强大且灵活的，你可以通过配置文件__选择__你创建的对象的作用域，从而代替Java类级别对象的内置作用域。beans将被定义部署成多种作用域中的一种：开箱即用，Spring框架支持六种作用域，如果你使用web感知的 `ApplicationContext`，你只可以使用其中的五种作用域。
+
 The following scopes are supported out of the box. You can also create
 <<beans-factory-scopes-custom,a custom scope.>>
 
+下面的作用域支持开箱即用。你也可以创建<<beans-factory-scopes-custom,一个定制的作用域。>>
+
 [[beans-factory-scopes-tbl]]
-.Bean scopes
+.bean作用域(Bean scopes)
 |===
-| Scope| Description
+| 作用域(Scope)| 描述(Description)
 
 | <<beans-factory-scopes-singleton,singleton>>
 | (Default) Scopes a single bean definition to a single object instance per Spring IoC
   container.
 
+  （默认）单个bean定义在每个Spring IoC容器只能创建一个对象实例。
+
 | <<beans-factory-scopes-prototype,prototype>>
 | Scopes a single bean definition to any number of object instances.
+
+  单个bean定义可以创建任何数量的对象实例。
 
 | <<beans-factory-scopes-request,request>>
 | Scopes a single bean definition to the lifecycle of a single HTTP request; that is,
   each HTTP request has its own instance of a bean created off the back of a single bean
   definition. Only valid in the context of a web-aware Spring `ApplicationContext`.
 
+  单个bean定义的作用域为单个HTTP请求的生命周期；也就是说，每个HTTP请求有它自己的根据bean定义创建的实例。只在web感知的Spring `ApplicationContext` 的上下文中有效。
+
 | <<beans-factory-scopes-session,session>>
 | Scopes a single bean definition to the lifecycle of an HTTP `Session`. Only valid in
   the context of a web-aware Spring `ApplicationContext`.
+
+  单个bean定义的作用域为HTTP `Session` 的生命周期。只在web感知的Spring `ApplicationContext` 的上下文中有效。
 
 | <<beans-factory-scopes-application,application>>
 | Scopes a single bean definition to the lifecycle of a `ServletContext`. Only valid in
   the context of a web-aware Spring `ApplicationContext`.
 
+  单个bean定义的作用域为 `ServletContext` 的生命周期。只在web感知的Spring `ApplicationContext` 的上下文中有效。
+
 | <<websocket-stomp-websocket-scope,websocket>>
 | Scopes a single bean definition to the lifecycle of a `WebSocket`. Only valid in
   the context of a web-aware Spring `ApplicationContext`.
+
+  单个bean定义的作用域为 `WebSocket` 的生命周期。只在web感知的Spring `ApplicationContext` 的上下文中有效。
 |===
 
 [NOTE]
@@ -2807,22 +2878,28 @@ more information, see the documentation for
 {api-spring-framework}/context/support/SimpleThreadScope.html[`SimpleThreadScope`].
 For instructions on how to register this or any other custom scope, see
 <<beans-factory-scopes-custom-using>>.
+
+从Spring 3.0起，引入了__thread scope__作用域，但默认情况下是不注册的。更多的信息请看 {api-spring-framework}/context/support/SimpleThreadScope.html[`SimpleThreadScope`] 文档。关于怎么注册thread scope作用域或任何其它的定制作用域的说明，请看<<beans-factory-scopes-custom-using>>。
 ====
 
 
 
 [[beans-factory-scopes-singleton]]
-=== The singleton scope
+=== 单例作用域(The singleton scope)
 
 Only one __shared__ instance of a singleton bean is managed, and all requests for beans
 with an id or ids matching that bean definition result in that one specific bean
 instance being returned by the Spring container.
+
+单例bean只管理一个__共享__实例，所有带着id或ids而且匹配了这个bean定义的对beans的请求，Spring容器会返回一个特定的bean实例。
 
 To put it another way, when you define a bean definition and it is scoped as a
 singleton, the Spring IoC container creates __exactly one__ instance of the object
 defined by that bean definition. This single instance is stored in a cache of such
 singleton beans, and __all subsequent requests and references__ for that named bean
 return the cached object.
+
+换言之，当你定义一个bean定义时，它的作用域为单例，Spring IoC容器会根据bean定义创建__一个确定的__对象实例。这个单独的实例存储在单例beans的缓存中，对这个命名bean的__接下来的所有请求和引用__都会返回那个缓存的对象。
 
 image::images/singleton.png[width=400]
 
@@ -2834,6 +2911,8 @@ and per bean__. This means that if you define one bean for a particular class in
 single Spring container, then the Spring container creates one __and only one__ instance
 of the class defined by that bean definition. __The singleton scope is the default scope
 in Spring__. To define a bean as a singleton in XML, you would write, for example:
+
+Spring中的单例bean概念不同于Gang of Four (GoF)的设计模式书中定义的单例模式。GoF的单例是对对象的作用域进行硬编码，为的是__每个类加载器__创建一个__且只有一个__特定类的实例。Spring单例作用域最好的描述是__每个容器一个bean__。这意味着如果你在单个的Spring容器中为一个特定的类定义了一个bean，这个Spring容器会根据bean定义创建一个__且只有一个__类的实例。__在Spring中单例作用域是默认的作用域__。为了在XML定义一个单例bean，你可以像下面一样写，例如：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -2847,7 +2926,7 @@ in Spring__. To define a bean as a singleton in XML, you would write, for exampl
 
 
 [[beans-factory-scopes-prototype]]
-=== The prototype scope
+===  原型作用域(The prototype scope)
 
 The non-singleton, prototype scope of bean deployment results in the __creation of a new
 bean instance__ every time a request for that specific bean is made. That is, the bean
@@ -2855,14 +2934,20 @@ is injected into another bean or you request it through a `getBean()` method cal
 container. As a rule, use the prototype scope for all stateful beans and the singleton
 scope for stateless beans.
 
+非单例模式，bean部署采用原型作用域时，每次产生一个特定bean的请求时都会__创建一个新的bean实例__。也就是说，这个bean会注入到另一个bean中或你可以在容器中通过调用 `getBean()` 方法来请求它。通常，对于所有有状态的beans使用原型作用域，对于无状态的beans使用单例作用域。
+
 The following diagram illustrates the Spring prototype scope. __A data access object
 (DAO) is not typically configured as a prototype, because a typical DAO does not hold
 any conversational state; it was just easier for this author to reuse the core of the
 singleton diagram.__
 
+下面的图阐述了Spring原型作用域。__数据访问对象（DAO）通常是不会配置为原型的，因为一个典型的DAO不会保持任何会话状态；只是对于作者来说很容易重用单例图的核心。__
+
 image::images/prototype.png[width=400]
 
 The following example defines a bean as a prototype in XML:
+
+下面的例子在XML中定义一个原型bean：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -2881,21 +2966,27 @@ the Spring container to release resources held by prototype-scoped beans, try us
 custom <<beans-factory-extension-bpp,bean post-processor>>, which holds a reference to
 beans that need to be cleaned up.
 
+与其它作用域相比，Spring不管理原型bean的完整生命周期：容器实例化、配置，另外组装原型对象，并把它传递给客户端，之后不再记录原型实例。因此，虽然不管什么作用域__初始化__生命周期回调函数都会在所有对象上调用，但是在原型作用域的情况下，不会调用配置的__销毁__生命周期回调函数。客户端代码必须清理原型作用域的对象并释放原型bean拥有的昂贵资源。为了使Spring容器释放原型bean拥有的资源，尝试使用定制的<<beans-factory-extension-bpp,bean后处理程序>>，它拥有需要清理的bean的引用。
+
 In some respects, the Spring container's role in regard to a prototype-scoped bean is a
 replacement for the Java `new` operator. All lifecycle management past that point must
 be handled by the client. (For details on the lifecycle of a bean in the Spring
 container, see <<beans-factory-lifecycle>>.)
 
+在有些方面，关于原型作用域，Spring容器的角色像是Java中 `new` 操作符的替代品。所有生命周期的管理必须由客户端处理。（Spring容器中更多关于bean生命周期的细节，请看<<beans-factory-lifecycle>>）。
+
 
 
 [[beans-factory-scopes-sing-prot-interaction]]
-=== Singleton beans with prototype-bean dependencies
+=== 含有原型bean依赖的单例bean(Singleton beans with prototype-bean dependencies)
 
 When you use singleton-scoped beans with dependencies on prototype beans, be aware that
 __dependencies are resolved at instantiation time__. Thus if you dependency-inject a
 prototype-scoped bean into a singleton-scoped bean, a new prototype bean is instantiated
 and then dependency-injected into the singleton bean. The prototype instance is the sole
 instance that is ever supplied to the singleton-scoped bean.
+
+当你使用含有原型bean依赖的单例作用域bean时，要意识到__依赖解析是在实例化时__。因此如果你使用依赖注入将原型作用域的bean注入到单例作用域的bean中时，将会实例化一个新的原型bean并依赖注入到单例bean中。原型bean实例曾经是唯一提供给单例作用域的bean的实例。
 
 However, suppose you want the singleton-scoped bean to acquire a new instance of the
 prototype-scoped bean repeatedly at runtime. You cannot dependency-inject a
@@ -2904,10 +2995,12 @@ __once__, when the Spring container is instantiating the singleton bean and reso
 and injecting its dependencies. If you need a new instance of a prototype bean at
 runtime more than once, see <<beans-factory-method-injection>>
 
+然而，假设你想在运行时让单例作用域的bean重复的获得原型作用域bean的新实例。你不能依赖注入原型作用域的bean到你的单例bean中，因为当Spring容器实例化单例bean，解析并注入它的依赖时，注入只发生__一次__。如果你在运行时不止一次需要原型bean的新实例，请看<<beans-factory-method-injection>>。
+
 
 
 [[beans-factory-scopes-other]]
-=== Request, session, application, and WebSocket scopes
+=== Request、session、application和 WebSocket作用域(Request, session, application, and WebSocket scopes)
 
 The `request`, `session`, `application`, and `websocket` scopes are __only__ available
 if you use a web-aware Spring `ApplicationContext` implementation (such as
@@ -2915,20 +3008,28 @@ if you use a web-aware Spring `ApplicationContext` implementation (such as
 such as the `ClassPathXmlApplicationContext`, an `IllegalStateException` will be thrown
 complaining about an unknown bean scope.
 
+如果你使用web感知的Spring `ApplicationContext` 实现（例如 `XmlWebApplicationContext`）， `request`，`session`，`application` 和 `websocket` 作用域是__仅有的__可用的作用域。如果你通过普通的Spring IoC容器例如 `ClassPathXmlApplicationContext` 来使用这些作用域，会抛出 `IllegalStateException` 异常，投诉使用了一个未知的bean作用域。
+
 
 [[beans-factory-scopes-other-web-configuration]]
-==== Initial web configuration
+==== web配置初始化(Initial web configuration)
 
 To support the scoping of beans at the `request`, `session`, `application`, and
 `websocket` levels (web-scoped beans), some minor initial configuration is
 required before you define your beans. (This initial setup is __not__ required
 for the standard scopes, `singleton` and `prototype`.)
 
+为了支持 `request`，`session`，`application` 和 `websocket` 标准的bean作用域（web作用域的bean），在你定义你的bean之前需要进行一些较小的初始化配置。（对于标准作用域 `singleton` 和 `prototype`，初始化步骤是__不__需要的。）
+
 How you accomplish this initial setup depends on your particular Servlet environment.
+
+你如何完成这些初始化配置要根据具体的Servlet环境。
 
 If you access scoped beans within Spring Web MVC, in effect, within a request that is
 processed by the Spring `DispatcherServlet`, then no special setup is necessary:
 `DispatcherServlet` already exposes all relevant state.
+
+如果你在Spring Web MVC中访问作用域bean，实际上，在Spring `DispatcherServlet` 处理的请求中，则不需要特殊的设置：`DispatcherServlet` 已经暴露了所有相关的状态。
 
 If you use a Servlet 2.5 web container, with requests processed outside of Spring's
 `DispatcherServlet` (for example, when using JSF or Struts), you need to register the
@@ -2936,6 +3037,8 @@ If you use a Servlet 2.5 web container, with requests processed outside of Sprin
 For Servlet 3.0+, this can be done programmatically via the `WebApplicationInitializer`
 interface. Alternatively, or for older containers, add the following declaration to
 your web application's `web.xml` file:
+
+如果你使用Servlet 2.5的web容器，在Spring的 `DispatcherServlet` 之外处理请求（例如使用JSF或Struts时），你需要注册 `org.springframework.web.context.request.RequestContextListener` `ServletRequestListener`。对于Servlet 3.0+，能通过 `WebApplicationInitializer` 接口以编程方式处理。供替代的选择，或对于更早的容器，可以在你的web应用程序的 `web.xml` 文件中添加下面的声明：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -2954,6 +3057,8 @@ your web application's `web.xml` file:
 Alternatively, if there are issues with your listener setup, consider using Spring's
 `RequestContextFilter`. The filter mapping depends on the surrounding web
 application configuration, so you have to change it as appropriate.
+
+供替代的选择，如果你的监听器设置有问题，你可以考虑Spring的 `RequestContextFilter` 。过滤器映射依赖于周围的web应用程序的配置，因此你必须适当的更改它。
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -2977,11 +3082,15 @@ the same thing, namely bind the HTTP request object to the `Thread` that is serv
 that request. This makes beans that are request- and session-scoped available further
 down the call chain.
 
+`DispatcherServlet`，`RequestContextListener` 和 `RequestContextFilter` 都是在做同样的事，也就是说将HTTP请求对象绑定到服务请求的 `Thread` 上。这使得request作用域和session作用域的beans在更深一层的调用链中是可用的。
+
 
 [[beans-factory-scopes-request]]
-==== Request scope
+==== Request作用域(Request scope)
 
 Consider the following XML configuration for a bean definition:
+
+考虑下面的bean定义的XML配置：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -2997,8 +3106,12 @@ created from the same `loginAction` bean definition will not see these changes i
 they are particular to an individual request. When the request completes processing, the
 bean that is scoped to the request is discarded.
 
+对于每一个HTTP请求，Spring容器通过使用 `loginAction` 的bean定义创建一个新的 `LoginAction` bean实例。也就是说，`loginAction` bean的作用域是在HTTP请求级别的。你可以任意改变创建的实例的内部状态，因为其它的从相同的 `loginAction` bean定义创建的实例不会看到这些状态的改变；它们对于每个单独的请求都是独有的。当请求处理完成时，请求作用域的bean被丢弃。
+
 When using annotation-driven components or Java Config, the `@RequestScope` annotation
 can be used to assign a component to the `request` scope.
+
+当使用注解驱动的组件或Java配置时，`@RequestScope` 注解能用来指定一个组件的作用域为 `request`。
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -3012,9 +3125,11 @@ can be used to assign a component to the `request` scope.
 
 
 [[beans-factory-scopes-session]]
-==== Session scope
+==== Session作用域(Session scope)
 
 Consider the following XML configuration for a bean definition:
+
+考虑下面的bean定义的XML配置：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -3032,8 +3147,12 @@ changes in state, because they are particular to an individual HTTP `Session`. W
 HTTP `Session` is eventually discarded, the bean that is scoped to that particular HTTP
 `Session` is also discarded.
 
+对于单个HTTP `Session` 的生命周期，Spring容器通过 `userPreferences` bean定义创建一个 `UserPreferences` bean实例。换句话说，`userPreferences` bean的有效作用域是HTTP `Session` 级别的。正如 `request作用域` 的beans一样，你可以任意改变你想改变的创建的bean实例的内部状态，知道其它的使用根据 `userPreferences` bean定义创建的bean实例的HTTP `Session` 实例也不会看到这些内部状态的改变，因为它们对于每个单独的HTTP `Session` 都是独有的。当HTTP `Session` 被最终销毁时，HTTP `Session` 作用域的bean也被销毁。
+
 When using annotation-driven components or Java Config, the `@SessionScope` annotation
 can be used to assign a component to the `session` scope.
+
+ 当使用注解驱动的组件或Java配置时，`@SessionScope` 注解能用来指定一个组件的作用域为 `session`。
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -3047,9 +3166,11 @@ can be used to assign a component to the `session` scope.
 
 
 [[beans-factory-scopes-application]]
-==== Application scope
+==== Application作用域(Application scope)
 
 Consider the following XML configuration for a bean definition:
+
+考虑下面的bean定义的XML配置：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -3065,8 +3186,12 @@ differs in two important ways: It is a singleton per `ServletContext`, not per S
 'ApplicationContext' (for which there may be several in any given web application),
 and it is actually exposed and therefore visible as a `ServletContext` attribute.
 
+对于整个web应用而言，Spring容器根据 `appPreferences` bean定义只创建一次 `AppPreferences` bean的新实例。也就是说，`appPreferences` bean的作用域是 `ServletContext` 级别的，作为一个普通的 `ServletContext` 特性来存储。这有点类似于Spring的单例bean，但在两个很重要的方面是不同的：它对于每个 `ServletContext` 是单例的，而不是每个Spring `ApplicationContext`（在任何给定的web应用中可能有几个ApplicationContext），它是真正显露的，因此作为一个 `ServletContext` 特性是可见的。
+
 When using annotation-driven components or Java Config, the `@ApplicationScope`
 annotation can be used to assign a component to the `application` scope.
+
+当使用注解驱动的组件或Java配置时，`@ApplicationScope` 注解能用来指定一个组件的作用域为 `application`。
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
