@@ -3205,7 +3205,7 @@ annotation can be used to assign a component to the `application` scope.
 
 
 [[beans-factory-scopes-other-injection]]
-==== Scoped beans as dependencies
+==== 具有作用域的bean作为依赖项(Scoped beans as dependencies)
 
 The Spring IoC container manages not only the instantiation of your objects (beans),
 but also the wiring up of collaborators (or dependencies). If you want to inject (for
@@ -3215,15 +3215,21 @@ a proxy object that exposes the same public interface as the scoped object but t
 also retrieve the real target object from the relevant scope (such as an HTTP request)
 and delegate method calls onto the real object.
 
+Spring IoC容器不仅管理你的对象（beans）的实例化，而且管理协作者（或依赖）的绑定。例如，如果你想将一个具有HTTP请求作用域的bean注入到另一个具有更长生命周期作用域的bean中，你可能选择注入一个AOP代理来代替具有作用域的bean。也就是说，你需要注入一个代理对象，这个对象能显露与具有作用域的对象相同的公共接口，但也能从相关的作用域中（例如HTTP请求作用域）得到真正的目标对象，能通过委派方法调用到真正的对象。
+
 [NOTE]
 ====
 You may also use `<aop:scoped-proxy/>` between beans that are scoped as `singleton`,
 with the reference then going through an intermediate proxy that is serializable
 and therefore able to re-obtain the target singleton bean on deserialization.
 
+你也可以在作用域为 `singleton` 的beans之间使用 `<aop:scoped-proxy/>`，将通过序列化的中间代理进行引用，因此能通过反序列化重新获得目标的单例bean。
+
 When declaring `<aop:scoped-proxy/>` against a bean of scope `prototype`, every method
 call on the shared proxy will lead to the creation of a new target instance which the
 call is then being forwarded to.
+
+当将作用域为 `prototype` 的bean声明为 `<aop:scoped-proxy/>` 时，每个在共享代理上的方法调用会引起一个新目标实例的创建，调用就会转发到这个新实例上。
 
 Also, scoped proxies are not the only way to access beans from shorter scopes in a
 lifecycle-safe fashion. You may also simply declare your injection point (i.e. the
@@ -3231,16 +3237,24 @@ constructor/setter argument or autowired field) as `ObjectFactory<MyTargetBean>`
 allowing for a `getObject()` call to retrieve the current instance on demand every
 time it is needed - without holding on to the instance or storing it separately.
 
+通过生命周期安全的方式从更短的作用域中访问beans，作用域代理也不是唯一的方式。你也可以简单的声明你的注入点（例如，构造函数/setter参数或自动装配领域）为 `ObjectFactory<MyTargetBean>`，允许每次需要的时候通过 `getObject()` 调用来取得需要的当前实例——没有分别控制实例或储存它。
+
 As an extended variant, you may declare `ObjectProvider<MyTargetBean>` which delivers
 several additional access variants, including `getIfAvailable` and `getIfUnique`.
+
+作为一个扩展变量，你可以声明`ObjectProvider<MyTargetBean>`，它产生了几个额外的访问变量，包括 `getIfAvailable` 和 `getIfUnique`。
 
 The JSR-330 variant of this is called `Provider`, used with a `Provider<MyTargetBean>`
 declaration and a corresponding `get()` call for every retrieval attempt.
 See <<beans-standard-annotations,here>> for more details on JSR-330 overall.
+
+这个JSR-300变量被称作 `Provider`，对于每一次取回尝试使用 `Provider<MyTargetBean>` 声明和对应的 `get()` 调用。关于JSR-330整体的更多细节请看<<beans-standard-annotations,这儿>>。
 ====
 
 The configuration in the following example is only one line, but it is important to
 understand the "why" as well as the "how" behind it.
+
+下面例子中的配置只有一行，但理解它背后的”为什么”和”怎么做”是重要的。
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -3276,6 +3290,8 @@ following singleton bean definition and contrast it with what you need to define
 the aforementioned scopes (note that the following `userPreferences` bean definition
 as it stands is __incomplete__).
 
+为了创建这样一个代理，你插入一个子元素 `<aop:scoped-proxy/>` 到具有作用域的bean定义中（参见<<beans-factory-scopes-other-injection-proxies>>和<<xsd-configuration>>）。为什么bean定义的作用域为 `request`，`session` 和定制作用域级别需要 `<aop:scoped-proxy/>` 元素？让我们检查下面的单例bean定义，并将它与你需要定义的前面提到的作用域需要定义的东西进行比较（注意下面的 `userPreferences` bean定义按目前情况是__不完全的__）。
+
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -3294,6 +3310,8 @@ also injected only once. This means that the `userManager` bean will only operat
 exact same `userPreferences` object, that is, the one that it was originally injected
 with.
 
+在上面的例子中，单例bean `userManager` 通过引用被注入到具有HTTP `Session` 作用域的bean `userPreferences` 中。这里的突出点是 `userManager` bean是单例：每个容器它__将确定的被实例化一次__，它的依赖（在这个例子中只有一个，`userPreferences` bean）也只注入一次。这意味着 `userManager` bean只能对确定的同一个 `userPreferences` 对象进行操作，也就是最初注入的那个对象。
+
 This is __not__ the behavior you want when injecting a shorter-lived scoped bean into a
 longer-lived scoped bean, for example injecting an HTTP `Session`-scoped collaborating
 bean as a dependency into singleton bean. Rather, you need a single `userManager`
@@ -3309,8 +3327,12 @@ actually is invoking a method on the proxy. The proxy then fetches the real
 `UserPreferences` object from (in this case) the HTTP `Session`, and delegates the
 method invocation onto the retrieved real `UserPreferences` object.
 
+当将一个短期作用域的bean注入到一个长期作用域的bean中时，这__不__是你想要的行为，例如将一个具有HTTP `Session` 作用域的协作bean作为一个依赖注入到一个单例bean中。当然，你需要一个单一的 `userManager` 对象，对于HTTP `Session` 的生命周期，对于指定的HTTP `Session` 而论，你需要一个 `userPreferences` 对象。因此容器创建了一个与 `UserPreferences` 类暴露完全相同的公共接口的对象（理想情况下__是一个__ `UserPreferences` 实例），这个对象能从作用域机制中（HTTP request，`Session` 等）取得真正的 `UserPreferences` 对象。容器将这个代理对象注入到 `userManager` bean中，userManager bean不会意识到 `UserPreferences` 引用是一个代理。在这个例子中，当 `UserManager` 实例调用依赖注入的 `UserPreferences` 对象的方法时，它实际上调用的是代理中的一个方法。代理能从HTTP `Session` 中（在这个例子中）取得真正的 `UserPreferences` 对象，将方法调用委托到取得的真正的 `UserPreferences` 对象上。
+
 Thus you need the following, correct and complete, configuration when injecting
 `request-` and `session-scoped` beans into collaborating objects:
+
+因此当注入具有 `request-` 或 `session作用域` 的bean到协作对象中时，你需要下面的，正确的，完整的配置：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -3325,15 +3347,19 @@ Thus you need the following, correct and complete, configuration when injecting
 ----
 
 [[beans-factory-scopes-other-injection-proxies]]
-===== Choosing the type of proxy to create
+===== 选择创建的代理类型(Choosing the type of proxy to create)
 
 By default, when the Spring container creates a proxy for a bean that is marked up with
 the `<aop:scoped-proxy/>` element, __a CGLIB-based class proxy is created__.
+
+当Spring容器为具有 `<aop:scoped-proxy/>` 元素标记的bean创建代理时，默认情况下，__创建一个基于CGLIB的类代理__。
 
 [NOTE]
 ====
 CGLIB proxies only intercept public method calls! Do not call non-public methods
 on such a proxy; they will not be delegated to the actual scoped target object.
+
+CGLIB代理只拦截公有方法调用。在这个代理上不要调用非公有方法；它们不能委托给实际作用域目标对象。
 ====
 
 Alternatively, you can configure the Spring container to create standard JDK
@@ -3344,6 +3370,8 @@ application classpath to effect such proxying. However, it also means that the c
 the scoped bean must implement at least one interface, and __that all__ collaborators
 into which the scoped bean is injected must reference the bean through one of its
 interfaces.
+
+作为一种供替代的选择，对于这种具有作用域的bean你可以配置Spring容器创建标准JDK基于接口的代理，通过指定 `<aop:scoped-proxy/>` 元素的 `proxy-target-class` 特性的值为 `false`。使用JDK基于接口的代理意味着在你应用程序类路径中你不需要额外的库来实现这种代理的使用。然而，它也意味着具有作用域的bean的类必须实现至少一个接口，并且注入这个bean的__所有__协作者必须通过它接口中的一个来引用它。
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -3361,18 +3389,22 @@ interfaces.
 For more detailed information about choosing class-based or interface-based proxying,
 see <<aop-proxying>>.
 
+关于选择基于类或基于接口代理的更多细节信息，请看<<aop-proxying>>。
+
 
 
 [[beans-factory-scopes-custom]]
-=== Custom scopes
+=== 定制作用域(Custom scopes)
 
 The bean scoping mechanism is extensible; You can define your own
 scopes, or even redefine existing scopes, although the latter is considered bad practice
 and you __cannot__ override the built-in `singleton` and `prototype` scopes.
 
+bean作用域机制是可扩展的；你可以定义你自己的作用域，甚至重新定义现有的作用域，虽然后者被认为是一种不好的实践，而且你__不能__覆盖内置的 `singleton` 作用域和 `prototype` 作用域。
+
 
 [[beans-factory-scopes-custom-creating]]
-==== Creating a custom scope
+==== 创建一个定制作用域(Creating a custom scope)
 
 To integrate your custom scope(s) into the Spring container, you need to implement the
 `org.springframework.beans.factory.config.Scope` interface, which is described in this
@@ -3381,13 +3413,19 @@ implementations that are supplied with the Spring Framework itself and the
 {api-spring-framework}/beans/factory/config/Scope.html[`Scope` javadocs],
 which explains the methods you need to implement in more detail.
 
+为了将你的定制作用域集成到Spring容器中，你需要实现 `org.springframework.beans.factory.config.Scope` 接口，这一节将描述这个接口。对于怎样实现你自己作用域的想法，请看Spring框架本身提供的 `Scope` 实现和 {api-spring-framework}/beans/factory/config/Scope.html[`Scope` javadocs]，它们解释了你需要实现的方法的更多细节。
+
 The `Scope` interface has four methods to get objects from the scope, remove them from
 the scope, and allow them to be destroyed.
+
+`Scope` 接口有四个方法，从作用域中取得对象，从作用域中移除对象，并且允许它们被销毁。
 
 The following method returns the object from the underlying scope. The session scope
 implementation, for example, returns the session-scoped bean (and if it does not exist,
 the method returns a new instance of the bean, after having bound it to the session for
 future reference).
+
+下面的方法从潜在的作用域返回对象。session作用域实现，例如，返回具有session作用域的bean（如果它不存在，在绑定到session中准备将来引用之后，这个方法返回一个bean的新实例）。
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -3400,6 +3438,8 @@ implementation for example, removes the session-scoped bean from the underlying 
 The object should be returned, but you can return null if the object with the specified
 name is not found.
 
+下面的方法从潜在作用域中移除对象。以session作用域实现为例，从潜在的session中移除session作用域的bean。对象应该被返回，但如果没有找到指定名字的对象可以返回空。
+
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -3409,6 +3449,8 @@ name is not found.
 The following method registers the callbacks the scope should execute when it is
 destroyed or when the specified object in the scope is destroyed. Refer to the javadocs
 or a Spring scope implementation for more information on destruction callbacks.
+
+下面的方法是注册当作用域销毁时或当作用域中的指定对象销毁时，作用域应该执行的回调函数。销毁回调函数的更多信息请看javadocs或Spring作用域实现。
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -3420,6 +3462,8 @@ The following method obtains the conversation identifier for the underlying scop
 identifier is different for each scope. For a session scoped implementation, this
 identifier can be the session identifier.
 
+下面的方法是获得潜在作用域的会话标识符。每个作用域的标识符都是不同的。对于session作用域实现，标识符可以是session标识符。
+
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -3428,11 +3472,13 @@ identifier can be the session identifier.
 
 
 [[beans-factory-scopes-custom-using]]
-==== Using a custom scope
+==== 使用定制作用域(Using a custom scope)
 
 After you write and test one or more custom `Scope` implementations, you need to make
 the Spring container aware of your new scope(s). The following method is the central
 method to register a new `Scope` with the Spring container:
+
+在你编写和测试一个或多个定制 `Scope` 实现之后，你需要让Spring容器感知到你的新作用域。下面是在Spring容器中注册一个新 `Scope` 的主要方法：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -3444,18 +3490,26 @@ This method is declared on the `ConfigurableBeanFactory` interface, which is ava
 on most of the concrete `ApplicationContext` implementations that ship with Spring via
 the BeanFactory property.
 
+这个方法是在 `ConfigurableBeanFactory` 接口中声明的，在Spring中大多数具体的 `ApplicationContext` 实现中都是可用的，可以通过BeanFactory属性得到。
+
 The first argument to the `registerScope(..)` method is the unique name associated with
 a scope; examples of such names in the Spring container itself are `singleton` and
 `prototype`. The second argument to the `registerScope(..)` method is an actual instance
 of the custom `Scope` implementation that you wish to register and use.
 
+`registerScope(..)` 方法中的第一个参数是关于作用域的唯一名字；Spring容器本身中的这种名字的例子是 `singleton` 和 `prototype`。`registerScope(..)` 方法中的第二个参数是你想注册和使用的定制 `Scope` 实现的真正实例。
+
 Suppose that you write your custom `Scope` implementation, and then register it as below.
+
+假设你编写了你的定制 `Scope` 实现并按如下注册。
 
 [NOTE]
 ====
 The example below uses `SimpleThreadScope` which is included with Spring, but not
 registered by default. The instructions would be the same for your own custom `Scope`
 implementations.
+
+下面的例子使用Spring包含的 `SimpleThreadScope`，但默认是不注册的。这个用法说明与你自己的定制 `Scope` 实现是一样的。
 ====
 
 [source,java,indent=0]
@@ -3467,6 +3521,8 @@ implementations.
 
 You then create bean definitions that adhere to the scoping rules of your custom `Scope`:
 
+然后创建依附于你自己定制的 `Scope` 的作用域规则的bean定义：
+
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -3476,6 +3532,8 @@ You then create bean definitions that adhere to the scoping rules of your custom
 With a custom `Scope` implementation, you are not limited to programmatic registration
 of the scope. You can also do the `Scope` registration declaratively, using the
 `CustomScopeConfigurer` class:
+
+在定制 `Scope` 实现后，你不会受限于作用域的程序注册。你也可以声明式的进行 `Scope` 注册，使用 `CustomScopeConfigurer` 类：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -3515,23 +3573,27 @@ of the scope. You can also do the `Scope` registration declaratively, using the
 ====
 When you place `<aop:scoped-proxy/>` in a `FactoryBean` implementation, it is the factory
 bean itself that is scoped, not the object returned from `getObject()`.
+
+当你在 `FactoryBean` 实现中放入 `<aop:scoped-proxy/>` 时，它是工厂bean本身具有作用域，不是从 `getObject()` 中返回的对象。
 ====
 
 
 
 
 [[beans-factory-nature]]
-== Customizing the nature of a bean
+==  定制bean特性(Customizing the nature of a bean)
 
 
 
 [[beans-factory-lifecycle]]
-=== Lifecycle callbacks
+=== 生命周期回调(Lifecycle callbacks)
 
 To interact with the container's management of the bean lifecycle, you can implement the
 Spring `InitializingBean` and `DisposableBean` interfaces. The container calls
 `afterPropertiesSet()` for the former and `destroy()` for the latter to allow the bean
 to perform certain actions upon initialization and destruction of your beans.
+
+为了与容器中bean生命周期的管理进行交互，你可以实现Spring的 `InitializingBean` 和 `DisposableBean` 接口。当初始化beans时容器会调用InitializingBean中的 `afterPropertiesSet()` 方法，当销毁beans时容器会调用DisposableBean中的 `destroy()` 方法，在这两个方法中bean可以执行特定的行为。
 
 [TIP]
 ====
@@ -3540,8 +3602,12 @@ practice for receiving lifecycle callbacks in a modern Spring application. Using
 annotations means that your beans are not coupled to Spring specific interfaces. For
 details see <<beans-postconstruct-and-predestroy-annotations>>.
 
+在现代Spring应用中，通常认为JSR-250的 `@PostConstruct` 和 `@PreDestroy` 注解是最佳实践接收生命周期回调函数的方法。使用这些注解意味着你的bean没有耦合Spring特定的接口。更多细节请看<<beans-postconstruct-and-predestroy-annotations>>。
+
 If you don't want to use the JSR-250 annotations but you are still looking to remove
 coupling consider the use of init-method and destroy-method object definition metadata.
+
+如果你不想使用JSR-250注解，但你仍要注意解耦，可以考虑使用对象定义元数据中的初始化方法和销毁方法。
 ====
 
 Internally, the Spring Framework uses `BeanPostProcessor` implementations to process any
@@ -3550,11 +3616,17 @@ features or other lifecycle behavior Spring does not offer out-of-the-box, you c
 implement a `BeanPostProcessor` yourself. For more information, see
 <<beans-factory-extension>>.
 
+在Spring内部，Spring框架使用 `BeanPostProcessor` 实现来处理任何它能发现的回调接口并调用合适的方法。如果你需要定制Spring不能提供的开箱即用的功能或其它生命周期行为，你可以自己实现 `BeanPostProcessor`。更多信息请看<<beans-factory-extension>>。
+
 In addition to the initialization and destruction callbacks, Spring-managed objects may
 also implement the `Lifecycle` interface so that those objects can participate in the
 startup and shutdown process as driven by the container's own lifecycle.
 
+除了初始化回调函数和销毁回调函数之外，Spring管理的对象也可以实现 `Lifecycle` 接口，这些对象可以参与容器自身生命周期驱动的启动和关闭过程。
+
 The lifecycle callback interfaces are described in this section.
+
+本节描述了生命周期回调接口。
 
 
 [[beans-factory-lifecycle-initializingbean]]
