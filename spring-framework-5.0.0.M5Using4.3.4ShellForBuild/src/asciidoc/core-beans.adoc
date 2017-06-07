@@ -3630,11 +3630,13 @@ The lifecycle callback interfaces are described in this section.
 
 
 [[beans-factory-lifecycle-initializingbean]]
-==== Initialization callbacks
+==== 初始化回调函数(Initialization callbacks)
 
 The `org.springframework.beans.factory.InitializingBean` interface allows a bean to
 perform initialization work after all necessary properties on the bean have been set by
 the container. The `InitializingBean` interface specifies a single method:
+
+`org.springframework.beans.factory.InitializingBean` 接口在容器设置了bean所有的必须属性之后，允许bean执行初始化工作。`InitializingBean` 接口指定了一个方法：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -3649,6 +3651,8 @@ specify a POJO initialization method. In the case of XML-based configuration met
 you use the `init-method` attribute to specify the name of the method that has a void
 no-argument signature. With Java config, you use the `initMethod` attribute of `@Bean`,
 see <<beans-java-lifecycle-callbacks>>. For example, the following:
+
+建议你不使用 `InitializingBean` 接口，因为它对代码与Spring进行了不必要的耦合。作为一种替代方法，你可以使用<<beans-postconstruct-and-predestroy-annotations, `@PostConstruct`>>注解或指定一个POJO的初始化方法。在基于XML配置元数据的情况下，你可以使用 `init-method` 特性来指定方法的名称，方法是没有返回值和参数的（方法有空返回值和无参的签名）。如果使用Java配置，你可以使用 `@Bean` 的 `initMethod` 特性，请看<<beans-java-lifecycle-callbacks>>。例如，下面的代码：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -3670,6 +3674,8 @@ see <<beans-java-lifecycle-callbacks>>. For example, the following:
 
 ...is exactly the same as...
 
+...完全等价于...
+
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -3690,13 +3696,17 @@ see <<beans-java-lifecycle-callbacks>>. For example, the following:
 
 but does not couple the code to Spring.
 
+但没有将Spring与代码耦合。
+
 
 [[beans-factory-lifecycle-disposablebean]]
-==== Destruction callbacks
+==== 销毁回调函数(Destruction callbacks)
 
 Implementing the `org.springframework.beans.factory.DisposableBean` interface allows a
 bean to get a callback when the container containing it is destroyed. The
 `DisposableBean` interface specifies a single method:
+
+实现 `org.springframework.beans.factory.DisposableBean` 接口允许容器包含的bean销毁时调用回调函数。`DisposableBean` 接口指定了一个方法：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -3711,6 +3721,8 @@ specify a generic method that is supported by bean definitions. With XML-based
 configuration metadata, you use the `destroy-method` attribute on the `<bean/>`.
 With Java config, you use the `destroyMethod` attribute of `@Bean`, see
 <<beans-java-lifecycle-callbacks>>. For example, the following definition:
+
+建议你不使用 `DisposableBean` 回调接口，因为它对代码与Spring进行了不必要的耦合。作为一种替代方法，你可以使用<<beans-postconstruct-and-predestroy-annotations, `@PreDestroy`>>注解或指定一个bean定义支持的通用方法。在基于XML配置元数据的情况下，你可以使用 `<bean/>` 的 `destroy-method` 特性。如果使用Java配置，你可以使用 `@Bean` 的 `destroyMethod` 特性，请看<<beans-java-lifecycle-callbacks>>。例如，下面的定义：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -3732,6 +3744,8 @@ With Java config, you use the `destroyMethod` attribute of `@Bean`, see
 
 is exactly the same as:
 
+完全等价于：
+
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -3752,6 +3766,8 @@ is exactly the same as:
 
 but does not couple the code to Spring.
 
+但没有将Spring与代码耦合。
+
 [TIP]
 ====
 The `destroy-method` attribute of a `<bean>` element can be assigned a special
@@ -3762,16 +3778,20 @@ The `destroy-method` attribute of a `<bean>` element can be assigned a special
 `<beans>` element to apply this behavior to an entire set of beans (see
 <<beans-factory-lifecycle-default-init-destroy-methods>>). Note that this is the
 default behavior with Java config.
+
+一个 `<bean>` 元素的 `destroy-method` 特性可以被赋予一个特殊的 `(推断)` 值，该值指示Spring自动检测特定bean类上的一个公共 `close` 或 `shutdown` 方法（任何实现 `java.lang.AutoCloseable` 或 `java.io.Closeable` 的类会因此匹配）。这个特殊的 `（推断）` 值也可以在一个 `<beans>` 元素的 `default-destroy-method` 特性上设置，以将这个行为应用到整个bean集合中（参见<<beans-factory-lifecycle-default-init-destroy-methods>>）。注意，这是Java配置的默认行为。
 ====
 
 [[beans-factory-lifecycle-default-init-destroy-methods]]
-==== Default initialization and destroy methods
+==== 默认初始化和销毁方法（Default initialization and destroy methods）
 
 When you write initialization and destroy method callbacks that do not use the
 Spring-specific `InitializingBean` and `DisposableBean` callback interfaces, you
 typically write methods with names such as `init()`, `initialize()`, `dispose()`, and so
 on. Ideally, the names of such lifecycle callback methods are standardized across a
 project so that all developers use the same method names and ensure consistency.
+
+当你编写初始化回调函数和销毁回调函数时，不要使用Spring特定的 `InitializingBean` 和 `DisposableBean` 回调接口，你通常自己编写方法名为 `init()`，`initialize()`， `dispose()` 等等的方法。理想情况下，这种生命周期回调方法的名称在整个工程中是标准化的，以便所有开发人员使用同样的方法名称，保证一致性。
 
 You can configure the Spring container to `look` for named initialization and destroy
 callback method names on __every__ bean. This means that you, as an application
@@ -3782,9 +3802,13 @@ accordance with the standard lifecycle callback contract described previously). 
 feature also enforces a consistent naming convention for initialization and destroy
 method callbacks.
 
+你可以配置Spring容器 `查找` __每个__bean的指定的初始化回调方法和销毁回调方法的名字。这意味着你，作为一个应用开发者，你可以编写你的应用程序类并使用名为 `init()` 的初始化回调方法，而不必在每个bean定义中配置一个 `init-method="init"` 的特性。当bean创建时，Spring Ioc容器调用这个方法（与前面描述的标准生命周期回调约定一致）。这个功能也强制了初始化方法回调和析构方法回调命名规范的一致性。
+
 Suppose that your initialization callback methods are named `init()` and destroy
 callback methods are named `destroy()`. Your class will resemble the class in the
 following example.
+
+假设你的初始化回调方法名为 `init()`，析构回调方法名为 `destroy()`。你的类应该与下面例子中的类类似。
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -3824,13 +3848,19 @@ attribute causes the Spring IoC container to recognize a method called `init` on
 as the initialization method callback. When a bean is created and assembled, if the bean
 class has such a method, it is invoked at the appropriate time.
 
+位于顶层 `<beans/>` 元素中的 `default-init-method` 特性，会让Spring IoC容器将beans中的名为 `init` 的方法识别为初始化回调方法。当一个bean创建和组装时，如果bean类有这样一个方法，它会在恰当的时间被调用。
+
 You configure destroy method callbacks similarly (in XML, that is) by using the
 `default-destroy-method` attribute on the top-level `<beans/>` element.
+
+你可以使用顶层的 `<bean/>` 元素上的 `default-destroy-method` 属性来类似地配置销毁方法回调（在XML中）。
 
 Where existing bean classes already have callback methods that are named at variance
 with the convention, you can override the default by specifying (in XML, that is) the
 method name using the `init-method` and `destroy-method` attributes of the `<bean/>`
 itself.
+
+如果现有的bean类已经具有以与约定的方式不同的方式命名的回调方法，则可以使用 `<bean/>` 本身的 `init-method` 和 `destroy-method` 特性指定（在XML中）方法名称来覆盖默认值。
 
 The Spring container guarantees that a configured initialization callback is called
 immediately after a bean is supplied with all dependencies. Thus the initialization
@@ -3843,9 +3873,11 @@ interceptors to the init method, because doing so would couple the lifecycle of 
 target bean with its proxy/interceptors and leave strange semantics when your code
 interacts directly to the raw target bean.
 
+在bean被提供了所有依赖之后，Spring容器确保会立刻调用配置的初始化回调方法。因此初始化回调会在原生bean引用上调用，这意味着AOP拦截器等还没有应用到bean中。__首先__要完整的创建目标bean，__然后__才会应用AOP代理（例如）和它的拦截器链。如果分别定义了目标bean和代理，你的代码甚至能绕过代理直接与原生的目标bean进行交互。因此，将拦截器应用到初始化方法上会产生不一致性，因为这样做会使目标bean的生命周期与它的代理/拦截器相耦合，当你的代码与原生目标bean直接进行交互时，语义会变的很奇怪。
+
 
 [[beans-factory-lifecycle-combined-effects]]
-==== Combining lifecycle mechanisms
+==== 组合生命周期机制(Combining lifecycle mechanisms)
 
 As of Spring 2.5, you have three options for controlling bean lifecycle behavior: the
 <<beans-factory-lifecycle-initializingbean, `InitializingBean`>> and
@@ -3854,6 +3886,8 @@ As of Spring 2.5, you have three options for controlling bean lifecycle behavior
 <<beans-postconstruct-and-predestroy-annotations, `@PostConstruct` and `@PreDestroy`
 annotations>>. You can combine these mechanisms to control a given bean.
 
+从Spring 2.5开始，在控制bean的生命周期行为时，你有三种选择：<<beans-factory-lifecycle-initializingbean, `InitializingBean`>>和<<beans-factory-lifecycle-disposablebean, `DisposableBean`>>回调接口；定制 `init()` 和 `destroy()` 方法；和<<beans-postconstruct-and-predestroy-annotations,`@PostConstruct` 和 `@PreDestroy` 注解>>。在控制一个给定bean时你可以组合这些机制。
+
 [NOTE]
 ====
 If multiple lifecycle mechanisms are configured for a bean, and each mechanism is
@@ -3861,27 +3895,43 @@ configured with a different method name, then each configured method is executed
 order listed below. However, if the same method name is configured - for example,
 `init()` for an initialization method - for more than one of these lifecycle mechanisms,
 that method is executed once, as explained in the preceding section.
+
+如果一个bean配置了多个生命周期机制，每种机制配置了一个不同的方法名，那么每一个配置的方法会按照下面的顺序列表来执行。但是如果配置了相同的名字-例如，`init()` 初始化方法-不止在一个生命周期机制中配置，那么这个方法只能执行一次，像前面章节所说的那样。
 ====
 
 Multiple lifecycle mechanisms configured for the same bean, with different
 initialization methods, are called as follows:
 
+同一个bean配置了多个生命周期机制，并有不同的初始化方法，那么调用顺序如下：
+
 * Methods annotated with `@PostConstruct`
 * `afterPropertiesSet()` as defined by the `InitializingBean` callback interface
 * A custom configured `init()` method
 
+* 有 `@PostConstruct` 注解的方法
+* `InitializingBean` 回调接口定义的 `afterPropertiesSet()` 方法
+* 定制配置的 `init()` 方法
+
 Destroy methods are called in the same order:
+
+析构方法按同样的顺序调用：
 
 * Methods annotated with `@PreDestroy`
 * `destroy()` as defined by the `DisposableBean` callback interface
 * A custom configured `destroy()` method
 
+* 有 `@PreDestroy` 注解的方法
+* `DisposableBean` 回调接口定义的 `destroy()` 方法
+* 定制配置的 `destroy()` 方法
+
 
 [[beans-factory-lifecycle-processor]]
-==== Startup and shutdown callbacks
+==== 启动和关闭回调(Startup and shutdown callbacks)
 
 The `Lifecycle` interface defines the essential methods for any object that has its own
 lifecycle requirements (e.g. starts and stops some background process):
+
+ `Lifecycle` 接口定义了任何有它自己的生命周期需求的对象的必要的方法（例如启动和停止一些后台进程）：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -3902,6 +3952,8 @@ Any Spring-managed object may implement that interface. Then, when the
 scenario at runtime, it will cascade those calls to all `Lifecycle` implementations
 defined within that context. It does this by delegating to a `LifecycleProcessor`:
 
+任何Spring管理的对象都可以实现那个接口。然后，当 `ApplicationContext` 本身收到启动启动和关闭信号时，例如运行时关闭/重启场景，它将级联调用所有的那个上下文定义的 `Lifecycle` 实现。它通过委托 `LifecycleProcessor` 来完成这个功能：
+
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -3918,6 +3970,8 @@ Notice that the `LifecycleProcessor` is itself an extension of the `Lifecycle`
 interface. It also adds two other methods for reacting to the context being refreshed
 and closed.
 
+注意 `LifecycleProcessor` 本身是 `Lifecycle` 接口的一个扩展。它也添加了两个其它的方法来响应上下文的刷新和关闭。
+
 [TIP]
 ====
 Note that the regular `org.springframework.context.Lifecycle` interface is just a plain
@@ -3928,6 +3982,8 @@ Also, please note that stop notifications are not guaranteed to come before dest
 On regular shutdown, all `Lifecycle` beans will first receive a stop notification before
 the general destruction callbacks are being propagated; however, on hot refresh during a
 context's lifetime or on aborted refresh attempts, only destroy methods will be called.
+
+注意正常的 `org.springframework.context.Lifecycle` 接口只是一个显式启动/关闭通知的普通协议，并不意味着在上下文刷新时自动启动。考虑实现 `org.springframework.context.SmartLifecycle` 来实现对指定bean自动启动的细粒度控制（包括启动时期）。请注意停止通知不能保证在销毁之前到来：在正式关闭时，所有的 `Lifecycle` beans在通常的析构回调传播之前首先会收到停止通知；但是，在上下文使用期间进行热刷新或尝试取消刷新，只会调用析构方法。
 ====
 
 The order of startup and shutdown invocations can be important. If a "depends-on"
@@ -3937,6 +3993,8 @@ dependencies are unknown. You may only know that objects of a certain type shoul
 prior to objects of another type. In those cases, the `SmartLifecycle` interface defines
 another option, namely the `getPhase()` method as defined on its super-interface,
 `Phased`.
+
+启动和关闭的调用顺序是很重要的。如果任何两个对象间存在一个”depends-on”关系，那么依赖他人者将在它的依赖__之后__开始，在它的依赖__之前__停止。然而有时直接的依赖关系是未知的。你可能只知道某个类型的对象应该在另一个类型的对象之前启动。在那种情况下，`SmartLifecycle` 接口定义了另一种选择，也就是说 `getPhase()` 方法定义在它的父接口 `Phased` 中。
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -3971,6 +4029,8 @@ phase value, it's also important to know that the default phase for any "normal"
 negative phase value would indicate that an object should start before those standard
 components (and stop after them), and vice versa for any positive phase value.
 
+当开始时，最低阶段的对象先启动，当停止时，最高阶段的对象先停止。因此，实现了 `SmartLifecycle` 接口，`getPhase()` 方法返回值为 `Integer.MIN_VALUE` 的对象将最先启动并最后停止。在另一个极端，阶段值 `Integer.MAX_VALUE` 表明对象应该最后启动，最先停止（可能是因为它依赖其它进程才能运行）。当考虑阶段值时，知道任何没有实现 `SmartLifecycle` 接口的“正常” `Lifecycle` 对象的默认阶段为0也是很重要的。因此，任何负阶段值表示对象应该在那些标准组件之前启动（在它们之后停止），对任何正阶段值反之亦然。
+
 As you can see the stop method defined by `SmartLifecycle` accepts a callback. Any
 implementation __must__ invoke that callback's `run()` method after that implementation's
 shutdown process is complete. That enables asynchronous shutdown where necessary since
@@ -3980,6 +4040,8 @@ within each phase to invoke that callback. The default per-phase timeout is 30 s
 You can override the default lifecycle processor instance by defining a bean named
 "lifecycleProcessor" within the context. If you only want to modify the timeout, then
 defining the following would be sufficient:
+
+正如你看到的，在 `SmartLifecycle` 中定义的停止方法接收一个回调函数。任何实现在关闭进程完成之后都__必须__调用回调的 `run()` 方法。当需要时这可以进行异步关闭，因为 `LifecycleProcessor` 接口的默认实现,`DefaultLifecycleProcessor` 会等待每个阶段的对象组直到达到超时值，然后调用回调函数。默认每个阶段的超时值为30秒。你可以在上下文中通过定义名为”lifecycleProcessor”的bean来覆盖默认的生命周期处理器实例。如果你只想修改超时值，如下定义是足够的：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -4003,6 +4065,8 @@ its own `start()` method (unlike the context refresh, the context start does not
 automatically for a standard context implementation). The "phase" value as well as any
 "depends-on" relationships will determine the startup order in the same way as described
 above.
+
+像上面提到的那样，`LifecycleProcessor` 接口为再刷新和上下文的关闭也定义了回调方法。后者会简单的驱动关闭进程就像显式的调用了 `stop()` 方法一样，但当上下文关闭时它才会发生。另一方面 `refresh` 回调能使 `SmartLifecycle` beans的另一个功能可用。当上下文刷新时（所有对象已经实例化并初始化），回调函数将被调用，那时默认的生命周期处理器将会检查每个 `SmartLifecycle` 对象的 `isAutoStartup()` 方法返回的布尔值。如果为“true”，对象将会在那时启动而不是等待上下文的显式调用或它自己的 `start()` 方法（不像上下文刷新，对于一个标准的上下文实现上下文启动不会自动发生）。“阶段”值以及“依赖”关系将决定启动顺序，与上面描述的一样。
 
 
 [[beans-factory-shutdown]]
