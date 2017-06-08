@@ -4070,13 +4070,15 @@ above.
 
 
 [[beans-factory-shutdown]]
-==== Shutting down the Spring IoC container gracefully in non-web applications
+==== 在非web应用中优雅的关闭Spring IoC容器(Shutting down the Spring IoC container gracefully in non-web applications)
 
 [NOTE]
 ====
 This section applies only to non-web applications. Spring's web-based
 `ApplicationContext` implementations already have code in place to shut down the Spring
 IoC container gracefully when the relevant web application is shut down.
+
+这一节只应用于非web应用。Spring的基于web的 `ApplicationContext` 实现已经在适当的位置有代码来处理当相关的web应用关闭时，优雅的关闭Spring IoC容器的问题。
 ====
 
 If you are using Spring's IoC container in a non-web application environment; for
@@ -4085,8 +4087,12 @@ JVM. Doing so ensures a graceful shutdown and calls the relevant destroy methods
 singleton beans so that all resources are released. Of course, you must still configure
 and implement these destroy callbacks correctly.
 
+如果你在非web应用环境使用Spring的IoC容器；例如，在一个富客户端桌面环境中，你在JVM中注册一个关闭钩子。这样做确保了优雅的关闭，为了释放所有资源需要调用单例beans中相关的析构方法。当然，你仍然必须正确的配置和实现这些销毁回调函数。
+
 To register a shutdown hook, you call the `registerShutdownHook()` method that is
 declared on the `ConfigurableApplicationContext` interface:
+
+为了注册一个关闭钩子，你可以调用 `ConfigurableApplicationContext` 接口中声明的 `registerShutdownHook()` 方法：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -4115,11 +4121,13 @@ declared on the `ConfigurableApplicationContext` interface:
 
 
 [[beans-factory-aware]]
-=== ApplicationContextAware and BeanNameAware
+=== ApplicationContextAware和BeanNameAware(ApplicationContextAware and BeanNameAware)
 
 When an `ApplicationContext` creates an object instance that implements the
 `org.springframework.context.ApplicationContextAware` interface, the instance is provided
 with a reference to that `ApplicationContext`.
+
+当 `ApplicationContext` 创建一个实现 `org.springframework.context.ApplicationContextAware` 接口的对象实例时，这个实例提供了一个到 `ApplicationContext` 的引用。
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -4142,6 +4150,8 @@ collaborators are provided to beans as properties. Other methods of the
 accessing a `MessageSource`. These additional features are described in
 <<context-introduction>>
 
+因此beans可以以编程方式操纵创建它们的 `ApplicationContext`，通过 `ApplicationContext` 接口，或将引用转换给这个接口的一个已知子类，例如 `ConfigurableApplicationContext`，它暴露了额外的功能。一个方法是编程式检索其他的bean。有时这个能力是很有用的，但是通常你应该避免使用它，因为它耦合了代码和Spring，不遵循控制反转的风格，在控制反转中协作者是作为属性提供给beans的。`ApplicationContext` 的其它方法提供了对文件资源的访问，发布应用事件，访问 `MessageSource`。这些额外的特性将在<<context-introduction>>中描述。
+
 As of Spring 2.5, autowiring is another alternative to obtain reference to the
 `ApplicationContext`. The "traditional" `constructor` and `byType` autowiring modes (as
 described in <<beans-factory-autowire>>) can provide a dependency of type
@@ -4153,9 +4163,13 @@ parameter that is expecting the `ApplicationContext` type if the field, construc
 method in question carries the `@Autowired` annotation. For more information, see
 <<beans-autowired-annotation>>.
 
+从Spring 2.5起，自动装配是另一种供替代的获得 `ApplicationContext` 引用的方法。“传统的”`constructor` 和 `byType` 自动装配模式（如<<beans-factory-autowire>>所述）可以分别为构造函数参数或setter方法参数提供 `ApplicationContext` 类型的依赖。更多的灵活性包括自动装配字段和多参数方法的能力，使用新的基于注解的自动装配特性。如果你这么做而且如果讨论的字段，构造函数或方法带有 `@Autowired` 注解的话，`ApplicationContext` 可以被自动装配到期待 `ApplicationContext` 类型的字段，构造函数参数，或方法参数中。更多信息请看<<beans-autowired-annotation>>。
+
 When an `ApplicationContext` creates a class that implements the
 `org.springframework.beans.factory.BeanNameAware` interface, the class is provided with
 a reference to the name defined in its associated object definition.
+
+当 `ApplicationContext` 创建一个实现了 `org.springframework.beans.factory.BeanNameAware` 接口的类时，类中有相关的对象定义中定义的名称的引用。
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -4171,10 +4185,12 @@ The callback is invoked after population of normal bean properties but before an
 initialization callback such as `InitializingBean` __afterPropertiesSet__ or a custom
 init-method.
 
+在正常的bean属性填入之后，回调方法调用，但在初始化回调方法之前，例如 `InitializingBean` 的__afterPropertiesSet__或一个定制的初始化方法。
+
 
 
 [[aware-list]]
-=== Other Aware interfaces
+=== 其它的Aware接口(Other Aware interfaces)
 
 Besides `ApplicationContextAware` and `BeanNameAware` discussed above, Spring offers a
 range of `Aware` interfaces that allow beans to indicate to the container that they
@@ -4182,61 +4198,63 @@ require a certain __infrastructure__ dependency. The most important `Aware` inte
 are summarized below - as a general rule, the name is a good indication of the
 dependency type:
 
+除了上面讨论的 `ApplicationContextAware` 和 `BeanNameAware` 之外，Spring提供了一系列 `Aware` 接口来允许beans向容器表明它们需要一个确定的__基础结构__依赖。最重要的 `Aware` 接口总结如下-通常，名字是依赖类型的一个很好暗示：
+
 [[beans-factory-nature-aware-list]]
 .Aware interfaces
 |===
-| Name| Injected Dependency| Explained in...
+| 名称(Name)| 注入的依赖(Injected Dependency)| 解释在...(Explained in...)
 
 | `ApplicationContextAware`
-| Declaring `ApplicationContext`
+| 声明 `ApplicationContext`(Declaring `ApplicationContext`)
 | <<beans-factory-aware>>
 
 | `ApplicationEventPublisherAware`
-| Event publisher of the enclosing `ApplicationContext`
+| 封装的 `ApplicationContext` 的事件发布器(Event publisher of the enclosing `ApplicationContext`)
 | <<context-introduction>>
 
 | `BeanClassLoaderAware`
-| Class loader used to load the bean classes.
+| 用来加载bean类的类加载器。(Class loader used to load the bean classes.)
 | <<beans-factory-class>>
 
 | `BeanFactoryAware`
-| Declaring `BeanFactory`
+| 声明 `BeanFactory`(Declaring `BeanFactory`)
 | <<beans-factory-aware>>
 
 | `BeanNameAware`
-| Name of the declaring bean
+| 声明的bean的名字(Name of the declaring bean)
 | <<beans-factory-aware>>
 
 | `BootstrapContextAware`
-| Resource adapter `BootstrapContext` the container runs in. Typically available only in
-  JCA aware ``ApplicationContext``s
+| 容器运行在其中的资源适配器 `BootstrapContext`。 通常只在JCA感知``ApplicationContext``s 中可获得(Resource adapter `BootstrapContext` the container runs in. Typically available only in
+  JCA aware ``ApplicationContext``s)
 | <<cci>>
 
 | `LoadTimeWeaverAware`
-| Defined __weaver__ for processing class definition at load time
+| 加载时为处理类定义定义的__weaver__(Defined __weaver__ for processing class definition at load time)
 | <<aop-aj-ltw>>
 
 | `MessageSourceAware`
-| Configured strategy for resolving messages (with support for parametrization and
-  internationalization)
+| 解析消息的配置策略（支持参数化和国际化）(Configured strategy for resolving messages (with support for parametrization and
+  internationalization))
 | <<context-introduction>>
 
 | `NotificationPublisherAware`
-| Spring JMX notification publisher
+| Spring JMX通知发布器(Spring JMX notification publisher)
 | <<jmx-notifications>>
 
 | `ResourceLoaderAware`
-| Configured loader for low-level access to resources
+| 为低级（底层）访问资源配置的加载器(Configured loader for low-level access to resources)
 | <<resources>>
 
 | `ServletConfigAware`
-| Current `ServletConfig` the container runs in. Valid only in a web-aware Spring
-  `ApplicationContext`
+| 容器运行的当前 `ServletConfig`。 仅在web感知的Spring `ApplicationContext` 中有效(Current `ServletConfig` the container runs in. Valid only in a web-aware Spring
+  `ApplicationContext`)
 | <<mvc>>
 
 | `ServletContextAware`
-| Current `ServletContext` the container runs in. Valid only in a web-aware Spring
-  `ApplicationContext`
+| 容器运行的当前 `ServletContext`。 仅在web感知的Spring `ApplicationContext` 中有效(Current `ServletContext` the container runs in. Valid only in a web-aware Spring
+  `ApplicationContext`)
 | <<mvc>>
 |===
 
@@ -4244,11 +4262,13 @@ Note again that usage of these interfaces ties your code to the Spring API and d
 follow the Inversion of Control style. As such, they are recommended for infrastructure
 beans that require programmatic access to the container.
 
+再次注意这些接口的用法将你的代码与Spring API进行了捆绑，不符合控制反转的风格。就其本身而论，它们是为那些需要以编程方式访问容器的基础结构beans推荐的。
+
 
 
 
 [[beans-child-bean-definitions]]
-== Bean definition inheritance
+== Bean定义继承(Bean definition inheritance)
 A bean definition can contain a lot of configuration information, including constructor
 arguments, property values, and container-specific information such as initialization
 method, static factory method name, and so on. A child bean definition inherits
@@ -4256,12 +4276,16 @@ configuration data from a parent definition. The child definition can override s
 values, or add others, as needed. Using parent and child bean definitions can save a lot
 of typing. Effectively, this is a form of templating.
 
+Bean定义中可以包含许多配置信息，包括构造函数参数，属性值和容器的特定信息例如初始化方法，静态工厂方法名等等。子bean定义继承父定义的配置数据。子定义可以覆盖一些值，或按需要添加一些其它值。使用父子bean定义可以少打许多字。实际上，这是一种模板形式。
+
 If you work with an `ApplicationContext` interface programmatically, child bean
 definitions are represented by the `ChildBeanDefinition` class. Most users do not work
 with them on this level, instead configuring bean definitions declaratively in something
 like the `ClassPathXmlApplicationContext`. When you use XML-based configuration
 metadata, you indicate a child bean definition by using the `parent` attribute,
 specifying the parent bean as the value of this attribute.
+
+如果你以编程方式与 `ApplicationContext` 接口合作，那么子bean定义是通过 `ChildBeanDefinition` 类来表示的。大多数用户不在这个层级上与它们合作，而是在一些像 `ClassPathXmlApplicationContext` 中声明式的配置bean定义。当你使用基于XML的配置元数据时，你可以使用 `parent` 特性来指明一个子bean定义。指定父bean作为这个特性的值。
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -4284,17 +4308,25 @@ A child bean definition uses the bean class from the parent definition if none i
 specified, but can also override it. In the latter case, the child bean class must be
 compatible with the parent, that is, it must accept the parent's property values.
 
+如果子bean定义中没有指定要使用的bean类，则使用父定义中的bean类，但也可以覆盖它。在后一种情况下，子bean类必须和父bean一致，也就是说，它必须接收父定义的属性值。
+
 A child bean definition inherits scope, constructor argument values, property values, and
 method overrides from the parent, with the option to add new values. Any scope, initialization
 method, destroy method, and/or `static` factory method settings that you specify will
 override the corresponding parent settings.
 
+子bean定义可以继承作用域，构造函数参数值，属性值，可以重写的父方法，可以选择添加新值。你指定的任何作用域，初始化方法，析构方法，和/或 `静态` 工厂方法设置将会覆盖对应的父设置。
+
 The remaining settings are __always__ taken from the child definition: __depends on__,
 __autowire mode__, __dependency check__, __singleton__, __lazy init__.
+
+其余的设置__总是__从子定义中获取：__依赖关系__，__自动装配模式__，__依赖检查__，__单例__，__延迟初始化__。
 
 The preceding example explicitly marks the parent bean definition as abstract by using
 the `abstract` attribute. If the parent definition does not specify a class, explicitly
 marking the parent bean definition as `abstract` is required, as follows:
+
+前面的例子使用 `abstract` 特性将父bean定义显式的标记为abstract。如果父定义没有指定一个类，需要显式的将父bean定义标记为 `abstract`，如下：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -4320,6 +4352,8 @@ parent bean id, returns an error. Similarly, the container's internal
 `preInstantiateSingletons()` method ignores bean definitions that are defined as
 abstract.
 
+父bean不能靠自己实例化，因为它不完整，并且它也被显式的标记为 `abstract`。当一个定义是像这样的 `abstract` 时，它只能作为一个纯粹的充当一个子定义的父定义的bean定义模板可用。当试图通过它自己使用这样一个 `abstract` 父bean时，通过另一个bean的ref属性来引用它或通过父bean的id显式的调用 `getBean()` 方法，会返回一个错误。类似的，容器内部的 `preInstantiateSingletons()` 方法会忽略抽象bean定义。
+
 [NOTE]
 ====
 `ApplicationContext` pre-instantiates all singletons by default. Therefore, it is
@@ -4327,28 +4361,34 @@ important (at least for singleton beans) that if you have a (parent) bean defini
 which you intend to use only as a template, and this definition specifies a class, you
 must make sure to set the __abstract__ attribute to __true__, otherwise the application
 context will actually (attempt to) pre-instantiate the `abstract` bean.
+
+默认情况下 `ApplicationContext` 会预实例化所有的单例。因此，下面的事情是很重要的（至少对于单例beans），如果你想有一个（父）bean定义你想要只作为模板来使用，这个定义中指定了一个类，那你必须确保设置__abstract__特性为__true__，否则应用上下文会实际的（试图）预实例化这个 `abstract` bean。
 ====
 
 
 
 
 [[beans-factory-extension]]
-== Container Extension Points
+== 容器扩展点(Container Extension Points)
 Typically, an application developer does not need to subclass `ApplicationContext`
 implementation classes. Instead, the Spring IoC container can be extended by plugging in
 implementations of special integration interfaces. The next few sections describe these
 integration interfaces.
 
+通常情况下，应用开发者不需要继承 `ApplicationContext` 的实现类。反而是Spring的IoC容器可以通过插入特定集成接口的实现来进行扩展。下面几节将描述这些集成接口。
+
 
 
 [[beans-factory-extension-bpp]]
-=== Customizing beans using a BeanPostProcessor
+=== 通过BeanPostProcessor定制bean(Customizing beans using a BeanPostProcessor)
 
 The `BeanPostProcessor` interface defines __callback methods__ that you can implement to
 provide your own (or override the container's default) instantiation logic,
 dependency-resolution logic, and so forth. If you want to implement some custom logic
 after the Spring container finishes instantiating, configuring, and initializing a bean,
 you can plug in one or more `BeanPostProcessor` implementations.
+
+`BeanPostProcessor` 接口定义了__回调方法__，你可以实现这个方法来提供你自己的（或覆盖容器默认的）实例化逻辑，依赖解析逻辑等等。如果你想在Spring容器完成实例化，配置和初始化bean之后实现一些定制的业务逻辑，你可以插入一个或多个 `BeanPostProcessor` 实现。
 
 You can configure multiple `BeanPostProcessor` instances, and you can control the order
 in which these ``BeanPostProcessor``s execute by setting the `order` property. You can
@@ -4359,11 +4399,15 @@ interface too. For further details, consult the javadocs of the `BeanPostProcess
 <<beans-factory-programmatically-registering-beanpostprocessors, programmatic
 registration of ``BeanPostProcessor``s>>.
 
+你可以配置多个 `BeanPostProcessor` 实例，通过设置 `order` 属性你可以控制这些 ``BeanPostProcessors`` 的执行顺序。只有 `BeanPostProcessor` 实现了 `Ordered` 接口时你才可以设置这个属性；如果你编写了你自己的 `BeanPostProcessor`，你也应该考虑实现 `Ordered` 接口。更多细节请查阅 `BeanPostProcessor` 和 `Ordered` 接口的javadocs。也可以查看下面的<<beans-factory-programmatically-registering-beanpostprocessors,``BeanPostProcessor``s编程注册>>的注意点。
+
 [NOTE]
 ====
 ``BeanPostProcessor``s operate on bean (or object) __instances__; that is to say, the
 Spring IoC container instantiates a bean instance and __then__ ``BeanPostProcessor``s do
 their work.
+
+``BeanPostProcessor``s操作一个bean（或对象）__实例__；也就是说，Spring Ioc容器实例化一个bean实例，__然后__``BeanPostProcessor``s做它们的工作。
 
 ``BeanPostProcessor``s are scoped __per-container__. This is only relevant if you are
 using container hierarchies. If you define a `BeanPostProcessor` in one container, it
@@ -4371,9 +4415,13 @@ will __only__ post-process the beans in that container. In other words, beans th
 defined in one container are not post-processed by a `BeanPostProcessor` defined in
 another container, even if both containers are part of the same hierarchy.
 
+``BeanPostProcessor``s的作用域是__每个容器__。只有你在使用容器分层的情况下，这才是有意义的。如果你在一个容器中定义了一个 `BeanPostProcessor`，它将__只__后处理容器中的beans。换句话说，某个容器中定义的beans不能被另一个容器中定义的 `BeanPostProcessor` 进行后处理，即使这两个容器是同一层上的一部分。
+
 To change the actual bean definition (i.e., the __blueprint__ that defines the bean),
 you instead need to use a `BeanFactoryPostProcessor` as described in
 <<beans-factory-extension-factory-postprocessors>>.
+
+为了改变实际的bean定义（例如，定义bean的蓝图），你反而需要使用<<beans-factory-extension-factory-postprocessors>>中描述的 `BeanFactoryPostProcessor`。
 ====
 
 The `org.springframework.beans.factory.config.BeanPostProcessor` interface consists of
@@ -4387,11 +4435,15 @@ callback completely. A bean post-processor typically checks for callback interfa
 may wrap a bean with a proxy. Some Spring AOP infrastructure classes are implemented as
 bean post-processors in order to provide proxy-wrapping logic.
 
+`org.springframework.beans.factory.config.BeanPostProcessor` 接口由恰好两个回调方法组成。当这样一个类在容器中注册为后处理器时，对于容器中创建的每一个bean实例，在容器初始化方法（例如InitializingBean的__afterPropertiesSet()__方法和任何已声明的初始化方法）被调用__之前__和任何bean初始化回调函数__之后__，后处理器会从容器中得到一个回调函数。后处理器可以对bean实例进行任何操作，包括完全忽略回调方法。bean后处理器通常检查回调接口或将bean包裹到代理中。为了提供代理包裹逻辑，一些Spring AOP基础结构类被实现为bean后处理器。
+
 An `ApplicationContext` __automatically detects__ any beans that are defined in the
 configuration metadata which implement the `BeanPostProcessor` interface. The
 `ApplicationContext` registers these beans as post-processors so that they can be called
 later upon bean creation. Bean post-processors can be deployed in the container just
 like any other beans.
+
+`ApplicationContext` 会__自动检测__任何配置元数据中定义的实现了 `BeanPostProcessor` 接口的bean。为了能在后面bean创建时调用这些bean，`ApplicationContext` 会将这些bean注册为后处理器。bean后处理器可以像任何其它bean一样在容器进行部署。
 
 Note that when declaring a `BeanPostProcessor` using an `@Bean` factory method on a
 configuration class, the return type of the factory method should be the implementation
@@ -4400,6 +4452,8 @@ interface, clearly indicating the post-processor nature of that bean. Otherwise,
 `ApplicationContext` won't be able to autodetect it by type before fully creating it.
 Since a `BeanPostProcessor` needs to be instantiated early in order to apply to the
 initialization of other beans in the context, this early type detection is critical.
+
+注意当在一个配置类上使用 `@Bean` 工厂方法声明一个 `BeanPostProcessor` 时，工厂方法的返回类型应该是实现类本身或至少是 `org.springframework.beans.factory.config.BeanPostProcessor` 接口，这能清晰的表明那个bean的后处理器特性。此外，在完整的创建它之前，`ApplicationContext` 不能通过类型自动检测它。由于 `BeanPostProcessor` 需要早一点实例化为了应用于在上下文中初始化其它的beans，这个早期的类型检测是非常关键的。
 
 
 [[beans-factory-programmatically-registering-beanpostprocessors]]
