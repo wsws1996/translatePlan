@@ -4457,7 +4457,7 @@ initialization of other beans in the context, this early type detection is criti
 
 
 [[beans-factory-programmatically-registering-beanpostprocessors]]
-.Programmatically registering BeanPostProcessors
+.编程式注册bean后处理器(Programmatically registering BeanPostProcessors)
 [NOTE]
 ====
 While the recommended approach for `BeanPostProcessor` registration is through
@@ -4470,9 +4470,11 @@ respect the `Ordered` interface__. Here it is the __order of registration__ that
 dictates the order of execution. Note also that ``BeanPostProcessor``s registered
 programmatically are always processed before those registered through auto-detection,
 regardless of any explicit ordering.
+
+虽然推荐的注册 `BeanPostProcessor` 的方法是通过 `ApplicationContext` 自动检测（像前面描述的那样），但也可以通过__以编程方法__通过使用 `ConfigurableBeanFactory` 的 `addBeanPostProcessor` 方法来注册。在注册之前需要评估条件逻辑时，这是非常有用的，或者通过分层中的上下文来复制bean后处理器。注意无论如何以编程方式添加的``BeanPostProcessor``s__不需要遵守 `Ordered` 接口__。这种情况下__注册顺序__指挥着执行顺序。也要注意以编程方式注册``BeanPostProcessor``s总是在那些通过自动检测注册的 ``BeanPostProcessors`` 之前进行处理，不管任何显式的顺序。
 ====
 
-.BeanPostProcessors and AOP auto-proxying
+.Bean后处理器和AOP自动代理(BeanPostProcessors and AOP auto-proxying)
 [NOTE]
 ====
 Classes that implement the `BeanPostProcessor` interface are __special__ and are treated
@@ -4484,9 +4486,13 @@ implemented as a `BeanPostProcessor` itself, neither ``BeanPostProcessor``s nor 
 they reference directly are eligible for auto-proxying, and thus do not have aspects
 woven into them.
 
+实现 `BeanPostProcessor` 接口的类是__特别的__并被容器不同对待。所有的``BeanPostProcessor``s和它们直接引用的beans在启动时进行实例化，它们是 `ApplicationContext` 特定启动阶段的一部分。接下来，所有 ``BeanPostProcessor``s以有序形式进行注册，并适用于容器中所有更进一步的beans。由于AOP自动代理是对 `BeanPostProcessor` 本身实施的，``BeanPostProcessor``s和它们直接引用的beans都没有资格进行自动代理，因此没有切面织入它们。
+
 For any such bean, you should see an informational log message: "__Bean foo is not
 eligible for getting processed by all BeanPostProcessor interfaces (for example: not
 eligible for auto-proxying)__".
+
+对于这样的bean，你应该看到一个信息日志消息：“__Bean foo没资格被所有的BeanPostProcessor接口进行处理（例如：没资格进行自动代理）__”。
 
 Note that if you have beans wired into your `BeanPostProcessor` using autowiring or
 `@Resource` (which may fall back to autowiring), Spring might access unexpected beans
@@ -4495,20 +4501,28 @@ ineligible for auto-proxying or other kinds of bean post-processing. For example
 have a dependency annotated with `@Resource` where the field/setter name does not
 directly correspond to the declared name of a bean and no name attribute is used, then
 Spring will access other beans for matching them by type.
+
+注意如果有beans使用自动装配或 `@Resource`（可能回到自动装配）绑定到你的 `BeanPostProcessor` 中，当搜索类型匹配的依赖候选者时，Spring可能访问未预料到的beans，因此使它们没有资格进行自动代理或其他类型的bean后处理。例如，如果你有一个带有 `@Resource` 注解的依赖，它的field/setter名称不能直接符合bean声明的名字，也没有使用name特性，Spring将访问其它的bean来通过类型匹配它们。
 ====
 
 The following examples show how to write, register, and use ``BeanPostProcessor``s in an
 `ApplicationContext`.
 
+下面的例子展示了在一个 `ApplicationContext` 中如何编写，注册和使用``BeanPostProcessor``s。
+
 
 [[beans-factory-extension-bpp-examples-hw]]
-==== Example: Hello World, BeanPostProcessor-style
+==== 例子: Hello World, BeanPostProcessor类型(Example: Hello World, BeanPostProcessor-style)
 
 This first example illustrates basic usage. The example shows a custom
 `BeanPostProcessor` implementation that invokes the `toString()` method of each bean as
 it is created by the container and prints the resulting string to the system console.
 
+这第一个例子阐述了基本用法。这个例子展示了一个定制 `BeanPostProcessor` 实现，实现会在当容器创建它时调用每一个bean的 `toString()` 方法，并且会将结果字符串输出到系统控制台。
+
 Find below the custom `BeanPostProcessor` implementation class definition:
+
+下面是定制 `BeanPostProcessor` 实现的类定义：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -4567,7 +4581,11 @@ other bean. (The preceding configuration also defines a bean that is backed by a
 script. The Spring dynamic language support is detailed in the chapter entitled
 <<dynamic-language>>.)
 
+注意 `InstantiationTracingBeanPostProcessor` 是怎样简单定义的。它甚至没有一个名字，因为它是一个bean，它能像其它bean一样进行依赖注入。（前面的配置也定义了一个bean，它被Groovy脚本支持。Spring动态语言支持在一个叫做<<dynamic-language>>的章节中进行了详细描述。）
+
 The following simple Java application executes the preceding code and configuration:
+
+下面的简单Java应用执行了前面的代码和配置：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -4589,6 +4607,8 @@ The following simple Java application executes the preceding code and configurat
 
 The output of the preceding application resembles the following:
 
+前面的应用输出结果如下
+
 [literal]
 [subs="verbatim,quotes"]
 ----
@@ -4598,7 +4618,7 @@ org.springframework.scripting.groovy.GroovyMessenger@272961
 
 
 [[beans-factory-extension-bpp-examples-rabpp]]
-==== Example: The RequiredAnnotationBeanPostProcessor
+==== 例子：RequiredAnnotationBeanPostProcessor(Example: The RequiredAnnotationBeanPostProcessor)
 
 Using callback interfaces or annotations in conjunction with a custom
 `BeanPostProcessor` implementation is a common means of extending the Spring IoC
@@ -4607,10 +4627,12 @@ container. An example is Spring's `RequiredAnnotationBeanPostProcessor` - a
 that JavaBean properties on beans that are marked with an (arbitrary) annotation are
 actually (configured to be) dependency-injected with a value.
 
+使用回调函数接口或注解结合定制 `BeanPostProcessor` 实现是扩展Spring IoC容器的常见方法。一个例子是Spring的 `RequiredAnnotationBeanPostProcessor`-一个 `BeanPostProcessor` 实现附带在Spring发行中，它保证了标记有（任意）注解的beans上的JavaBean属性能真正（配置成）通过值进行依赖注入。
+
 
 
 [[beans-factory-extension-factory-postprocessors]]
-=== Customizing configuration metadata with a BeanFactoryPostProcessor
+=== 通过BeanFactoryPostProcessor定制配置元数据(Customizing configuration metadata with a BeanFactoryPostProcessor)
 
 The next extension point that we will look at is the
 `org.springframework.beans.factory.config.BeanFactoryPostProcessor`. The semantics of
@@ -4620,12 +4642,16 @@ that is, the Spring IoC container allows a `BeanFactoryPostProcessor` to read th
 configuration metadata and potentially change it __before__ the container instantiates
 any beans other than ``BeanFactoryPostProcessor``s.
 
+接下来我们要看到的扩展点是 `org.springframework.beans.factory.config.BeanFactoryPostProcessor`。这个接口的语义与那些 `BeanPostProcessor` 类似，但有一个主要的不同：`BeanFactoryPostProcessor` 操作__配置元数据__；也就是说，Spring IoC容器允许在容器实例化除了``BeanFactoryPostProcessor``s之外的任何beans__之前__，`BeanFactoryPostProcessor` 读取配置元数据并可能修改它们。
+
 You can configure multiple ``BeanFactoryPostProcessor``s, and you can control the order in
 which these ``BeanFactoryPostProcessor``s execute by setting the `order` property.
 However, you can only set this property if the `BeanFactoryPostProcessor` implements the
 `Ordered` interface. If you write your own `BeanFactoryPostProcessor`, you should
 consider implementing the `Ordered` interface too. Consult the javadocs of the
 `BeanFactoryPostProcessor` and `Ordered` interfaces for more details.
+
+你可以配置多个``BeanFactoryPostProcessor``s，你可以通过设置 `order` 属性来控制这些``BeanFactoryPostProcessor``s的执行顺序。但是，只有 `BeanFactoryPostProcessor` 实现了 `Ordered` 接口时你才可以设置这个属性。如果你编写了你自己的 `BeanFactoryPostProcessor`，你也应该考虑实现 `Ordered` 接口。关于 `BeanFactoryPostProcessor` 和 `Ordered` 接口的更多细节请查阅javadocs。
 
 [NOTE]
 ====
@@ -4637,11 +4663,15 @@ to work with bean instances within a `BeanFactoryPostProcessor` (e.g., using
 standard container lifecycle. This may cause negative side effects such as bypassing
 bean post processing.
 
+如果你想改变真正的bean__实例__（例如，从配置元数据中创建的对象），你反而需要使用 `BeanPostProcessor`（在上面的<<beans-factory-extension-bpp>>中有描述）。尽管在 `BeanFactoryPostProcessor` 中和bean实例合作在技术上是可能的（例如使用 `BeanFactory.getBean()`），但这样做会引起过早的bean实例化，违背标准的容器生命周期。这可能会产生负面影响例如绕过bean后处理。
+
 Also, ``BeanFactoryPostProcessor``s are scoped __per-container__. This is only relevant if
 you are using container hierarchies. If you define a `BeanFactoryPostProcessor` in one
 container, it will __only__ be applied to the bean definitions in that container. Bean
 definitions in one container will not be post-processed by ``BeanFactoryPostProcessor``s
 in another container, even if both containers are part of the same hierarchy.
+
+``BeanFactoryPostProcessor``s的作用域也是在__每个容器中__。这仅对于容器分层而言有意义。如果在一个容器中你定义了一个 `BeanFactoryPostProcessor`，它将__只__应用于那个容器中的bean定义。一个容器中的bean定义不能被另一个容器中的``BeanFactoryPostProcessor``s进行后处理，即使两个容器是在同一个分层中。
 ====
 
 A bean factory post-processor is executed automatically when it is declared inside an
@@ -4651,12 +4681,16 @@ post-processors, such as `PropertyOverrideConfigurer` and
 `PropertyPlaceholderConfigurer`. A custom `BeanFactoryPostProcessor` can also be used,
 for example, to register custom property editors.
 
+为了对定义在容器中的配置元数据应用修改，当一个bean工厂后处理器在 `ApplicationContext` 中声明时，它会自动执行。Spring包含许多预先定义的bean工厂后处理器，例如 `PropertyOverrideConfigurer` 和 `PropertyPlaceholderConfigurer`。定制的 `BeanFactoryPostProcessor` 也可以使用，例如，为了注册定制的属性编辑器。
+
 [[null]]
 
 An `ApplicationContext` automatically detects any beans that are deployed into it that
 implement the `BeanFactoryPostProcessor` interface. It uses these beans as bean factory
 post-processors, at the appropriate time. You can deploy these post-processor beans as
 you would any other bean.
+
+`ApplicationContext` 会自动检测任何部署在它之内的实现了 `BeanFactoryPostProcessor` 接口的bean。在合适的时间，它会使用这些beans作为bean工厂后处理器。你可以像任何你使用的其它bean那样部署这些后处理器beans。
 
 [NOTE]
 ====
@@ -4666,11 +4700,13 @@ As with ``BeanPostProcessor``s , you typically do not want to configure
 Thus, marking it for lazy initialization will be ignored, and the
 `Bean(Factory)PostProcessor` will be instantiated eagerly even if you set the
 `default-lazy-init` attribute to `true` on the declaration of your `<beans />` element.
+
+关于 ``BeanPostProcessor``s, 通常情况下你不想配置``BeanFactoryPostProcessor``s为延迟初始化。 如果没有别的bean引用 `Bean(Factory)PostProcessor`，后处理器将根本不会实例化。因此，把它标记成延迟初始化会被忽略，即使你在 `<beans/>` 元素的声明中把 `default-lazy-init` 特性设置为 `true`，`Bean(Factory)PostProcessor` 也会急切的实例化。
 ====
 
 
 [[beans-factory-placeholderconfigurer]]
-==== Example: the Class name substitution PropertyPlaceholderConfigurer
+==== 例子：类名替换PropertyPlaceholderConfigurer(Example: the Class name substitution PropertyPlaceholderConfigurer)
 
 You use the `PropertyPlaceholderConfigurer` to externalize property values from a bean
 definition in a separate file using the standard Java `Properties` format. Doing so
@@ -4678,12 +4714,16 @@ enables the person deploying an application to customize environment-specific pr
 such as database URLs and passwords, without the complexity or risk of modifying the
 main XML definition file or files for the container.
 
+你可以使用 `PropertyPlaceholderConfigurer` 读取单独文件中的bean定义来使属性值具体化，这个单独文件使用标准的Java `Properties` 格式。这样做可以使部署应用的人定制特定环境属性例如数据库URLs和密码，没有复杂性或修改主XML定义文件及容器相关文件的风险。
+
 Consider the following XML-based configuration metadata fragment, where a `DataSource`
 with placeholder values is defined. The example shows properties configured from an
 external `Properties` file. At runtime, a `PropertyPlaceholderConfigurer` is applied to
 the metadata that will replace some properties of the DataSource. The values to replace
 are specified as __placeholders__ of the form `${property-name}` which follows the Ant /
 log4j / JSP EL style.
+
+考虑一下下面的基于XML定义的配置元数据片段，其中定义了一个带有占位符的 `DataSource`。这个例子展示了从外部 `Properties` 文件进行属性配置。在运行时，一个`PropertyPlaceholderConfigurer` 会应用到元数据中，将会替换DataSource中的一些属性。通过 `${property-name}` 形式的占位符指定要替换的值，这遵循了Ant/log4j/JSP EL风格。
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -4703,6 +4743,8 @@ log4j / JSP EL style.
 
 The actual values come from another file in the standard Java `Properties` format:
 
+真正的属性值来自于另一个以标准Java `Properties` 格式编写的文件：
+
 [literal]
 [subs="verbatim,quotes"]
 ----
@@ -4718,9 +4760,13 @@ The `PropertyPlaceholderConfigurer` checks for placeholders in most properties a
 attributes of a bean definition. Furthermore, the placeholder prefix and suffix can be
 customized.
 
+因此，在运行时字符串 `${jdbc.username}` 被替换为‘sa’，其它的匹配属性文件中的key的占位符的值以同样方式应用。`PropertyPlaceholderConfigurer` 会检查bean定义中大多数属性和特性的占位符。此外，占位符的前缀和后缀都可以定制。
+
 With the `context` namespace introduced in Spring 2.5, it is possible to configure
 property placeholders with a dedicated configuration element. One or more locations can
 be provided as a comma-separated list in the `location` attribute.
+
+Spring 2.5中引入了 `上下文` 命名空间，可以通过专用配置元素配置属性占位符。在 `location` 特性上可以以逗号分割的列表的形式提供一个或多个位置。
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -4734,19 +4780,29 @@ cannot find a property in the specified properties files. You can customize this
 behavior by setting the `systemPropertiesMode` property of the configurer with one of
 the following three supported integer values:
 
+`PropertyPlaceholderConfigurer` 不仅仅查找你指定的 `Properties` 文件中的属性。默认情况下，如果不能在指定属性文件中找到属性，它也对Java `System` 属性进行检查。你可以通过下面三个支持的整数值中的一个设置配置器的 `systemPropertiesMode` 属性，从而定制查找行为。
+
 * __never__ (0): Never check system properties
 * __fallback__ (1): Check system properties if not resolvable in the specified
   properties files. This is the default.
 * __override__ (2): Check system properties first, before trying the specified
   properties files. This allows system properties to override any other property source.
 
+* __never__ （0）：从不检查system属性
+* __fallback__ （1）：如果不能在指定的属性文件中解析属性，检查system属性，这是默认值。
+* __override__ （2）：在尝试指定属性文件之前，首先检查system属性，这可以使系统属性覆盖任何其它属性源。
+
 Consult the `PropertyPlaceholderConfigurer` javadocs for more information.
+
+更多信息请查阅 `PropertyPlaceholderConfigurer` javadocs。
 
 [TIP]
 ====
 You can use the `PropertyPlaceholderConfigurer` to substitute class names, which is
 sometimes useful when you have to pick a particular implementation class at runtime. For
 example:
+
+你可以使用 `PropertyPlaceholderConfigurer` 替换类名，有时候非常有用，例如当运行时你必须选择一个特别的实现类的情况下。例如：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -4766,11 +4822,13 @@ example:
 If the class cannot be resolved at runtime to a valid class, resolution of the bean
 fails when it is about to be created, which is during the `preInstantiateSingletons()`
 phase of an `ApplicationContext` for a non-lazy-init bean.
+
+如果这个类不能在运行时解析成一个有效类，对于一个非懒惰初始化的bean，当它要创建时，在`ApplicationContext` 的 `preInstantiateSingletons()` 阶段，bean会解析失败。
 ====
 
 
 [[beans-factory-overrideconfigurer]]
-==== Example: the PropertyOverrideConfigurer
+==== 例子：PropertyOverrideConfigurer(Example: the PropertyOverrideConfigurer)
 
 The `PropertyOverrideConfigurer`, another bean factory post-processor, resembles the
 `PropertyPlaceholderConfigurer`, but unlike the latter, the original definitions can
@@ -4778,12 +4836,18 @@ have default values or no values at all for bean properties. If an overriding
 `Properties` file does not have an entry for a certain bean property, the default
 context definition is used.
 
+`PropertyOverrideConfigurer`，另一个bean工厂后处理器，类似于 `PropertyPlaceholderConfigurer`，但不像后者，最初的定义可以有默认值或bean属性一点也没有值。如果一个覆写的 `Properties` 文件对于某个确定的bean属性没有任何记录，会使用默认的上下文定义。
+
 Note that the bean definition is __not__ aware of being overridden, so it is not
 immediately obvious from the XML definition file that the override configurer is being
 used. In case of multiple `PropertyOverrideConfigurer` instances that define different
 values for the same bean property, the last one wins, due to the overriding mechanism.
 
+注意bean定义__没有__意识到被覆写了，因此从XML定义文件中它不能立刻很明显的看出在使用覆写的配置器。如果多个 `PropertyOverrideConfigurer` 实例对于同一个bean属性定义不同的值，由于覆写机制，使用最后一个定义的值。
+
 Properties file configuration lines take this format:
+
+属性文件配置行使用这种格式：
 
 [literal]
 [subs="verbatim,quotes"]
@@ -4792,6 +4856,8 @@ beanName.property=value
 ----
 
 For example:
+
+例如：
 
 [literal]
 [subs="verbatim,quotes"]
@@ -4803,9 +4869,13 @@ dataSource.url=jdbc:mysql:mydb
 This example file can be used with a container definition that contains a bean called
 __dataSource__, which has __driver__ and __url__ properties.
 
+这个例子文件可以被包含名为__dataSource__ bean的容器定义使用，它有一个__driver__和__url__属性。
+
 Compound property names are also supported, as long as every component of the path
 except the final property being overridden is already non-null (presumably initialized
 by the constructors). In this example...
+
+混合属性命名也支持，除了最后被覆写的属性，只要路径的每部分都已经是非空（假设构造函数进行初始化）。在这个例子中...
 
 [literal]
 [subs="verbatim,quotes"]
