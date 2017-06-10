@@ -4875,7 +4875,7 @@ Compound property names are also supported, as long as every component of the pa
 except the final property being overridden is already non-null (presumably initialized
 by the constructors). In this example...
 
-混合属性命名也支持，除了最后被覆写的属性，只要路径的每部分都已经是非空（假设构造函数进行初始化）。在这个例子中...
+混合属性命名也支持，除了最后被覆写的属性，只要路径的每部分都已经是非空（假设已经使用构造函数进行了初始化）。在这个例子中...
 
 [literal]
 [subs="verbatim,quotes"]
@@ -4886,15 +4886,21 @@ foo.fred.bob.sammy=123
 ... the `sammy` property of the `bob` property of the `fred` property of the `foo` bean
 is set to the scalar value `123`.
 
+... `foo` bean中的 `fred` 属性的 `bob` 属性的 `sammy` 属性设为标量值 `123`。
+
 [NOTE]
 ====
 Specified override values are always __literal__ values; they are not translated into
 bean references. This convention also applies when the original value in the XML bean
 definition specifies a bean reference.
+
+指定的覆写值总是__字面上的__值；它们不能转成bean引用。当XML bean定义中的初始值指定了一个bean引用时，这个规范同样适用。
 ====
 
 With the `context` namespace introduced in Spring 2.5, it is possible to configure
 property overriding with a dedicated configuration element:
+
+Spring 2.5引入了 `上下文` 命名空间，可以用专用配置元素配置属性覆写：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -4905,10 +4911,12 @@ property overriding with a dedicated configuration element:
 
 
 [[beans-factory-extension-factorybean]]
-=== Customizing instantiation logic with a FactoryBean
+=== 使用FactoryBean定制实例化逻辑(Customizing instantiation logic with a FactoryBean)
 
 Implement the `org.springframework.beans.factory.FactoryBean` interface for objects that
 __are themselves factories__.
+
+为对象实现 `org.springframework.beans.factory.FactoryBean` 接口的是他们自己的工厂。
 
 The `FactoryBean` interface is a point of pluggability into the Spring IoC container's
 instantiation logic. If you have complex initialization code that is better expressed in
@@ -4916,7 +4924,11 @@ Java as opposed to a (potentially) verbose amount of XML, you can create your ow
 `FactoryBean`, write the complex initialization inside that class, and then plug your
 custom `FactoryBean` into the container.
 
+`FactoryBean` 接口是Spring IoC的实例化逻辑可插入性的一个点。如果你有复杂的初始化代码，相比于（可能的）冗长的XML代码用Java语言来表达会更好，你可以创建你自己的 `FactoryBean`，在类里面编写复杂的初始化逻辑，并将你定制的 `FactoryBean` 插入到容器中。
+
 The `FactoryBean` interface provides three methods:
+
+`FactoryBean` 接口提供了三个方法：
 
 * `Object getObject()`: returns an instance of the object this factory creates. The
   instance can possibly be shared, depending on whether this factory returns singletons
@@ -4926,9 +4938,15 @@ The `FactoryBean` interface provides three methods:
 * `Class getObjectType()`: returns the object type returned by the `getObject()` method
   or `null` if the type is not known in advance.
 
+* `Object getObject()`：返回一个工厂创建的对象实例。这个实例可能被共享，取决于工厂是返回一个单例还是原型。
+* `boolean isSingleton()`：如果这个 `FactoryBean` 返回单例，返回 `true`，否则返回 `false`。
+* `Class getObjectType()`：返回 `getObject()` 方法返回的对象类型，如果类型不能提前知道则返回 `null`。
+
 The `FactoryBean` concept and interface is used in a number of places within the Spring
 Framework; more than 50 implementations of the `FactoryBean` interface ship with Spring
 itself.
+
+`FactoryBean` 的概念和接口在Spring框架中的许多地方都使用了；Spring本身中有不止50个 `FactoryBean` 接口的实现。
 
 When you need to ask a container for an actual `FactoryBean` instance itself instead of
 the bean it produces, preface the bean's id with the ampersand symbol ( `&`) when
@@ -4937,13 +4955,15 @@ with an id of `myBean`, invoking `getBean("myBean")` on the container returns th
 product of the `FactoryBean`; whereas, invoking `getBean("&myBean")` returns the
 `FactoryBean` instance itself.
 
+当你需要向容器请求一个真正的 `FactoryBean` 实例本身而不是它产生的bean时，调用 `ApplicationContext` 的 `getBean()` 方法时，bean的id前面要加上一个 `$` 符号。因此对于一个给定的带有一个值为 `myBean` 的id的 `FactoryBean`，在容器中调用 `getBean("myBean")`，返回 `FactoryBean` 的产品，然而调用 `getBean("&myBean")` 会返回 `FactoryBean` 实例本身。
+
 
 
 
 [[beans-annotation-config]]
-== Annotation-based container configuration
+==  基于注解的容器配置(Annotation-based container configuration)
 
-.Are annotations better than XML for configuring Spring?
+.在配置Spring时注解是否比XML更好？(Are annotations better than XML for configuring Spring?)
 ****
 The introduction of annotation-based configurations raised the question of whether this
 approach is 'better' than XML. The short answer is __it depends__. The long answer is
@@ -4955,11 +4975,15 @@ code or recompiling them. Some developers prefer having the wiring close to the 
 while others argue that annotated classes are no longer POJOs and, furthermore, that the
 configuration becomes decentralized and harder to control.
 
+基于注解配置的引入引出了一个问题，这种方式是否比基于XML的配置‘更好’。简短的回答是__视情况而定__。长一点的回答是每种方法都有它的优点和缺点，通常是由开发者决定哪一种策略更适合他们。由于注解的定义方式，注解在它们的声明中提供了许多上下文，导致配置更简短更简洁。然而，XML擅长连接组件而不必接触源代码或重新编译它们。一些开发者更喜欢让绑定接近源代码，而另一些人则认为基于注解的类不再是POJOs，此外，配置变的分散，而且更难控制。
+
 No matter the choice, Spring can accommodate both styles and even mix them together.
 It's worth pointing out that through its <<beans-java,JavaConfig>> option, Spring allows
 annotations to be used in a non-invasive way, without touching the target components
 source code and that in terms of tooling, all configuration styles are supported by the
 https://spring.io/tools/sts[Spring Tool Suite].
+
+无论选择是什么，Spring都能容纳这两种风格，甚至可以将它们混合在一起。值得指出的是，通过它的<<beans-java,Java配置>>选项，Spring允许注解以一种非入侵的方式使用，不触碰目标组件源码而且关于工具支持，所有的配置风格都被 https://spring.io/tools/sts[Spring工具套件]支持。
 ****
 
 An alternative to XML setups is provided by annotation-based configuration which rely on
@@ -4978,14 +5002,20 @@ applicability. Spring 2.5 also added support for JSR-250 annotations such as
 Injection for Java) annotations contained in the javax.inject package such as `@Inject`
 and `@Named`. Details about those annotations can be found in the
 <<beans-standard-annotations,relevant section>>.
+
+基于注解的配置提供了一种XML设置的可替代方式，它依赖于字节码元数据来连接组件，而不是用尖括号声明的方式。代替使用XML来描述bean连接，开发者通过将注解使用在相关的类，方法或字段声明中，将配置移动到了组件类本身。正如在<<beans-factory-extension-bpp-examples-rabpp>>提到的那样，使用 `BeanPostProcessor` 与注解结合是扩展Spring IoC容器的的常见方法。例如，Spring 2.0引入了使用<<beans-required-annotation,@Required>>注解来强制必需的属性的可能性。Spring 2.5使以同样地通用方法来驱动Spring的依赖注入变为可能。本质上来说，`@Autowired` 提供了如<<beans-factory-autowire>>描述的同样的能力，但是有更细粒度的控制和更广的应用性。Spring 2.5也添加对JSR-250注解的支持，例如，`@PostConstruct` 和 `@PreDestroy`。Spring 3.0添加了对JSR-330，包含在javax.inject包内的注解（Java的依赖注入）的支持，例如 `@Inject` 和 `@Named`。关于这些注解的细节可以在<<beans-standard-annotations,相关的小节>>找到。
 [NOTE]
 ====
 Annotation injection is performed __before__ XML injection, thus the latter
 configuration will override the former for properties wired through both approaches.
+
+注解注入在XML注入__之前__进行，因此对于通过两种方法进行绑定的属性后者的配置会覆盖前者。
 ====
 As always, you can register them as individual bean definitions, but they can also be
 implicitly registered by including the following tag in an XML-based Spring
 configuration (notice the inclusion of the `context` namespace):
+
+跟平时一样，你可以作为单独的bean定义来注册它们，但也可以通过在一个基于XML的Spring配置（注入包含 `上下文` 命名空间）中包含下面的标签来隐式的注册它们：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -5011,6 +5041,8 @@ configuration (notice the inclusion of the `context` namespace):
 as well as the aforementioned
 {api-spring-framework}/beans/factory/annotation/RequiredAnnotationBeanPostProcessor.html[`RequiredAnnotationBeanPostProcessor`].)
 
+（隐式注册的后处理器包括 {api-spring-framework}/beans/factory/annotation/AutowiredAnnotationBeanPostProcessor.html[`AutowiredAnnotationBeanPostProcessor`]， {api-spring-framework}/context/annotation/CommonAnnotationBeanPostProcessor.html[`CommonAnnotationBeanPostProcessor`]， {api-spring-framework}/orm/jpa/support/PersistenceAnnotationBeanPostProcessor.html[`PersistenceAnnotationBeanPostProcessor`]，和前面提到的 {api-spring-framework}/beans/factory/annotation/RequiredAnnotationBeanPostProcessor.html[`RequiredAnnotationBeanPostProcessor`]。）
+
 [NOTE]
 ====
 `<context:annotation-config/>` only looks for annotations on beans in the same
@@ -5018,6 +5050,8 @@ application context in which it is defined. This means that, if you put
 `<context:annotation-config/>` in a `WebApplicationContext` for a `DispatcherServlet`,
 it only checks for `@Autowired` beans in your controllers, and not your services. See
 <<mvc-servlet>> for more information.
+
+`<context:annotation-config/>` 仅在定义它的同样的应用上下文中寻找beans的注解。这意味着，如果你在一个为 `DispatcherServlet` 服务的 `WebApplicationContext` 中放置了 `<context:annotation-config/>`，它只能在你的控制器中检查 `@Autowired` 注解的beans，而不是在你的服务层中。更多信息请看<<mvc-servlet>>。
 ====
 
 
@@ -5027,6 +5061,8 @@ it only checks for `@Autowired` beans in your controllers, and not your services
 
 The `@Required` annotation applies to bean property setter methods, as in the following
 example:
+
+`@Required` 注解应用到bean属性的setter方法上，例子如下：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -5053,6 +5089,8 @@ or the like later on. It is still recommended that you put assertions into the b
 class itself, for example, into an init method. Doing so enforces those required
 references and values even when you use the class outside of a container.
 
+这个注解只是指明受影响的bean属性必须在配置时通过显式的bean定义的属性值或自动组装填充。如果受影响的bean属性没有被填充，容器会抛出一个异常，这允许及早明确的失败，避免``NullPointerException``s或后面出现类似的情况。仍然建议你在bean类本身加入断言，例如，加入到初始化方法中。这样做可以强制这些必需的的引用和值，甚至是你在容器外部使用这个类的时候。
+
 
 
 [[beans-autowired-annotation]]
@@ -5062,9 +5100,13 @@ references and values even when you use the class outside of a container.
 ====
 JSR 330's `@Inject` annotation can be used in place of Spring's `@Autowired` annotation
 in the examples below. See <<beans-standard-annotations,here>> for more details.
+
+在下面的例子中JSR 330的 `@Inject` 注解可以用来代替Spring的 `@Autowired` 注解。更多细节请看<<beans-standard-annotations,这里>>。
 ====
 
 You can apply the `@Autowired` annotation to constructors:
+
+你可以将 `@Autowired` 注解应用到构造函数上。
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -5088,10 +5130,14 @@ You can apply the `@Autowired` annotation to constructors:
 As of Spring Framework 4.3, the `@Autowired` constructor is no longer necessary if the
 target bean only defines one constructor. If several constructors are available, at
 least one must be annotated to teach the container which one it has to use.
+
+从Spring框架4.3起，如果目标bean仅定义了一个构造函数，那么 `@Autowired` 注解的构造函数不再是必要的。如果几个构造函数是可获得的，至少有一个必须要加上注解，以便于告诉容器必须使用哪一个。
 ====
 
 As expected, you can also apply the `@Autowired` annotation to "traditional" setter
 methods:
+
+正如预料的那样，你也可以将 `@Autowired` 注解应用到“传统的”setter方法上：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -5112,6 +5158,8 @@ methods:
 
 You can also apply the annotation to methods with arbitrary names and/or multiple
 arguments:
+
+你也可以应用注解到具有任何名字和/或多个参数的方法上：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -5135,6 +5183,8 @@ arguments:
 ----
 
 You can apply `@Autowired` to fields as well and even mix it with constructors:
+
+你也可以应用 `@Autowired` 到字段上，甚至可以与构造函数混合用：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -5160,6 +5210,8 @@ It is also possible to provide __all__ beans of a particular type from the
 `ApplicationContext` by adding the annotation to a field or method that expects an array
 of that type:
 
+通过给是数组的字段或方法添加注解，也有可能从 `ApplicationContext` 中提供一组特定类型的__所有__的beans：
+
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -5174,6 +5226,8 @@ of that type:
 ----
 
 The same applies for typed collections:
+
+同样也可以应用到有类型的（泛型）集合上：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -5197,11 +5251,15 @@ The same applies for typed collections:
 Your beans can implement the `org.springframework.core.Ordered` interface or either use
 the `@Order` or standard `@Priority` annotation if you want items in the array or list
 to be sorted into a specific order.
+
+如果你希望数组或列表中的项按指定顺序排序，你的bean可以实现 `org.springframework.core.Ordered` 接口，或使用 `@Order` 或标准 `@Priority` 注解。
 ====
 
 Even typed Maps can be autowired as long as the expected key type is `String`. The Map
 values will contain all beans of the expected type, and the keys will contain the
 corresponding bean names:
+
+只要期望的key类型是 `String`，那么类型化（泛型）的Maps就可以自动组装。Map的值将包含所有期望类型的beans，key将包含对应的bean名字：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -5223,6 +5281,8 @@ corresponding bean names:
 By default, the autowiring fails whenever __zero__ candidate beans are available; the
 default behavior is to treat annotated methods, constructors, and fields as
 indicating __required__ dependencies. This behavior can be changed as demonstrated below.
+
+默认情况下，当__没有__候选beans可获得时，自动组装会失败；默认的行为是将注解的方法，构造函数和字段看作指明了__必需的__依赖。这个行为也可以通过下面的示范去改变。
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -5248,11 +5308,15 @@ non-required constructors can be annotated. In that case, each is considered amo
 candidates and Spring uses the __greediest__ constructor whose dependencies can be
 satisfied, that is the constructor that has the largest number of arguments.
 
+__每个类只有一个注解的构造函数__可以标记为__必需的__，但可以注解多个非必需的构造函数。在那种情况下，会考虑这些候选者中的每一个，Spring使用__最贪婪的__构造函数，即依赖可以被满足的，具有最大数目的参数的构造函数。
+
 `@Autowired`'s __required__ attribute is recommended over the `@Required` annotation.
 The __required__ attribute indicates that the property is not required for autowiring
 purposes, the property is ignored if it cannot be autowired. `@Required`, on the other
 hand, is stronger in that it enforces the property that was set by any means supported
 by the container. If no value is injected, a corresponding exception is raised.
+
+建议使用 `@Autowired` 的__required__特性而不是 `@Required` 注解。__required__特性象征这个属性不是因被自动装配的目的而必需的，如果这个属性不能被自动装配，它会被忽略。另一方面 `@Required` 是更强大的，它被容器支持，强制这个属性无论如何都要被设置。如果没有值注入，会抛出对应的异常。
 ====
 
 You can also use `@Autowired` for interfaces that are well-known resolvable
@@ -5260,6 +5324,8 @@ dependencies: `BeanFactory`, `ApplicationContext`, `Environment`, `ResourceLoade
 `ApplicationEventPublisher`, and `MessageSource`. These interfaces and their extended
 interfaces, such as `ConfigurableApplicationContext` or `ResourcePatternResolver`, are
 automatically resolved, with no special setup necessary.
+
+你也可以对那些众所周知的可解析依赖的接口使用 `@Autowired`：`BeanFactory`，`ApplicationContext`，`Environment`，`ResourceLoader`，`ApplicationEventPublisher` 和 `MessageSource`。这些接口和它们的扩展接口，例如 `ConfigurableApplicationContext` 或 `ResourcePatternResolver`，可以自动解析，不需要特别的设置。
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -5283,11 +5349,13 @@ automatically resolved, with no special setup necessary.
 `BeanPostProcessor` implementations which in turn means that you __cannot__ apply these
 annotations within your own `BeanPostProcessor` or `BeanFactoryPostProcessor` types (if
 any). These types must be 'wired up' explicitly via XML or using a Spring `@Bean` method.
+
+`@Autowired`，`@Inject`，`@Resource` 和 `@Value` 注解是通过Spring `BeanPostProcessor` 实现处理，这反过来意味着你__不能__在你自己的 `BeanPostProcessor` 或 `BeanFactoryPostProcessor` 类型中应用这些注解（如果有的话）。这些类型必须显式的通过XML或使用Spring的 `@Bean` 方法来‘wired up’。
 ====
 
 
 [[beans-autowired-annotation-primary]]
-=== Fine-tuning annotation-based autowiring with @Primary
+=== 用@Primary润色基于注解的自动装配(Fine-tuning annotation-based autowiring with @Primary)
 
 Because autowiring by type may lead to multiple candidates, it is often necessary to have
 more control over the selection process. One way to accomplish this is with Spring's
@@ -5296,8 +5364,12 @@ preference when multiple beans are candidates to be autowired to a single-valued
 dependency. If exactly one 'primary' bean exists among the candidates, it will be the
 autowired value.
 
+因为根据类型的自动装配可能会导致多个候选目标，所以在选择过程中进行更多的控制经常是有必要的。一种方式是通过Spring的 `@Primary` 注解来完成这件事。当有个多个候选bean要自动组装到一个单值的依赖时，`@Primary` 指示指定的bean应该具有更高的优先级。如果确实只有一个‘primary’bean位于候选目标中间，它将是那个自动装配的值。
+
 Let's assume we have the following configuration that defines `firstMovieCatalog` as the
 _primary_ `MovieCatalog`.
+
+假设我们具有如下配置，将 `firstMovieCatalog` 定义为 _主要的_ `MovieCatalog`。
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -5320,6 +5392,8 @@ _primary_ `MovieCatalog`.
 With such configuration, the following `MovieRecommender` will be autowired with the
 `firstMovieCatalog`.
 
+根据这样的配置，下面的 `MovieRecommender` 将用 `firstMovieCatalog` 进行自动装配。
+
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -5335,6 +5409,8 @@ With such configuration, the following `MovieRecommender` will be autowired with
 
 
 The corresponding bean definitions appear as follows.
+
+对应的bean定义如下所示：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -5365,13 +5441,15 @@ The corresponding bean definitions appear as follows.
 
 
 [[beans-autowired-annotation-qualifiers]]
-=== Fine-tuning annotation-based autowiring with qualifiers
+=== 润色基于注解且带有限定符的自动装配(Fine-tuning annotation-based autowiring with qualifiers)
 
 `@Primary` is an effective way to use autowiring by type with several instances when one
 primary candidate can be determined. When more control over the selection process is
 required, Spring's `@Qualifier` annotation can be used. You can associate qualifier values
 with specific arguments, narrowing the set of type matches so that a specific bean is
 chosen for each argument. In the simplest case, this can be a plain descriptive value:
+
+当有多个实例可以确定一个主要的候选对象时，`@Primary` 是一种按类型自动装配的有效方式。当必需在选择过程中进行更多的控制时，可以使用Spring的 `@Qualifier` 注解。为了给每个参数选择一个特定的bean，你可以将限定符的值与特定的参数联系在一起，减少类型匹配集合。在最简单的情况下，这是一个简单的描述性值:
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -5389,6 +5467,8 @@ chosen for each argument. In the simplest case, this can be a plain descriptive 
 
 The `@Qualifier` annotation can also be specified on individual constructor arguments or
 method parameters:
+
+`@Qualifier` 注解也可以指定单个构造函数参数或方法参数：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -5413,6 +5493,8 @@ method parameters:
 
 The corresponding bean definitions appear as follows. The bean with qualifier value
 "main" is wired with the constructor argument that is qualified with the same value.
+
+对应的bean定义如下。限定符值为“main”的bean被绑定到限定有相同值的构造函数参数中。
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -5456,12 +5538,16 @@ or "EMEA" or "persistent", expressing characteristics of a specific component th
 independent from the bean `id`, which may be auto-generated in case of an anonymous bean
 definition like the one in the preceding example.
 
+对于回退匹配，bean名字被认为是默认的限定符值。因此你可以定义一个id为“main”的bean来代替嵌套的限定符元素，会有同样的匹配结果。然而，尽管你可以使用这个约定根据名字引用特定的beans，但是 `@Autowired` 从根本上来讲是使用可选的语义限定符来进行类型驱动注入的。这意味着限定符的值，即使回退到bean名称，总是缩小语义类型匹配的集合；它们没有从语义上将一个引用表达为一个唯一的bean id。好的限定符值是“main”或“EMEA”或“persistent”，表达一个特定组件的特征，这个表达是独立于bean `id` 的，像前面例子中的这样的一个匿名bean定义都可能会自动生成id（但它不会自动生成限定符值）。
+
 Qualifiers also apply to typed collections, as discussed above, for example, to
 `Set<MovieCatalog>`. In this case, all matching beans according to the declared
 qualifiers are injected as a collection. This implies that qualifiers do not have to be
 unique; they rather simply constitute filtering criteria. For example, you can define
 multiple `MovieCatalog` beans with the same qualifier value "action", all of which would
 be injected into a `Set<MovieCatalog>` annotated with `@Qualifier("action")`.
+
+正如前面讨论的那样，限定符也可以应用到有类型的（泛型）集合上，例如，`Set<MovieCatalog>`。在这个例子中，根据声明的限定符匹配的所有beans作为一个集合进行注入。这意味着限定符不必是唯一的；它们更倾向于简单的构成过滤标准。例如，你可以定义多个具有同样限定符值“action”的 `MovieCatalog` beans，所有的这些都将注入到带有注解 `@Qualifier("action")` 的 `Set<MovieCatalog>` 中。
 
 [TIP]
 ====
@@ -5474,6 +5560,8 @@ different semantics: After selecting candidate beans by type, the specified Stri
 qualifier value will be considered within those type-selected candidates only, e.g.
 matching an "account" qualifier against beans marked with the same qualifier label.
 
+如果你想通过名字表示注解驱动的注入，不要主要使用 `@Autowired`，虽然在技术上能通过 `@Qualifier` 值引用一个bean名字。作为替代，使用JSR-250 `@Resource` 注解，它在语义上被定义为通过组件唯一的名字来识别特定的目标组件，声明的类型与匹配过程无关。`@Autowired` 有不同的语义：通过类型选择候选beans之后，特定的String限定符值会只在类型选定的候选目标中考虑，例如，在那些标记为具有相同限定符标签的beans中匹配一个“account”限定符。
+
 For beans that are themselves defined as a collection/map or array type, `@Resource`
 is a fine solution, referring to the specific collection or array bean by unique name.
 That said, as of 4.3, collection/map and array types can be matched through Spring's
@@ -5481,6 +5569,8 @@ That said, as of 4.3, collection/map and array types can be matched through Spri
 is preserved in `@Bean` return type signatures or collection inheritance hierarchies.
 In this case, qualifier values can be used to select among same-typed collections,
 as outlined in the previous paragraph.
+
+对于那些本身定义为集合/map或数组类型中的beans来说，`@Resource` 是一个很好的解决方案，适用于通过唯一名字区分的特定的集合或数组bean。也就是说，自Spring 4.3起，集合/map和数组类型中也可以通过Spring的 `@Autowired` 类型匹配算法进行匹配，只要元素类型信息在 `@Bean` 返回类型签名中或或集合继承结构保留。在这种情况下，限定符值可以用来在相同类型的集合中选择，正如在前一段中概括的那样。
 
 As of 4.3, `@Autowired` also considers self references for injection, i.e. references
 back to the bean that is currently injected. Note that self injection is a fallback;
@@ -5492,15 +5582,21 @@ on the same instance through the bean's transactional proxy: Consider factoring 
 the affected methods to a separate delegate bean in such a scenario. Alternatively,
 use `@Resource` which may obtain a proxy back to the current bean by its unique name.
 
+自Spring 4.3起，`@Autowired` 也考虑自引用注入，例如，引用返回当前注入的bean。注意自注入是备用；正常情况下对其它组件的依赖关系总是优先的。在这个意义上，自引用不参与普通的候选目标选择，因此尤其是从不是主要的；恰恰相反，它们最终总是最低的优先级。在实践中，自引用只是作为最后的手段，例如，通过bean的事务代理调用同一实例的其它方法：在这种情况下考虑分解出受影响的方法到一个单独的代理bean中。供替代的选择是，使用 `@Resource` 通过它的唯一名字可能得到一个回到当前bean的代理。
+
 `@Autowired` applies to fields, constructors, and multi-argument methods, allowing for
 narrowing through qualifier annotations at the parameter level. By contrast, `@Resource`
 is supported only for fields and bean property setter methods with a single argument.
 As a consequence, stick with qualifiers if your injection target is a constructor or a
 multi-argument method.
+
+`Autowired` 可以应用到字段，构造函数和多参数方法上，允许通过限定符注解在参数层面上缩减。相比之下， `@Resource` 仅支持字段和bean属性的带有单个参数的setter方法。因此，如果你的注入目标是一个构造函数或一个多参数的方法，坚持使用限定符。
 ====
 
 You can create your own custom qualifier annotations. Simply define an annotation and
 provide the `@Qualifier` annotation within your definition:
+
+你可以创建自己的定制限定符注解。简单定义一个注解，在你自己的定义中提供 `@Qualifier` 注解：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -5515,6 +5611,8 @@ provide the `@Qualifier` annotation within your definition:
 ----
 
 Then you can provide the custom qualifier on autowired fields and parameters:
+
+然后你可以在自动装配的字段和参数上提供定制的限定符：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -5542,6 +5640,8 @@ Next, provide the information for the candidate bean definitions. You can add
 fully-qualified class name of the annotation. Or, as a convenience if no risk of
 conflicting names exists, you can use the short class name. Both approaches are
 demonstrated in the following example.
+
+接下来，提供候选bean定义的信息。你可以添加 `<qualifier/>` 标签作为 `<bean/>` 标签的子元素，然后指定匹配你的定制限定符注解的 `类型` 和 `值`。类型用来匹配注解的全限定类名称（即完整类路径）。或者，如果不存在名称冲突的风险，为了方便，你可以使用简短地类名称。下面的例子示范了这两种方法。
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -5575,11 +5675,15 @@ demonstrated in the following example.
 In <<beans-classpath-scanning>>, you will see an annotation-based alternative to
 providing the qualifier metadata in XML. Specifically, see <<beans-scanning-qualifiers>>.
 
+在<<beans-classpath-scanning>>中，你将看到一个基于注解的替代方法，在XML中提供限定符元数据。明确的说，看<<beans-scanning-qualifiers>>。
+
 In some cases, it may be sufficient to use an annotation without a value. This may be
 useful when the annotation serves a more generic purpose and can be applied across
 several different types of dependencies. For example, you may provide an __offline__
 catalog that would be searched when no Internet connection is available. First define
 the simple annotation:
+
+在某些情况下，使用没有值的注解就是足够的。当注解为了更通用的目的服务时，这可以是非常有用的，可以应用到跨几个不同类型的依赖上。例如，当因特网连接不可用时，你可以提供一个可以搜索的离线目录。首先定义一个简单的注解：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -5593,6 +5697,8 @@ the simple annotation:
 ----
 
 Then add the annotation to the field or property to be autowired:
+
+然后将注解添加到要自动装配的字段或属性上：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
