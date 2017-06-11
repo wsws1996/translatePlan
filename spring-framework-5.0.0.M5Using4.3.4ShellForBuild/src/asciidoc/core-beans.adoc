@@ -5716,6 +5716,8 @@ Then add the annotation to the field or property to be autowired:
 
 Now the bean definition only needs a qualifier `type`:
 
+现在bean定义只需要一个限定符 `type`：
+
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -5730,6 +5732,8 @@ addition to or instead of the simple `value` attribute. If multiple attribute va
 then specified on a field or parameter to be autowired, a bean definition must match
 __all__ such attribute values to be considered an autowire candidate. As an example,
 consider the following annotation definition:
+
+你也可以定义接收命名特性之外的定制限定符注解或代替简单的 `value` 特性。如果要自动装配的字段或参数指定了多个属性值，bean定义必须匹配__所有的__属性值才会被认为是一个可自动装配的候选目标。作为一个例子，考虑下面的注解定义：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -5748,6 +5752,8 @@ consider the following annotation definition:
 
 In this case `Format` is an enum:
 
+这种情况下 `Format` 是枚举类型：
+
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -5758,6 +5764,8 @@ In this case `Format` is an enum:
 
 The fields to be autowired are annotated with the custom qualifier and include values
 for both attributes: `genre` and `format`.
+
+要自动装配的字段使用定制限定符进行注解，并且包含了两个特性值：`genre` 和 `format`。
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -5791,6 +5799,8 @@ also demonstrates that bean __meta__ attributes may be used instead of the
 precedence, but the autowiring mechanism falls back on the values provided within the
 `<meta/>` tags if no such qualifier is present, as in the last two bean definitions in
 the following example.
+
+最后，bean定义应该包含匹配的限定符值。这个例子也示范了bean__元__特性可以用来代替 `<qualifier/>` 子元素。如果有效，`<qualifier/>` 和它的特性优先级更高，如果没有这样的限定符出现，自动装配机制会回到将 `<meta/>` 标签内的值，例如下面的例子中的最后两个bean定义。
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -5840,11 +5850,13 @@ the following example.
 
 
 [[beans-generics-as-qualifiers]]
-=== Using generics as autowiring qualifiers
+=== 使用泛型作为自动装配限定符(Using generics as autowiring qualifiers)
 
 In addition to the `@Qualifier` annotation, it is also possible to use Java generic types
 as an implicit form of qualification. For example, suppose you have the following
 configuration:
+
+除了 `@Qualifier` 注解外，也可以使用Java的泛型类型作为限定符的一种暗示方式。例如，假设你有如下配置：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -5869,6 +5881,8 @@ Assuming that beans above implement a generic interface, i.e. `Store<String>` an
 `Store<Integer>`, you can `@Autowire` the `Store` interface and the __generic__ will
 be used as a qualifier:
 
+假设上面的beans实现了一个泛型接口，例如，`Store<String>` 和 `Store<Integer>`，你可以 `@Autowire` `Store` 接口，__泛型__将作为限定符使用：
+
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -5880,6 +5894,8 @@ be used as a qualifier:
 ----
 
 Generic qualifiers also apply when autowiring Lists, Maps and Arrays:
+
+当自动装配Lists，Maps和Arrays时，也会应用泛型限定符：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -5901,6 +5917,8 @@ The
 is a `BeanFactoryPostProcessor` that enables you to register your own custom qualifier
 annotation types even if they are not annotated with Spring's `@Qualifier` annotation.
 
+{api-spring-framework}/beans/factory/annotation/CustomAutowireConfigurer.html[`CustomAutowireConfigurer`] 是一个能使你注册自己的定制限定符注解类型的 `BeanFactoryPostProcessor`，即使它们不使用Spring的 `@Qualifier` 注解进行注解。
+
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -5916,16 +5934,22 @@ annotation types even if they are not annotated with Spring's `@Qualifier` annot
 
 The `AutowireCandidateResolver` determines autowire candidates by:
 
+`AutowireCandidateResolver` 通过下面的方式决定自动装配的候选目标：
+
 * the `autowire-candidate` value of each bean definition
 * any `default-autowire-candidates` pattern(s) available on the `<beans/>` element
 * the presence of `@Qualifier` annotations and any custom annotations registered
 with the `CustomAutowireConfigurer`
 
+* 每个bean定义的 `autowire-candidate` 的值
+* 在 `<beans/>` 元素中可获得的任何 `default-autowire-candidates` 模式
+* 存在 `@Qualifier` 注解和任何在 `CustomAutowireConfigurer` 中注册的定制注解
+
 When multiple beans qualify as autowire candidates, the determination of a "primary" is
 the following: if exactly one bean definition among the candidates has a `primary`
 attribute set to `true`, it will be selected.
 
-
+当多个beans有资格做为自动装配的候选目标时，“primary”bean的决定如下：如果在候选目标中只有一个bean定义中有一个 `primary` 特性被设为 `true`，它将被选中。
 
 [[beans-resource-annotation]]
 === @Resource
@@ -5935,9 +5959,13 @@ bean property setter methods. This is a common pattern in Java EE 5 and 6, for e
 in JSF 1.2 managed beans or JAX-WS 2.0 endpoints. Spring supports this pattern for
 Spring-managed objects as well.
 
+Spring也支持使用JSR-250 `@Resource` 注解对字段或bean属性setter方法进行注入。这是在Java EE 5和6中的一种通用模式，例如在JSF 1.2管理的beans或JAX-WS 2.0的端点。Spring对Spring管理的对象也支持这种模式。
+
 `@Resource` takes a name attribute, and by default Spring interprets that value as the
 bean name to be injected. In other words, it follows __by-name__ semantics, as
 demonstrated in this example:
+
+`@Resource` 采用名字特性，默认情况下Spring将那个值理解为要注入的bean的名字。换句话说，它遵循__by-name__语义，正如这个例子示范的：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -5958,6 +5986,8 @@ If no name is specified explicitly, the default name is derived from the field n
 setter method. In case of a field, it takes the field name; in case of a setter method,
 it takes the bean property name. So the following example is going to have the bean with
 name "movieFinder" injected into its setter method:
+
+如果没有显式的指定名字，默认名字从字段名或setter方法中取得。假使有字段，它采用字段名称；假使有setter方法，它采用bean的属性名。因此下面的例子将名字为“movieFinder”的bean注入到它的setter方法中：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -5982,6 +6012,8 @@ names can be resolved through JNDI if you configure Spring's
 {api-spring-framework}/jndi/support/SimpleJndiBeanFactory.html[`SimpleJndiBeanFactory`]
 explicitly. However, it is recommended that you rely on the default behavior and simply
 use Spring's JNDI lookup capabilities to preserve the level of indirection.
+
+注解提供的名字被 `CommonAnnotationBeanPostProcessor` 感知的 `ApplicationContext` 解析为bean名字。如果你显式地配置了Spring的 {api-spring-framework}/jndi/support/SimpleJndiBeanFactory.html[`SimpleJndiBeanFactory`]，名字可以通过JNDI解析。但是建议你依赖默认行为，简单使用Spring的JNDI查找功能避免间接查找（级别）。
 ====
 
 In the exclusive case of `@Resource` usage with no explicit name specified, and similar
@@ -5990,10 +6022,14 @@ and resolves well-known resolvable dependencies: the `BeanFactory`,
 `ApplicationContext`, `ResourceLoader`, `ApplicationEventPublisher`, and `MessageSource`
 interfaces.
 
+在 `@Resource` 特有的没有显式名字指定的情况下，类似于 `@Autowired`，`@Resource` 会进行主要的类型匹配来代替指定名字的bean并解析众所周知的可解析依赖：`BeanFactory`，`ApplicationContext`，`ResourceLoader`，`ApplicationEventPublisher` 和 `MessageSource` 接口。
+
 Thus in the following example, the `customerPreferenceDao` field first looks for a bean
 named customerPreferenceDao, then falls back to a primary type match for the type
 `CustomerPreferenceDao`. The "context" field is injected based on the known resolvable
 dependency type `ApplicationContext`.
+
+因此在下面的例子中，`customerPreferenceDao` 字段首先查找名字为 `customerPreferenceDao` 的bean，然后回退到主要的类型为 `CustomerPreferenceDao` 的类型匹配。“context”字段会注入基于已知的可解析依赖类型 `ApplicationContext`。
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -6030,6 +6066,8 @@ point in the lifecycle as the corresponding Spring lifecycle interface method or
 explicitly declared callback method. In the example below, the cache will be
 pre-populated upon initialization and cleared upon destruction.
 
+`CommonAnnotationBeanPostProcessor` 不仅识别 `@Resource` 注解，而且识别JSR-250__生命周期__注解。在Spring 2.5引入了对这些注解的支持，这些注解提供了在<<beans-factory-lifecycle-initializingbean,初始化回调函数>>和<<beans-factory-lifecycle-disposablebean,销毁回调函数>>中描述的那些注解的另一种可替代方式。假设 `CommonAnnotationBeanPostProcessor` 在Spring的 `ApplicationContext` 中注册，带有这些注解中的一个的方法与对应的Spring生命周期接口方法或显式声明的回调方法在生命周期的同一点被调用。在下面的例子中，缓存会紧接着初始化预填充，并紧接着销毁清除。
+
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -6052,13 +6090,15 @@ pre-populated upon initialization and cleared upon destruction.
 ====
 For details about the effects of combining various lifecycle mechanisms, see
 <<beans-factory-lifecycle-combined-effects>>.
+
+关于组合各种生命周期机制的影响的更多细节，请看<<beans-factory-lifecycle-combined-effects>>。
 ====
 
 
 
 
 [[beans-classpath-scanning]]
-== Classpath scanning and managed components
+== ClassPath扫描和管理组件(Classpath scanning and managed components)
 Most examples in this chapter use XML to specify the configuration metadata that produces
 each `BeanDefinition` within the Spring container. The previous section
 (<<beans-annotation-config>>) demonstrates how to provide a lot of the configuration
@@ -6072,23 +6112,29 @@ can use annotations (for example `@Component`), AspectJ type expressions, or you
 custom filter criteria to select which classes will have bean definitions registered with
 the container.
 
+本章中的大多数示例使用XML来指定在Spring容器中生成每个 `BeanDefinition` 的配置元数据。上一节（<<beans-annotation-config>>）示范了如何通过源代码级别的注解提供大量的配置元数据。然而，即使在这些示例中，无论如何，注解也仅仅用于驱动依赖注入，"base" bean定义依然是显式的的在XML文件中定义。这一节描述通过扫描类路径隐式检测__候选组件__的选项。候选者组件是class类，这些类匹配一个条件过滤器，在容器中有对应的注册的bean定义，成为Spring bean。这消除了使用XML执行bean注册的需要(也就是没有XML什么事儿了)；反而是你可以使用注解（例如 `@Component`），AspectJ类型表达式或你自己的自定义过滤条件来选择哪些类将在容器中注册bean定义。
+
 [NOTE]
 ====
 Starting with Spring 3.0, many features provided by the Spring JavaConfig project are
 part of the core Spring Framework. This allows you to define beans using Java rather
 than using the traditional XML files. Take a look at the `@Configuration`, `@Bean`,
 `@Import`, and `@DependsOn` annotations for examples of how to use these new features.
+
+从Spring 3.0开始，Spring JavaConfig项目提供的许多功能都是Spring框架核心的一部分。 这允许你使用Java而不是使用传统的XML文件来定义bean。 看一看 `@Configuration`，`@Bean`，`@Import`，和 `@DependsOn` 注解，以了解如何使用这些新特性的例子。
 ====
 
 
 
 [[beans-stereotype-annotations]]
-=== @Component and further stereotype annotations
+=== @Component和更多的原型注解(@Component and further stereotype annotations)
 
 The `@Repository` annotation is a marker for any class that fulfills the role or
 __stereotype__ of a repository (also known as Data Access Object or DAO). Among the uses
 of this marker is the automatic translation of exceptions as described in
 <<orm-exception-translation>>.
+
+`@Repository` 注解是任何满足资源库的角色或__原型的__(也称为数据访问对象或DAO)的类的标记。此标记的用途之一是会自动转换异常，如<<orm-exception-translation>>所述。
 
 Spring provides further stereotype annotations: `@Component`, `@Service`, and
 `@Controller`. `@Component` is a generic stereotype for any Spring-managed component.
