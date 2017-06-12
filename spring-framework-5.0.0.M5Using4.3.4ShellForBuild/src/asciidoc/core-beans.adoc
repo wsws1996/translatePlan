@@ -1204,7 +1204,7 @@ sources are then converted internally into instances of `BeanDefinition` and use
 load an entire Spring IoC container instance.
 
 
-`ApplicationContext` 支持基于构造函数和基于setter对它管理的bean进行依赖注入。它也支持一些依赖通过构造函数方法注入之后，使用基于setter的依赖注入。使用 `BeanDefinition` 形式配置依赖项，结合 `PropertyEditor` 实例可以将属性从一种形式转成另一种形式。然而大多数Spring用户直接使用这些类（例如以编程形式），而使用XML定义 `bean`，注解组件（例如类中使用  `@Component`，`@Controller` 注解等等），或在基于Java的 `@Configuration` 类使用 `@Bean` 方法。然后这些资源就在内部被转换为 `BeanDefinition` 实例并被用来加载整个的Spring IoC容器实例。
+`ApplicationContext` 支持基于构造函数和基于setter对它管理的bean进行依赖注入。它也支持一些依赖通过构造函数方法注入之后，使用基于setter的依赖注入。使用 `BeanDefinition` 形式配置依赖项，结合 `PropertyEditor` 实例可以将属性从一种形式转成另一种形式。然而大多数Spring用户直接使用这些类（即以编程形式），而使用XML定义 `bean`，注解组件（即类中使用  `@Component`，`@Controller` 注解等等），或在基于Java的 `@Configuration` 类使用 `@Bean` 方法。然后这些资源就在内部被转换为 `BeanDefinition` 实例并被用来加载整个的Spring IoC容器实例。
 
 .使用基于构造函数的依赖注入还是基于setter的依赖注入？(Constructor-based or setter-based DI?)
 ****
@@ -1277,7 +1277,7 @@ graph of beans to be created, as the bean's dependencies and its dependencies'
 dependencies (and so on) are created and assigned. Note that resolution mismatches among
 those dependencies may show up late, i.e. on first creation of the affected bean.
 
-当容器创建后Spring容器会验证每个bean的配置。然而，bean属性本身只有bean__实际被创建时__才会进行设置。作用域是单例的bean和被设置为pre-instantiated（默认）的bean当容器创建时会进行创建（默认情况）。作用域是在<<beans-factory-scopes>>中定义的。否则，只有需要的时候才会创建bean。bean的创建可能会引起beans图的创建，当bean的依赖和它的依赖的依赖（等等）创建和赋值的时候。注意这些依赖中解析不匹配可能会在后面出现，例如，受影响的bean第一次创建时。
+当容器创建后Spring容器会验证每个bean的配置。然而，bean属性本身只有bean__实际被创建时__才会进行设置。作用域是单例的bean和被设置为pre-instantiated（默认）的bean当容器创建时会进行创建（默认情况）。作用域是在<<beans-factory-scopes>>中定义的。否则，只有需要的时候才会创建bean。bean的创建可能会引起beans图的创建，当bean的依赖和它的依赖的依赖（等等）创建和赋值的时候。注意这些依赖中解析不匹配可能会在后面出现，即，受影响的bean第一次创建时。
 
 .循环依赖(Circular dependencies)
 ****
@@ -3237,7 +3237,7 @@ constructor/setter argument or autowired field) as `ObjectFactory<MyTargetBean>`
 allowing for a `getObject()` call to retrieve the current instance on demand every
 time it is needed - without holding on to the instance or storing it separately.
 
-通过生命周期安全的方式从更短的作用域中访问beans，作用域代理也不是唯一的方式。你也可以简单的声明你的注入点（例如，构造函数/setter参数或自动装配领域）为 `ObjectFactory<MyTargetBean>`，允许每次需要的时候通过 `getObject()` 调用来取得需要的当前实例——没有分别控制实例或储存它。
+通过生命周期安全的方式从更短的作用域中访问beans，作用域代理也不是唯一的方式。你也可以简单的声明你的注入点（即，构造函数/setter参数或自动装配领域）为 `ObjectFactory<MyTargetBean>`，允许每次需要的时候通过 `getObject()` 调用来取得需要的当前实例——没有分别控制实例或储存它。
 
 As an extended variant, you may declare `ObjectProvider<MyTargetBean>` which delivers
 several additional access variants, including `getIfAvailable` and `getIfUnique`.
@@ -4421,7 +4421,7 @@ To change the actual bean definition (i.e., the __blueprint__ that defines the b
 you instead need to use a `BeanFactoryPostProcessor` as described in
 <<beans-factory-extension-factory-postprocessors>>.
 
-为了改变实际的bean定义（例如，定义bean的蓝图），你反而需要使用<<beans-factory-extension-factory-postprocessors>>中描述的 `BeanFactoryPostProcessor`。
+为了改变实际的bean定义（即，定义bean的蓝图），你反而需要使用<<beans-factory-extension-factory-postprocessors>>中描述的 `BeanFactoryPostProcessor`。
 ====
 
 The `org.springframework.beans.factory.config.BeanPostProcessor` interface consists of
@@ -4663,7 +4663,7 @@ to work with bean instances within a `BeanFactoryPostProcessor` (e.g., using
 standard container lifecycle. This may cause negative side effects such as bypassing
 bean post processing.
 
-如果你想改变真正的bean__实例__（例如，从配置元数据中创建的对象），你反而需要使用 `BeanPostProcessor`（在上面的<<beans-factory-extension-bpp>>中有描述）。尽管在 `BeanFactoryPostProcessor` 中和bean实例合作在技术上是可能的（例如使用 `BeanFactory.getBean()`），但这样做会引起过早的bean实例化，违背标准的容器生命周期。这可能会产生负面影响例如绕过bean后处理。
+如果你想改变真正的bean__实例__（即，从配置元数据中创建的对象），你反而需要使用 `BeanPostProcessor`（在上面的<<beans-factory-extension-bpp>>中有描述）。尽管在 `BeanFactoryPostProcessor` 中和bean实例合作在技术上是可能的（例如使用 `BeanFactory.getBean()`），但这样做会引起过早的bean实例化，违背标准的容器生命周期。这可能会产生负面影响例如绕过bean后处理。
 
 Also, ``BeanFactoryPostProcessor``s are scoped __per-container__. This is only relevant if
 you are using container hierarchies. If you define a `BeanFactoryPostProcessor` in one
@@ -5582,7 +5582,7 @@ on the same instance through the bean's transactional proxy: Consider factoring 
 the affected methods to a separate delegate bean in such a scenario. Alternatively,
 use `@Resource` which may obtain a proxy back to the current bean by its unique name.
 
-自Spring 4.3起，`@Autowired` 也考虑自引用注入，例如，引用返回当前注入的bean。注意自注入是备用；正常情况下对其它组件的依赖关系总是优先的。在这个意义上，自引用不参与普通的候选目标选择，因此尤其是从不是主要的；恰恰相反，它们最终总是最低的优先级。在实践中，自引用只是作为最后的手段，例如，通过bean的事务代理调用同一实例的其它方法：在这种情况下考虑分解出受影响的方法到一个单独的代理bean中。供替代的选择是，使用 `@Resource` 通过它的唯一名字可能得到一个回到当前bean的代理。
+自Spring 4.3起，`@Autowired` 也考虑自引用注入，即，引用返回当前注入的bean。注意自注入是备用；正常情况下对其它组件的依赖关系总是优先的。在这个意义上，自引用不参与普通的候选目标选择，因此尤其是从不是主要的；恰恰相反，它们最终总是最低的优先级。在实践中，自引用只是作为最后的手段，例如，通过bean的事务代理调用同一实例的其它方法：在这种情况下考虑分解出受影响的方法到一个单独的代理bean中。供替代的选择是，使用 `@Resource` 通过它的唯一名字可能得到一个回到当前bean的代理。
 
 `@Autowired` applies to fields, constructors, and multi-argument methods, allowing for
 narrowing through qualifier annotations at the parameter level. By contrast, `@Resource`
@@ -5881,7 +5881,7 @@ Assuming that beans above implement a generic interface, i.e. `Store<String>` an
 `Store<Integer>`, you can `@Autowire` the `Store` interface and the __generic__ will
 be used as a qualifier:
 
-假设上面的beans实现了一个泛型接口，例如，`Store<String>` 和 `Store<Integer>`，你可以 `@Autowire` `Store` 接口，__泛型__将作为限定符使用：
+假设上面的beans实现了一个泛型接口，即，`Store<String>` 和 `Store<Integer>`，你可以 `@Autowire` `Store` 接口，__泛型__将作为限定符使用：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -6127,14 +6127,14 @@ than using the traditional XML files. Take a look at the `@Configuration`, `@Bea
 
 
 [[beans-stereotype-annotations]]
-=== @Component和更多的原型注解(@Component and further stereotype annotations)
+=== @Component和更多的构造型注解(@Component and further stereotype annotations)
 
 The `@Repository` annotation is a marker for any class that fulfills the role or
 __stereotype__ of a repository (also known as Data Access Object or DAO). Among the uses
 of this marker is the automatic translation of exceptions as described in
 <<orm-exception-translation>>.
 
-`@Repository` 注解是任何满足资源库的角色或__原型的__(也称为数据访问对象或DAO)的类的标记。此标记的用途之一是会自动转换异常，如<<orm-exception-translation>>所述。
+`@Repository` 注解是任何满足资源库的角色或__构造型的__(也称为数据访问对象或DAO)的类的标记。此标记的用途之一是会自动转换异常，如<<orm-exception-translation>>所述。
 
 Spring provides further stereotype annotations: `@Component`, `@Service`, and
 `@Controller`. `@Component` is a generic stereotype for any Spring-managed component.
@@ -6150,15 +6150,20 @@ choosing between using `@Component` or `@Service` for your service layer, `@Serv
 clearly the better choice. Similarly, as stated above, `@Repository` is already
 supported as a marker for automatic exception translation in your persistence layer.
 
+Spring提供了更多的构造型注解：`@Component`，`@Service` 和 `@Controller`。`@Component` 是用于任何Spring管理的组件的通用的构造型注解。`@Repository`，`@Service` 和 `@Controller` 是 `@Component` 用于特定用例的专门化组件，例如，分别用于持久化，服务，和表现层。因此，你可以使用 `@Component` 注解你的组件类，但是作为替代通过使用 `@Repository`，`@Service` 或 `@Controller` 来注解它们，你的类更适合通过工具处理或与切面关联。例如，这些构造型注解为切入点制造了理想的目标。在Spring框架的未来版本中，`@Repository`，`@Service`，和 `@Controller` 也可能带有附加的语义。因此，如果你在为你的服务层选择使用 `@Component` 还是 `@Service`，`@Service` 显然是更好的选择。类似的，如上所述，`@Repository` 已经支持在你的持久层做为一个自动异常转换的标记了。
+
+
 
 
 [[beans-meta-annotations]]
-=== Meta-annotations
+=== 元注解(Meta-annotations)
 
 Many of the annotations provided by Spring can be used as __meta-annotations__ in your
 own code. A meta-annotation is simply an annotation that can be applied to another
 annotation. For example, the `@Service` annotation mentioned above is meta-annotated with
 `@Component`:
+
+Spring提供的许多注解可以在你自己的代码中用作__元注解__。 元注解即一种可用于另一个注解的简单的一个注解。 例如，上面提到的 `@Service` 注解是 `@Component` 的元注解：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -6177,11 +6182,15 @@ Meta-annotations can also be combined to create __composed annotations__. For ex
 the `@RestController` annotation from Spring MVC is __composed__ of `@Controller` and
 `@ResponseBody`.
 
+元注解也可以联合创建__组合注解__。例如，来自Spring MVC的 `@RestController` 注解是由 `@Controller` 和 `@ResponseBody` 组成的。
+
 In addition, composed annotations may optionally redeclare attributes from
 meta-annotations to allow user customization. This can be particularly useful when you
 want to only expose a subset of the meta-annotation's attributes. For example, Spring's
 `@SessionScope` annotation hardcodes the scope name to `session` but still allows
 customization of the `proxyMode`.
+
+另外，组合注解也可以重新声明来自元注解的特性以允许用户定制。这在当你只想暴露元注解特性的一个子集的时候特别有用。例如，Spring的 `@SessionScope` 注解将它的作用域名称硬编码为 `session`，但仍允许定制 `proxyMode`。
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -6204,6 +6213,8 @@ customization of the `proxyMode`.
 
 `@SessionScope` can then be used without declaring the `proxyMode` as follows:
 
+然后 `@SessionScope` 就可以被使用了，不需要声明 `proxyMode`，如下：
+
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -6215,6 +6226,8 @@ customization of the `proxyMode`.
 ----
 
 Or with an overridden value for the `proxyMode` as follows:
+
+或者重写 `proxyMode` 的值，如下：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -6228,13 +6241,17 @@ Or with an overridden value for the `proxyMode` as follows:
 
 For further details, consult the <<annotation-programming-model,Spring Annotation Programming Model>>.
 
+更多细节请查阅<<annotation-programming-model,Spring Annotation Programming Model>>。
+
 
 [[beans-scanning-autodetection]]
-=== Automatically detecting classes and registering bean definitions
+=== 自动检测类并注册bean定义(Automatically detecting classes and registering bean definitions)
 
 Spring can automatically detect stereotyped classes and register corresponding
 ``BeanDefinition``s with the `ApplicationContext`. For example, the following two classes
 are eligible for such autodetection:
+
+Spring可以自动检测构造型类并使用 `ApplicationContext` 注册相应的 ``BeanDefinition``s。 例如，以下两个类有资格使用这种自动探测:
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -6266,6 +6283,8 @@ To autodetect these classes and register the corresponding beans, you need to ad
 is a common parent package for the two classes. (Alternatively, you can specify a
 comma/semicolon/space-separated list that includes the parent package of each class.)
 
+为了自动检测这些类并注册相应的beans，你需要在 `@Configuration` 类中添加 `@ComponentScan`，其中 `basePackages` 特性是两个类的共有的父包。（或者，你可以指定包含每个类的父包的逗号/分号/空格分隔列表。）
+
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -6280,9 +6299,13 @@ comma/semicolon/space-separated list that includes the parent package of each cl
 ====
 for concision, the above may have used the `value` attribute of the
 annotation, i.e. `@ComponentScan("org.example")`
+
+为了简洁，上面可能使用注解的 `value` 特性，即 `@ComponentScan("org.example")`
 ====
 
 The following is an alternative using XML
+
+下面是一个使用XML的替代的方式
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -6306,6 +6329,8 @@ The following is an alternative using XML
 The use of `<context:component-scan>` implicitly enables the functionality of
 `<context:annotation-config>`. There is usually no need to include the
 `<context:annotation-config>` element when using `<context:component-scan>`.
+
+使用 `<context:component-scan>` 隐式地启用 `<context:annotation-config>` 的功能。当使用`<context:component-scan>`时，通常不需要包含 `<context:annotation-config>` 元素。
 ====
 
 [NOTE]
@@ -6316,6 +6341,8 @@ activate the files-only switch of the JAR task. Also, classpath directories may 
 get exposed based on security policies in some environments, e.g. standalone apps on
 JDK 1.7.0_45 and higher (which requires 'Trusted-Library' setup in your manifests; see
 http://stackoverflow.com/questions/19394570/java-jre-7u45-breaks-classloader-getresources).
+
+类路径包的扫描要求对应的目录条目出现在类路径中。当使用Ant构建JAR时，确保你__没有__激活JAR任务的仅文件开关。此外在某些环境中基于安全策略，类路径目录也许没有暴露。例如，在JDK 1.7.0_45及更高版本上的的独立应用程序（要求在你的manifests中设置‘信任类库’；见 http://stackoverflow.com/questions/19394570/java-jre-7u45-breaks-classloader-getresources）；
 ====
 
 Furthermore, the `AutowiredAnnotationBeanPostProcessor` and
@@ -6323,17 +6350,21 @@ Furthermore, the `AutowiredAnnotationBeanPostProcessor` and
 component-scan element. That means that the two components are autodetected __and__
 wired together - all without any bean configuration metadata provided in XML.
 
+此外，当你使用component-scan元素时，`AutowiredAnnotationBeanPostProcessor` 和 `CommonAnnotationBeanPostProcessor` 都会隐式包含。那意味着这两个组件也是一起自动探测__和__绑定的 - 所有这些都没有任何XML提供的bean配置元数据。
+
 [NOTE]
 ====
 You can disable the registration of `AutowiredAnnotationBeanPostProcessor` and
 `CommonAnnotationBeanPostProcessor` by including the __annotation-config__ attribute
 with a value of false.
+
+你可以通过包含__annotation-config__特性值为false禁用 `AutowiredAnnotationBeanPostProcessor` 和 `CommonAnnotationBeanPostProcessor` 的注册。
 ====
 
 
 
 [[beans-scanning-filters]]
-=== Using filters to customize scanning
+=== 使用过滤器自定义扫描(Using filters to customize scanning)
 
 By default, classes annotated with `@Component`, `@Repository`, `@Service`,
 `@Controller`, or a custom annotation that itself is annotated with `@Component` are the
@@ -6343,34 +6374,38 @@ parameters of the `@ComponentScan` annotation (or as __include-filter__ or __exc
 sub-elements of the `component-scan` element). Each filter element requires the `type`
 and `expression` attributes. The following table describes the filtering options.
 
+默认情况下，使用 `@Component`，`@Repository`，`@Service`，`@Controller` 注解的类或者它自己被 `@Component` 注解的自定义注解的类才能被检测为候选组件。然而，你可以简单的通过应用自定义过滤器来修改和扩展此行为。将它们添加为 `@ComponentScan` 注解的__includeFilters__或__excludeFilters__参数（或作为 `component-scan` 元素的__include-filter__或__exclude-filter__子元素）。每个过滤器元素需要 `type` 和 `expression` 特性。下表描述了过滤选项。
+
 [[beans-scanning-filters-tbl]]
-.Filter Types
+.过滤器类型(Filter Types)
 |===
-| Filter Type| Example Expression| Description
+| 过滤器类型(Filter Type)| 表达式示例(Example Expression)| 描述(Description)
 
 | annotation (default)
 | `org.example.SomeAnnotation`
-| An annotation to be present at the type level in target components.
+| 出现在目标组件类型级别的注解。(An annotation to be present at the type level in target components.)
 
 | assignable
 | `org.example.SomeClass`
-| A class (or interface) that the target components are assignable to (extend/implement).
+| 目标组件确定要（继承/实现的）的类（或接口）。(A class (or interface) that the target components are assignable to (extend/implement).)
 
 | aspectj
 | `org.example..*Service+`
-| An AspectJ type expression to be matched by the target components.
+| 用于匹配目标组件的AspecJ类型表达式。(An AspectJ type expression to be matched by the target components.)
 
 | regex
 | `org\.example\.Default.*`
-| A regex expression to be matched by the target components class names.
+| 用于匹配目标组件类名的正则表达式。(A regex expression to be matched by the target components class names.)
 
 | custom
 | `org.example.MyTypeFilter`
-| A custom implementation of the `org.springframework.core.type .TypeFilter` interface.
+| `org.springframework.core.type .TypeFilter` 接口的自定义实现。(A custom implementation of the `org.springframework.core.type .TypeFilter` interface.)
 |===
 
 The following example shows the configuration ignoring all `@Repository` annotations
 and using "stub" repositories instead.
+
+以下示例显示了忽略所有 `@Repository` 注解，并使用“stub”的repositories作为替代的配置：
 
 
 [source,java,indent=0]
@@ -6386,6 +6421,8 @@ and using "stub" repositories instead.
 ----
 
 and the equivalent using XML
+
+以及使用XML的等价配置
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -6406,16 +6443,20 @@ You can also disable the default filters by setting `useDefaultFilters=false` on
 providing `use-default-filters="false"` as an attribute of the `<component-scan/>` element. This
 will in effect disable automatic detection of classes annotated with `@Component`, `@Repository`,
 `@Service`, `@Controller`, or `@Configuration`.
+
+你也可以通过在注解上设置 `useDefaultFilters = false` 或提供 `use-default-filters=“false”` 作为 `<component-scan />` 元素的特性来禁用默认过滤器。 这实际上将不会自动检测带有 `@Component`，`@Repository`，`@Service`，`@Controller`，或 `@Configuration` 注解的类。
 ====
 
 
 
 [[beans-factorybeans-annotations]]
-=== Defining bean metadata within components
+=== 在组件中定义Bean元数据(Defining bean metadata within components)
 
 Spring components can also contribute bean definition metadata to the container. You do
 this with the same `@Bean` annotation used to define bean metadata within `@Configuration`
 annotated classes. Here is a simple example:
+
+Spring组件也可以向容器提供bean定义元数据。 你也可以在 `@Configuration` 注解的类中使用同样的 `@Bean` 注解定义bean元数据（也就是Spring bean）来达到同样的效果。 这里是一个简单的例子：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -6443,15 +6484,21 @@ factory method and other bean definition properties, such as a qualifier value t
 the `@Qualifier` annotation. Other method level annotations that can be specified are
 `@Scope`, `@Lazy`, and custom qualifier annotations.
 
+这个类是一个Spring组件，有专用的代码包含在它的 `doWork()`方法中。然而，它还提供了一个bean定义，其中有一个工厂方法引用了 `publicInstance()`方法。`@Bean`注解识别工厂方法和其他的bean定义的属性，例如通过 `@Qualifier` 注解的限定值。可以被指定的其他的方法级别注解是 `@Scope`，`@Lazy` 以及自定义限定符注解。
+
 [TIP]
 ====
 In addition to its role for component initialization, the `@Lazy` annotation may also be
 placed on injection points marked with `@Autowired` or `@Inject`. In this context, it
 leads to the injection of a lazy-resolution proxy.
+
+除了它用于组件初始化的角色之外，`@Lazy`注解也可以被放在标记为 `@Autowired` 或者 `@Inject` 的注入点处使用。在这一方面，它会导致懒解析代理的注入（懒加载）。
 ====
 
 Autowired fields and methods are supported as previously discussed, with additional
 support for autowiring of `@Bean` methods:
+
+自动注入字段和方法也可以像前面讨论的一样被支持，带有额外的对自动注入 `@Bean` 方法的支持：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -6498,6 +6545,8 @@ defines the value of the property through the notation `#{ <expression> }`. For 
 annotations, an expression resolver is preconfigured to look for bean names when
 resolving expression text.
 
+例子中自动注入 `String` 方法参数 `country` 到另一个叫做 `privateInstance` 的bean的 `Age` 属性值中。 Spring表达式语言元素通过符号 `#{<expression>}` 定义属性的值。对于 `@Value` 注解，当解析表达式文本时一个表达式解析器会被预配置以查找bean的名字。
+
 As of Spring Framework 4.3, you may also declare a factory method parameter of type
 `InjectionPoint` (or its more specific subclass `DependencyDescriptor`) in order to
 access the requesting injection point that triggers the creation of the current bean.
@@ -6507,6 +6556,8 @@ beans of prototype scope. For other scopes, the factory method will only ever se
 injection point which triggered the creation of a new bean instance in the given scope:
 for example, the dependency that triggered the creation of a lazy singleton bean.
 Use the provided injection point metadata with semantic care in such scenarios.
+
+从Spring框架4.3开始，你也可以声明一个类型为 `InjectionPoint`（或其更具体的子类 `DependencyDescriptor`）的工厂方法参数以访问触发创建当前bean的请求注入点。请注意这仅适用于实际创建bean实例，而不是现有实例的注入。因此，这个特性对原型作用域的beans最有意义。对于其他作用域，工厂方法将一直只能看到触发在给定作用域中创建新bean实例的注入点：例如，触发创建一个延迟单例bean的依赖。在这种情况下，使用提供的具有语义关怀的注入点元数据。
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
