@@ -6484,7 +6484,7 @@ factory method and other bean definition properties, such as a qualifier value t
 the `@Qualifier` annotation. Other method level annotations that can be specified are
 `@Scope`, `@Lazy`, and custom qualifier annotations.
 
-这个类是一个Spring组件，有专用的代码包含在它的 `doWork()`方法中。然而，它还提供了一个bean定义，其中有一个工厂方法引用了 `publicInstance()`方法。`@Bean`注解识别工厂方法和其他的bean定义的属性，例如通过 `@Qualifier` 注解的限定值。可以被指定的其他的方法级别注解是 `@Scope`，`@Lazy` 以及自定义限定符注解。
+这个类是一个Spring组件，有专用的代码包含在它的 `doWork()` 方法中。然而，它还提供了一个bean定义，其中有一个工厂方法引用了 `publicInstance()` 方法。`@Bean` 注解识别工厂方法和其他的bean定义的属性，例如通过 `@Qualifier` 注解的限定值。可以被指定的其他的方法级别注解是 `@Scope`，`@Lazy` 以及自定义限定符注解。
 
 [TIP]
 ====
@@ -6492,7 +6492,7 @@ In addition to its role for component initialization, the `@Lazy` annotation may
 placed on injection points marked with `@Autowired` or `@Inject`. In this context, it
 leads to the injection of a lazy-resolution proxy.
 
-除了它用于组件初始化的角色之外，`@Lazy`注解也可以被放在标记为 `@Autowired` 或者 `@Inject` 的注入点处使用。在这一方面，它会导致懒解析代理的注入（懒加载）。
+除了它用于组件初始化的角色之外，`@Lazy` 注解也可以被放在标记为 `@Autowired` 或者 `@Inject` 的注入点处使用。在这一方面，它会导致懒解析代理的注入（懒加载）。
 ====
 
 Autowired fields and methods are supported as previously discussed, with additional
