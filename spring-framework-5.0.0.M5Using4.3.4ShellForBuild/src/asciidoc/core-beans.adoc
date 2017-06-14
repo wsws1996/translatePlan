@@ -7020,10 +7020,12 @@ you should use the `@Named` annotation as follows:
 
 
 [[beans-named]]
-=== @Named and @ManagedBean: standard equivalents to the @Component annotation
+=== @Named和@ManagedBean：@Component注解的标准等价物(@Named and @ManagedBean: standard equivalents to the @Component annotation)
 
 Instead of `@Component`, `@javax.inject.Named` or `javax.annotation.ManagedBean` may be
 used as follows:
+
+代替 `@Component`，`@javax.inject.Named` 或 `javax.annotation.ManagedBean` 可以以如下的方式使用：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -7048,6 +7050,8 @@ used as follows:
 It is very common to use `@Component` without specifying a name for the component.
 `@Named` can be used in a similar fashion:
 
+使用 `@Component` 而不指定组件的名称是非常常见的。`@Named` 可以以类似的方式被使用：
+
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -7071,6 +7075,8 @@ It is very common to use `@Component` without specifying a name for the componen
 When using `@Named` or `@ManagedBean`, it is possible to use component scanning in the
 exact same way as when using Spring annotations:
 
+当使用 `@Named` 或 `@ManagedBean` 时，可以以与使用Spring注释完全相同的方式使用组件扫描：
+
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -7086,76 +7092,87 @@ exact same way as when using Spring annotations:
 In contrast to `@Component`, the JSR-330 `@Named` and the JSR-250 `ManagedBean`
 annotations are not composable. Please use Spring's stereotype model for building custom
 component annotations.
+
+与 `@Component` 相反，JSR-330 `@Named` 和JSR-250 `ManagedBean` 注解不可组合。请使用Spring的构造型模型来构建定制组件注解。
 ====
 
 
 
 [[beans-standard-annotations-limitations]]
-=== Limitations of JSR-330 standard annotations
+=== JSR-330标准注解的限制(Limitations of JSR-330 standard annotations)
 
 When working with standard annotations, it is important to know that some significant
 features are not available as shown in the table below:
 
+当使用标准注释时，重要的是要知道一些重要的功能是不可用的，如下表所示：
+
 [[annotations-comparison]]
-.Spring component model elements vs. JSR-330 variants
+.Spring组件模型元素vs. JSR-330变体(Spring component model elements vs. JSR-330 variants)
 |===
-| Spring| javax.inject.*| javax.inject restrictions / comments
+| Spring| javax.inject.*| javax.inject限制/解释(javax.inject restrictions / comments)
 
 | @Autowired
 | @Inject
-| `@Inject` has no 'required' attribute; can be used with Java 8's `Optional` instead.
+| `@Inject` 没有‘required’特性; 作为代替可以与Java 8的 `Optional` 一起使用。(`@Inject` has no 'required' attribute; can be used with Java 8's `Optional` instead.)
 
 | @Component
 | @Named / @ManagedBean
-| JSR-330 does not provide a composable model, just a way to identify named components.
+| JSR-330不提供可组合的模型，只是一种识别命名组件的方法。(JSR-330 does not provide a composable model, just a way to identify named components.)
 
 | @Scope("singleton")
 | @Singleton
-| The JSR-330 default scope is like Spring's `prototype`. However, in order to keep it
+| JSR-330的默认作用域就像Spring的 `prototype` 一样。但是，为了保持它与Spring的一般默认值一致，在Spring容器中声明一个JSR-330 bean默认（作用域）是 `singleton`。为了使用 `singleton` 以外的作用域，你应该使用Spring的 `@Scope` 注解。`javax.inject` 也提供了一个 http://download.oracle.com/javaee/6/api/javax/inject/Scope.html[@Scope]注解。
+
+ The JSR-330 default scope is like Spring's `prototype`. However, in order to keep it
   consistent with Spring's general defaults, a JSR-330 bean declared in the Spring
   container is a `singleton` by default. In order to use a scope other than `singleton`,
   you should use Spring's `@Scope` annotation. `javax.inject` also provides a
   http://download.oracle.com/javaee/6/api/javax/inject/Scope.html[@Scope] annotation.
-  Nevertheless, this one is only intended to be used for creating your own annotations.
+
+ 然而，这只是用于创建你自己的注解。
+
+ Nevertheless, this one is only intended to be used for creating your own annotations.
 
 | @Qualifier
 | @Qualifier / @Named
-| `javax.inject.Qualifier` is just a meta-annotation for building custom qualifiers.
+| `javax.inject.Qualifier` 只是构建自定义限定符的元注解。具体的字符串限定符（如Spring的带有值的 `@Qualifier`）可以通过 `javax.inject.Named` 关联。(`javax.inject.Qualifier` is just a meta-annotation for building custom qualifiers.
   Concrete String qualifiers (like Spring's `@Qualifier` with a value) can be associated
-  through `javax.inject.Named`.
+  through `javax.inject.Named`.)
 
 | @Value
 | -
-| no equivalent
+| 没有等价物(no equivalent)
 
 | @Required
 | -
-| no equivalent
+| 没有等价物(no equivalent)
 
 | @Lazy
 | -
-| no equivalent
+| 没有等价物(no equivalent)
 
 | ObjectFactory
 | Provider
-| `javax.inject.Provider` is a direct alternative to Spring's `ObjectFactory`,
+| `javax.inject.Provider` 是Spring的 `ObjectFactory` 的直接替代方法，只是有较短的 `get()` 方法名称。也可以结合使用 Spring的 `@Autowired` 或者是非注解的构造函数和setter方法。(`javax.inject.Provider` is a direct alternative to Spring's `ObjectFactory`,
   just with a shorter `get()` method name. It can also be used in combination with
-  Spring's `@Autowired` or with non-annotated constructors and setter methods.
+  Spring's `@Autowired` or with non-annotated constructors and setter methods.)
 |===
 
 
 
 
 [[beans-java]]
-== Java-based container configuration
+== 基于Java的容器配置(Java-based container configuration)
 
 
 
 [[beans-java-basic-concepts]]
-=== Basic concepts: @Bean and @Configuration
+=== 基本概念：@Bean和@Configuration(Basic concepts: @Bean and @Configuration)
 
 The central artifacts in Spring's new Java-configuration support are
 `@Configuration`-annotated classes and `@Bean`-annotated methods.
+
+Spring的新的Java配置支持的中心工件是 `@Configuration` 注解的类和 `@Bean` 注解的方法。
 
 The `@Bean` annotation is used to indicate that a method instantiates, configures and
 initializes a new object to be managed by the Spring IoC container. For those familiar
@@ -7163,10 +7180,14 @@ with Spring's `<beans/>` XML configuration the `@Bean` annotation plays the same
 the `<bean/>` element. You can use `@Bean` annotated methods with any Spring
 `@Component`, however, they are most often used with `@Configuration` beans.
 
+`@Bean` 注解用于表示方法实例化，配置和初始化要由Spring IoC容器管理的新对象。对于那些熟悉使用Spring的 `<beans/>` XML配置的人，`@Bean` 注解起着和 `<bean/>` 元素相同的作用。 你可以在任何Spring `@Component` 中使用 `@Bean` 注解的方法，但是它们最常用于 `@Configuration` beans。
+
 Annotating a class with `@Configuration` indicates that its primary purpose is as a
 source of bean definitions. Furthermore, `@Configuration` classes allow inter-bean
 dependencies to be defined by simply calling other `@Bean` methods in the same class.
 The simplest possible `@Configuration` class would read as follows:
+
+用 `@Configuration` 注解一个类，表示它的主要目的是bean定义的来源。此外，`@Configuration` 类允许通过简单地在同一个类中调用其他 `@Bean` 的方法定义跨bean依赖关系。最简单的可能的 `@Configuration` 类将如下所示：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -7184,6 +7205,8 @@ The simplest possible `@Configuration` class would read as follows:
 
 The `AppConfig` class above would be equivalent to the following Spring `<beans/>` XML:
 
+上面的 `AppConfig` 类将等同于以下Spring `<beans/>` XML：
+
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -7192,51 +7215,67 @@ The `AppConfig` class above would be equivalent to the following Spring `<beans/
 	</beans>
 ----
 
-.Full @Configuration vs 'lite' @Beans mode?
+.完整的@Configuration vs‘lite’@Beans模式？(Full @Configuration vs 'lite' @Beans mode?)
 ****
 When `@Bean` methods are declared within classes that are __not__ annotated with
 `@Configuration` they are referred to as being processed in a 'lite' mode. For example,
 bean methods declared in a `@Component` or even in a __plain old class__ will be
 considered 'lite'.
 
+当 `@Bean` 方法在__没有__被 `@Configuration` 注解的类中声明时，它们被称为在‘lite’模式下处理。例如，在 `@Component` 中甚至在__普通的旧式类（po类）中__声明的bean方法被认为是‘lite’。
+
 Unlike full `@Configuration`, lite `@Bean` methods cannot easily declare inter-bean
 dependencies. Usually one `@Bean` method should not invoke another `@Bean` method when
 operating in 'lite' mode.
+
+与完全 `@Configuration` 不同，lite `@Bean` 方法不能轻易地声明跨bean依赖。当以‘lite’模式运行时通常一个 `@Bean` 方法不应该调用另一个 `@Bean` 方法。
 
 Only using `@Bean` methods within `@Configuration` classes is a recommended approach of
 ensuring that 'full' mode is always used. This will prevent the same `@Bean` method from
 accidentally being invoked multiple times and helps to reduce subtle bugs that can be
 hard to track down when operating in 'lite' mode.
+
+在 `@Configuration` 类中只使用 `@Bean` 方法是一种确保始终使用‘全’模式的推荐的方法。这将阻止相同的 `@Bean` 方法偶然被多次调用，有助于减少可能的细微的在‘lite’模式下操作时难以追踪的错误。
 ****
 
 The `@Bean` and `@Configuration` annotations will be discussed in depth in the sections
 below. First, however, we'll cover the various ways of creating a spring container using
 Java-based configuration.
 
+`@Bean` 和 `@Configuration` 注解将在下面这些部分进行深入的讨论。首先，我们将介绍使用基于Java的配置创建Spring容器的各种方法。
+
 [[beans-java-instantiating-container]]
-=== Instantiating the Spring container using AnnotationConfigApplicationContext
+=== 使用AnnotationConfigApplicationContext实例化Spring容器(Instantiating the Spring container using AnnotationConfigApplicationContext)
 
 The sections below document Spring's `AnnotationConfigApplicationContext`, new in Spring
 3.0. This versatile `ApplicationContext` implementation is capable of accepting not only
 `@Configuration` classes as input, but also plain `@Component` classes and classes
 annotated with JSR-330 metadata.
 
+下面的部分介绍了Spring的 `AnnotationConfigApplicationContext`，它是在Spring3.0中新加入的。 这个通用的 `ApplicationContext` 实现不仅可以接受 `@Configuration` 类作为输入，也接受简单的 `@Component` 类和用JSR-330元数据注解的类。
+
 When `@Configuration` classes are provided as input, the `@Configuration` class itself
 is registered as a bean definition, and all declared `@Bean` methods within the class
 are also registered as bean definitions.
+
+当 `@Configuration` 类作为输入提供时，`@Configuration` 类本身被注册为bean定义，并且所有在类中声明的 `@Bean` 方法也被注册为bean定义。
 
 When `@Component` and JSR-330 classes are provided, they are registered as bean
 definitions, and it is assumed that DI metadata such as `@Autowired` or `@Inject` are
 used within those classes where necessary.
 
+当提供 `@Component` 和JSR-330类时，它们被注册为bean定义，并且假定DI元数据例如 `@Autowired` 或 `@Inject` 会在必要时在这些类中使用。
+
 
 [[beans-java-instantiating-container-contstructor]]
-==== Simple construction
+==== 简单构造(Simple construction)
 
 In much the same way that Spring XML files are used as input when instantiating a
 `ClassPathXmlApplicationContext`, `@Configuration` classes may be used as input when
 instantiating an `AnnotationConfigApplicationContext`. This allows for completely
 XML-free usage of the Spring container:
+
+与使用Spring XML文件作为 `ClassPathXmlApplicationContext` 实例化时的输入方式大致相同，`@Configuration` 类可以用作输入实例化一个 `AnnotationConfigApplicationContext`。这允许完全使用无XML的Spring容器：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -7252,6 +7291,8 @@ As mentioned above, `AnnotationConfigApplicationContext` is not limited to worki
 with `@Configuration` classes. Any `@Component` or JSR-330 annotated class may be supplied
 as input to the constructor. For example:
 
+如上所述，`AnnotationConfigApplicationContext` 不仅限于运作于使用 `@Configuration` 类。可以提供任何 `@Component` 或JSR-330注解的类作为构造函数的输入。例如：
+
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -7265,13 +7306,18 @@ as input to the constructor. For example:
 The above assumes that `MyServiceImpl`, `Dependency1` and `Dependency2` use Spring
 dependency injection annotations such as `@Autowired`.
 
+上面假设 `MyServiceImpl`，`Dependency1` 和 `Dependency2` 使用Spring
+依赖注入注解，如 `@Autowired`。
+
 
 [[beans-java-instantiating-container-register]]
-==== Building the container programmatically using register(Class<?>...)
+==== 使用register(Class<?>...)以编程方式构建容器(Building the container programmatically using register(Class<?>...))
 
 An `AnnotationConfigApplicationContext` may be instantiated using a no-arg constructor
 and then configured using the `register()` method. This approach is particularly useful
 when programmatically building an `AnnotationConfigApplicationContext`.
+
+可以使用无参数构造函数实例化 `AnnotationConfigApplicationContext` 然后使用 `register()` 方法进行配置。当以编程方式构建一个 `AnnotationConfigApplicationContext` 时这种方法特别有用。
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -7288,9 +7334,11 @@ when programmatically building an `AnnotationConfigApplicationContext`.
 
 
 [[beans-java-instantiating-container-scan]]
-==== Enabling component scanning with scan(String...)
+==== 使用scan(String...)启用组件扫描(Enabling component scanning with scan(String...))
 
 To enable component scanning, just annotate your `@Configuration` class as follows:
+
+要启用组件扫描，只需注解您的 `@Configuration` 类，如下所示：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -7307,6 +7355,8 @@ To enable component scanning, just annotate your `@Configuration` class as follo
 Experienced Spring users will be familiar with the XML declaration equivalent from
 Spring's `context:` namespace
 
+经验丰富的Spring用户会熟悉相应的来自Spring `context：` 命名空间的XML声明
+
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -7321,6 +7371,8 @@ In the example above, the `com.acme` package will be scanned, looking for any
 `@Component`-annotated classes, and those classes will be registered as Spring bean
 definitions within the container. `AnnotationConfigApplicationContext` exposes the
 `scan(String...)` method to allow for the same component-scanning functionality:
+
+在上面的例子中，`com.acme` 包将被扫描，寻找任何 `@Component` 注解的类，这些类将被注册为容器内的Spring bean定义。`AnnotationConfigApplicationContext` 暴露了 `scan(String...)` 方法允许同样的组件扫描功能：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -7341,11 +7393,13 @@ assuming that `AppConfig` is declared within the `com.acme` package (or any pack
 underneath), it will be picked up during the call to `scan()`, and upon `refresh()` all
 its `@Bean` methods will be processed and registered as bean definitions within the
 container.
+
+记住 `@Configuration` 类是被使用 `@Component`<<beans-meta-annotations,元注释>>的，因此它们是组件扫描的候选者！在上面的例子中，假设 `AppConfig` 是在 `com.acme` 包中（或任何它下面的包）中声明的，在调用 `scan()` 时它会被拾取，此时所有它的 `@Bean` 方法的 `refresh()` 会被处理并在容器中注册为bean定义。
 ====
 
 
 [[beans-java-instantiating-container-web]]
-==== Support for web applications with AnnotationConfigWebApplicationContext
+==== AnnotationConfigWebApplicationContext对Web应用程序的支持(Support for web applications with AnnotationConfigWebApplicationContext)
 
 A `WebApplicationContext` variant of `AnnotationConfigApplicationContext` is available
 with `AnnotationConfigWebApplicationContext`. This implementation may be used when
@@ -7353,6 +7407,8 @@ configuring the Spring `ContextLoaderListener` servlet listener, Spring MVC
 `DispatcherServlet`, etc. What follows is a `web.xml` snippet that configures a typical
 Spring MVC web application. Note the use of the `contextClass` context-param and
 init-param:
+
+`WebApplicationContext` 对 `AnnotationConfigApplicationContext` 的变体 `AnnotationConfigWebApplicationContext` 是可用的。这个实现可以在配置Spring的 `ContextLoaderListener` servlet监听器，Spring MVC的 `DispatcherServlet` 等等时使用。下面是一个配置一个典型的Spring MVC Web应用程序的 `web.xml` 片段。请注意 `contextClass` 的context-param和init-param的使用：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
