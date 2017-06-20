@@ -7467,7 +7467,7 @@ init-param:
 
 
 [[beans-java-bean-annotation]]
-=== Using the @Bean annotation
+=== 使用@Bean注解(Using the @Bean annotation)
 
 `@Bean` is a method-level annotation and a direct analog of the XML `<bean/>` element.
 The annotation supports some of the attributes offered by `<bean/>`, such as:
@@ -7475,17 +7475,23 @@ The annotation supports some of the attributes offered by `<bean/>`, such as:
 <<beans-factory-lifecycle-disposablebean,destroy-method>>,
 <<beans-factory-autowire,autowiring>> and `name`.
 
+`@Bean` 是一个方法级的注解，也是XML `<bean/>` 元素的直接模拟。这个注解支持 `<bean/>` 提供的一些特性，例如：<<beans-factory-lifecycle-initializingbean,init-method>>，<<beans-factory-lifecycle-disposablebean,destroy-method>>，<<beans-factory-autowire,autowiring>>和 `name`。
+
 You can use the `@Bean` annotation in a `@Configuration`-annotated or in a
 `@Component`-annotated class.
 
+您可以在一个 `@Configuration` 注解的或 `@Component` 注解的类中使用 `@Bean` 注解。
+
 
 [[beans-java-declaring-a-bean]]
-==== Declaring a bean
+==== 声明一个bean(Declaring a bean)
 
 To declare a bean, simply annotate a method with the `@Bean` annotation. You use this
 method to register a bean definition within an `ApplicationContext` of the type
 specified as the method's return value. By default, the bean name will be the same as
 the method name. The following is a simple example of a `@Bean` method declaration:
+
+要声明一个bean，只需使用 `@Bean` 注解来注解一个方法。你用这个方法在一个 `ApplicationContext` 中注册一个bean定义，bean定义的类型规定为方法的返回值。默认情况下，bean名称将和方法名称相同。以下是一个 `@Bean` 方法声明的简单示例：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -7503,6 +7509,8 @@ the method name. The following is a simple example of a `@Bean` method declarati
 
 The preceding configuration is exactly equivalent to the following Spring XML:
 
+上述配置与以下Spring XML完全相同：
+
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -7514,6 +7522,8 @@ The preceding configuration is exactly equivalent to the following Spring XML:
 Both declarations make a bean named `transferService` available in the
 `ApplicationContext`, bound to an object instance of type `TransferServiceImpl`:
 
+两种声明都使得一个名为 `transferService` 的bean在 `ApplicationContext` 中可用，绑定到一个类型为 `TransferServiceImpl` 的对象实例：
+
 [literal]
 [subs="verbatim,quotes"]
 ----
@@ -7522,12 +7532,14 @@ transferService -> com.acme.TransferServiceImpl
 
 
 [[beans-java-dependencies]]
-==== Bean dependencies
+==== Bean依赖关系(Bean dependencies)
 
 A `@Bean` annotated method can have an arbitrary number of parameters describing the
 dependencies required to build that bean. For instance if our `TransferService`
 requires an `AccountRepository` we can materialize that dependency via a method
 parameter:
+
+一个 `@Bean` 注解的方法可以有任意数量的参数描述构建该bean所需的依赖关系。例如如果我们的 `TransferService` 需要一个 `AccountRepository`，我们可以通过一个方法参数具体化该依赖：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -7546,27 +7558,37 @@ parameter:
 The resolution mechanism is pretty much identical to constructor-based dependency
 injection, see <<beans-constructor-injection,the relevant section>> for more details.
 
+解析机制与基于构造函数的依赖注入差不多相同，请参阅<<beans-constructor-injection,相关章节>>了解更多详情。
+
 
 [[beans-java-lifecycle-callbacks]]
-==== Receiving lifecycle callbacks
+==== 接收生命周期回调(Receiving lifecycle callbacks)
 
 Any classes defined with the `@Bean` annotation support the regular lifecycle callbacks
 and can use the `@PostConstruct` and `@PreDestroy` annotations from JSR-250, see
 <<beans-postconstruct-and-predestroy-annotations,JSR-250 annotations>> for further
 details.
 
+使用 `@Bean` 注解定义的任何类都支持常规的生命周期回调并且可以使用JSR-250中的 `@PostConstruct` 和 `@PreDestroy` 注解，请参阅<<beans-postconstruct-and-predestroy-annotations,JSR-250注解>>了解进一步细节。
+
 The regular Spring <<beans-factory-nature,lifecycle>> callbacks are fully supported as
 well. If a bean implements `InitializingBean`, `DisposableBean`, or `Lifecycle`, their
 respective methods are called by the container.
+
+普遍的Spring<<beans-factory-nature,生命周期>>回调也被完全支持。如果一个bean实现 `InitializingBean`，`DisposableBean` 或 `Lifecycle`，它们各自的方法就被容器调用。
 
 The standard set of `*Aware` interfaces such as <<beans-beanfactory,BeanFactoryAware>>,
 <<beans-factory-aware,BeanNameAware>>,
 <<context-functionality-messagesource,MessageSourceAware>>,
 <<beans-factory-aware,ApplicationContextAware>>, and so on are also fully supported.
 
+`*Aware` 接口的标准集合，如<<beans-beanfactory,BeanFactoryAware>>，<<beans-factory-aware,BeanNameAware>>，<<context-functionality-messagesource,MessageSourceAware>>，<<beans-factory-aware,ApplicationContextAware>>，等也完全支持。
+
 The `@Bean` annotation supports specifying arbitrary initialization and destruction
 callback methods, much like Spring XML's `init-method` and `destroy-method` attributes
 on the `bean` element:
+
+`@Bean` 注解支持指定任意的初始化和销毁回调方法，很像Spring XML `bean` 元素上的 `init-method` 和 `destroy-method` 特性：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -7607,9 +7629,13 @@ method are automatically enlisted with a destruction callback. If you have a pub
 shuts down, simply add `@Bean(destroyMethod="")` to your bean definition to disable the
 default `(inferred)` mode.
 
+默认情况下，使用Java配置定义的bean具有的公共 `close` 或 `shutdown` 方法会自动与销毁回调合作。如果你有公众的 `close` 或 `shutdown` 方法而且你不希望在容器关闭的时候调用它，只需在你的bean定义中添加 `@Bean(destroyMethod="")` 来禁用默认的 `（推测）` 模式。
+
 You may want to do that by default for a resource that you acquire via JNDI as its
 lifecycle is managed outside the application. In particular, make sure to always do it
 for a `DataSource` as it is known to be problematic on Java EE application servers.
+
+默认情况下，您可能希望通过JNDI获取的资源的生命周期在应用程序之外进行管理。特别是，确保始终为 `DataSource` 执行此操作，众所周知它在Java EE应用程序服务器上有问题。
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -7626,10 +7652,14 @@ either using Spring's `JndiTemplate`/`JndiLocatorDelegate` helpers or straight J
 you to declare the return type as the `FactoryBean` type instead of the actual target
 type, making it harder to use for cross-reference calls in other `@Bean` methods that
 intend to refer to the provided resource here.
+
+另外，使用 `@Bean` 方法，通常会选择使用编程的JNDI查找：使用Spring的 `JndiTemplate`/`JndiLocatorDelegate` 助手或直接的JNDI `InitialContext`的用法，而不是使用 `JndiObjectFactoryBean` 变体，它将强制你将返回类型声明为 `FactoryBean` 类型而不是实际的目标类型，在其他打算在此引用提供的资源的 `@Bean` 方法中更难用于交叉引用调用。
 ====
 
 Of course, in the case of `Foo` above, it would be equally as valid to call the `init()`
 method directly during construction:
+
+当然，在上面的 `Foo` 的情况下，在构建过程中直接调用 `init()` 方法同样有效：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -7652,20 +7682,26 @@ method directly during construction:
 ====
 When you work directly in Java, you can do anything you like with your objects and do
 not always need to rely on the container lifecycle!
+
+当您直接在Java中工作时，您可以对对象执行任何您喜欢的操作，并不总是需要依赖容器的生命周期！
 ====
 
 
 [[beans-java-specifying-bean-scope]]
-==== Specifying bean scope
+==== 指定bean作用域(Specifying bean scope)
 
 [[beans-java-available-scopes]]
-===== Using the @Scope annotation
+===== 使用@Scope注解(Using the @Scope annotation)
 
 You can specify that your beans defined with the `@Bean` annotation should have a
 specific scope. You can use any of the standard scopes specified in the
 <<beans-factory-scopes,Bean Scopes>> section.
 
+您可以指定使用 `@Bean` 注解定义的bean应该有一个特定作用域。您可以使用<<beans-factory-scopes,Bean Scopes>>部分中指定的任何标准作用域。
+
 The default scope is `singleton`, but you can override this with the `@Scope` annotation:
+
+默认作用域是 `singleton`，但您可以使用 `@Scope` 注解来覆盖它：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -7683,7 +7719,7 @@ The default scope is `singleton`, but you can override this with the `@Scope` an
 ----
 
 [[beans-java-scoped-proxy]]
-===== @Scope and scoped-proxy
+===== @Scope和作用域代理(@Scope and scoped-proxy)
 
 Spring offers a convenient way of working with scoped dependencies through
 <<beans-factory-scopes-other-injection,scoped proxies>>. The easiest way to create such
@@ -7692,8 +7728,12 @@ Configuring your beans in Java with a @Scope annotation offers equivalent suppor
 the proxyMode attribute. The default is no proxy ( `ScopedProxyMode.NO`), but you can
 specify `ScopedProxyMode.TARGET_CLASS` or `ScopedProxyMode.INTERFACES`.
 
+Spring提供了一种通过<<beans-factory-scopes-other-injection,作用域代理>>来处理有作用域的依赖关系的便捷方式。使用XML配置时最简单的创建代理方法是 `<aop：scoped-proxy />` 元素。使用@Scope注解在Java中配置bean时可以使用proxyMode特性提供相同的支持。默认是没有代理（`ScopedProxyMode.NO`），但你可以指定 `ScopedProxyMode.TARGET_CLASS` 或 `ScopedProxyMode.INTERFACES`。
+
 If you port the scoped proxy example from the XML reference documentation (see preceding
 link) to our `@Bean` using Java, it would look like the following:
+
+如果将作用域代理示例从XML参考文档（请参阅前面的链接）移植到使用Java的 `@Bean` 中，它将如下所示：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -7716,10 +7756,12 @@ link) to our `@Bean` using Java, it would look like the following:
 
 
 [[beans-java-customizing-bean-naming]]
-==== Customizing bean naming
+==== 自定义bean命名(Customizing bean naming)
 
 By default, configuration classes use a `@Bean` method's name as the name of the
 resulting bean. This functionality can be overridden, however, with the `name` attribute.
+
+默认情况下，配置类使用 `@Bean` 方法名称作为生成的bean的名称。但是，可以使用 `name` 特性覆盖此功能。
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -7737,11 +7779,13 @@ resulting bean. This functionality can be overridden, however, with the `name` a
 
 
 [[beans-java-bean-aliasing]]
-==== Bean aliasing
+==== Bean别名(Bean aliasing)
 
 As discussed in <<beans-beanname>>, it is sometimes desirable to give a single bean
 multiple names, otherwise known as __bean aliasing__. The `name` attribute of the `@Bean`
 annotation accepts a String array for this purpose.
+
+如<<beans-beanname>>中所讨论的，有时需要给出一个单一的bean的多个名称，也称为__bean aliasing__。`@Bean` 注解的 `name` 特性为此目的接受一个String数组。
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -7759,14 +7803,18 @@ annotation accepts a String array for this purpose.
 
 
 [[beans-java-bean-description]]
-==== Bean description
+==== Bean描述(Bean description)
 
 Sometimes it is helpful to provide a more detailed textual description of a bean. This can
 be particularly useful when beans are exposed (perhaps via JMX) for monitoring purposes.
 
+有时，提供一个bean的一个更详细的文本描述是有用的。当bean为被监视目的而暴露时（可能通过JMX），这可能特别有用。
+
 To add a description to a `@Bean` the
 {api-spring-framework}/context/annotation/Description.html[`@Description`]
 annotation can be used:
+
+为了将描述添加到 `@Bean` 中可以使用 {api-spring-framework}/context/annotation/Description.html[`@Description`] 注解：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -7785,19 +7833,23 @@ annotation can be used:
 
 
 [[beans-java-configuration-annotation]]
-=== Using the @Configuration annotation
+=== 使用@Configuration注解(Using the @Configuration annotation)
 
 `@Configuration` is a class-level annotation indicating that an object is a source of
 bean definitions. `@Configuration` classes declare beans via public `@Bean` annotated
 methods. Calls to `@Bean` methods on `@Configuration` classes can also be used to define
 inter-bean dependencies. See <<beans-java-basic-concepts>> for a general introduction.
 
+`@Configuration` 是一个类级的注解，指示一个对象是一个bean定义的源。`@ Configuration` 类通过公共 `@Bean` 注解的方法声明bean。对 `@Configuration` 类调用 `@Bean` 方法也可以用来定义bean之间的依赖关系。请参阅<<beans-java-basic-concepts>>了解概括介绍。
+
 
 [[beans-java-injecting-dependencies]]
-==== Injecting inter-bean dependencies
+==== 注入bean之间的依赖关系(Injecting inter-bean dependencies)
 
 When ``@Bean``s have dependencies on one another, expressing that dependency is as simple
 as having one bean method call another:
+
+当``@Bean``s相互依赖时，表示依赖关系就像一个Bean方法调用另一个方法一样简单：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
