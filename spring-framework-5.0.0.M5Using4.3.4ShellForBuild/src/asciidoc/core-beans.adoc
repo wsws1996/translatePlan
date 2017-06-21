@@ -7756,7 +7756,7 @@ link) to our `@Bean` using Java, it would look like the following:
 
 
 [[beans-java-customizing-bean-naming]]
-==== 自定义bean命名(Customizing bean naming)
+==== 自定义bean名称(Customizing bean naming)
 
 By default, configuration classes use a `@Bean` method's name as the name of the
 resulting bean. This functionality can be overridden, however, with the `name` attribute.
@@ -7873,21 +7873,27 @@ as having one bean method call another:
 In the example above, the `foo` bean receives a reference to `bar` via constructor
 injection.
 
+在上面的例子中，`foo` bean通过构造函数注入来接收对 `bar` 的引用。
+
 [NOTE]
 ====
 This method of declaring inter-bean dependencies only works when the `@Bean` method is
 declared within a `@Configuration` class. You cannot declare inter-bean dependencies
 using plain `@Component` classes.
+
+这种声明bean间依赖关系的方法只能在 `@Configuration` 类中已经声明了 `@Bean` 方法时起作用。您不能使用普通的 `@Component` 类声明bean间依赖关系。
 ====
 
 
 [[beans-java-method-injection]]
-==== Lookup method injection
+==== 查找方法注入(Lookup method injection)
 
 As noted earlier, <<beans-factory-method-injection,lookup method injection>> is an
 advanced feature that you should use rarely. It is useful in cases where a
 singleton-scoped bean has a dependency on a prototype-scoped bean. Using Java for this
 type of configuration provides a natural means for implementing this pattern.
+
+如前所述，<<beans-factory-method-injection,查找方法注入>>是您应该很少使用的高级功能。在单例作用域的bean对原型作用域的bean具有依赖性的情况下，这是有用的。Java对于这种类型的配置提供了实现此模式的自然的手段。
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -7909,6 +7915,8 @@ type of configuration provides a natural means for implementing this pattern.
 Using Java-configuration support , you can create a subclass of `CommandManager` where
 the abstract `createCommand()` method is overridden in such a way that it looks up a new
 (prototype) command object:
+
+使用Java配置支持，您可以创建 `CommandManager` 的子类，其中抽象的 `createCommand()` 方法被覆盖，它以这种方式查找一个新的（原型）命令对象：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -7935,9 +7943,11 @@ the abstract `createCommand()` method is overridden in such a way that it looks 
 
 
 [[beans-java-further-information-java-config]]
-==== Further information about how Java-based configuration works internally
+==== 有关基于Java的配置内部如何工作的更多信息(Further information about how Java-based configuration works internally)
 
 The following example shows a `@Bean` annotated method being called twice:
+
+以下示例显示了一个 `@Bean` 注解方法被调用了两次：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -7978,10 +7988,14 @@ that as of Spring 3.2, it is no longer necessary to add CGLIB to your classpath 
 CGLIB classes have been repackaged under `org.springframework.cglib` and included directly
 within the spring-core JAR.
 
+`clientDao()` 在 `clientService1()` 中被调用一次，在 `clientService2()` 中被调用一次。由于此方法创建了一个新的 `ClientDaoImpl` 实例并返回了它，所以你通常会认为有2个实例（每个服务一个）。这肯定是有问题的：在Spring中，实例化的bean默认有一个 `singleton` 作用域。这就是魅力所在：所有 `@Configuration` 类在启动时都会用 `CGLIB` 子类化。在子类中，子方法在调用父方法并创建新实例之前首先在容器中检查任何缓存的（作用域）bean。请注意，从Spring 3.2开始，不再需要将CGLIB添加到类路径中，因为CGLIB类已经在 `org.springframework.cglib` 下被重新打包，并且直接包含在spring-core JAR中。
+
 [NOTE]
 ====
 The behavior could be different according to the scope of your bean. We are talking
 about singletons here.
+
+根据您的bean的作用域，它的行为可能会有所不同。我们在这里讨论的是单例。
 ====
 
 [TIP]
@@ -7991,24 +8005,30 @@ startup-time, in particular that configuration classes must not be final. Howeve
 of 4.3, any constructors are allowed on configuration classes, including the use of
 `@Autowired` or a single non-default constructor declaration for default injection.
 
+由于CGLIB在启动时动态添加功能，所以有一些限制，特别是配置类不能是final的。但是，从4.3开始，配置类中允许使用任何构造函数，包括为默认注入而使用 `@Autowired` 或单个非默认构造函数声明。
+
 If you prefer to avoid any CGLIB-imposed limitations, consider declaring your `@Bean`
 methods on non-`@Configuration` classes, e.g. on plain `@Component` classes instead.
 Cross-method calls between `@Bean` methods won't get intercepted then, so you'll have
 to exclusively rely on dependency injection at the constructor or method level there.
+
+如果您希望避免任何CGLIB强加的限制，请考虑在非 `@Configuration` 类上声明 `@Bean` 方法。例如在普通的 `@Component` 类上。那样的话 `@Bean` 方法之间的交叉方法调用将不会被拦截，所以你必须特定地依赖于在构造函数或方法级别的依赖注入。
 ====
 
 
 
 [[beans-java-composing-configuration-classes]]
-=== Composing Java-based configurations
+=== 构建基于Java的配置(Composing Java-based configurations)
 
 
 [[beans-java-using-import]]
-==== Using the @Import annotation
+==== 使用@Import注解(Using the @Import annotation)
 
 Much as the `<import/>` element is used within Spring XML files to aid in modularizing
 configurations, the `@Import` annotation allows for loading `@Bean` definitions from
 another configuration class:
+
+就像Spring XML文件中使用 `<import/>` 元素以帮助模块化配置一样，`@Import` 注解允许从另一个配置类加载 `@Bean` 定义：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -8038,6 +8058,8 @@ another configuration class:
 Now, rather than needing to specify both `ConfigA.class` and `ConfigB.class` when
 instantiating the context, only `ConfigB` needs to be supplied explicitly:
 
+现在，在实例化上下文时不需要指定 `ConfigA.class` 和 `ConfigB.class`，只需要明确提供 `ConfigB`：
+
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -8054,16 +8076,20 @@ This approach simplifies container instantiation, as only one class needs to be 
 with, rather than requiring the developer to remember a potentially large number of
 `@Configuration` classes during construction.
 
+这种方法简化了容器实例化，因为只需要处理一个类，而不是要求开发人员在构建期间记住大量可能有的 `@Configuration` 类。
+
 [TIP]
 ====
 As of Spring Framework 4.2, `@Import` also supports references to regular component
 classes, analogous to the `AnnotationConfigApplicationContext.register` method.
 This is particularly useful if you'd like to avoid component scanning, using a few
 configuration classes as entry points for explicitly defining all your components.
+
+从Spring Framework 4.2开始，`@Import` 还支持对常规组件类的引用，类似于 `AnnotationConfigApplicationContext.register` 方法。如果您希望避免组件扫描，使用几个配置类作为明确定义所有组件的入口点，这一点尤其有用。
 ====
 
 [[beans-java-injecting-imported-beans]]
-===== Injecting dependencies on imported @Bean definitions
+===== 注入导入的@Bean定义的依赖关系(Injecting dependencies on imported @Bean definitions)
 
 The example above works, but is simplistic. In most practical scenarios, beans will have
 dependencies on one another across configuration classes. When using XML, this is not an
@@ -8072,10 +8098,14 @@ issue, per se, because there is no compiler involved, and one can simply declare
 Of course, when using `@Configuration` classes, the Java compiler places constraints on
 the configuration model, in that references to other beans must be valid Java syntax.
 
+上面的例子可以工作，但是太过于简单。在大多数实际情况下，bean将在配置类之间相互依赖。当使用XML时，这本身并不是一个问题，因为没有编译器卷入，可以简单地声明 `ref="someBean"`，并相信Spring将在容器初始化期间执行它。当然，当使用 `@Configuration` 类时，Java编译器会对配置模型设置约束，因为对其他bean的引用必须是有效的Java语法。
+
 Fortunately, solving this problem is simple. As <<beans-java-dependencies,we already discussed>>,
 `@Bean` method can have an arbitrary number of parameters describing the bean
 dependencies. Let's consider a more real-world scenario with several `@Configuration`
 classes, each depending on beans declared in the others:
+
+幸运的是，解决这个问题很简单。正如<<beans-java-dependencies,我们已经讨论的那样>>，`@Bean` 方法可以有任意数量的参数描述bean依赖。让我们考虑一个更偏向于现实世界的有好几个 `@Configuration` 类的场景，每个都依赖于其他声明的bean：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -8123,6 +8153,8 @@ There is another way to achieve the same result. Remember that `@Configuration` 
 ultimately just another bean in the container: This means that they can take advantage of
 `@Autowired` and `@Value` injection etc just like any other bean!
 
+还有另一种方法来实现相同的结果。请记住，`@Configuration` 类根本上只是容器中的另一个bean：这意味着它们可以像任何其他bean一样利用 `@Autowired` 和 `@Value` 注入等等！
+
 [WARNING]
 ====
 Make sure that the dependencies you inject that way are of the simplest kind only. `@Configuration`
@@ -8130,10 +8162,14 @@ classes are processed quite early during the initialization of the context and f
 to be injected this way may lead to unexpected early initialization. Whenever possible, resort to
 parameter-based injection as in the example above.
 
+确保你注入的依赖关系是最简单的。`@Configuration` 类在上下文的初始化过程中处理的相当早，并且在这种方式下强制注入依赖关系可能会导致意外的早期初始化。只要有可能，就像上面的例子一样，使用基于参数的注入。
+
 Also, be particularly careful with `BeanPostProcessor` and `BeanFactoryPostProcessor` definitions
 via `@Bean`. Those should usually be declared as `static @Bean` methods, not triggering the
 instantiation of their containing configuration class. Otherwise, `@Autowired` and `@Value` won't
 work on the configuration class itself since it is being created as a bean instance too early.
+
+另外，特别注意通过 `@Bean` 定义的 `BeanPostProcessor` 和 `BeanFactoryPostProcessor`。这些应该通常被声明为 `static @Bean` 方法，而不是触发包含它们的配置类的实例化。否则，`@Autowired` 和 `@Value` 将不会在配置类本身上工作，因为它过早的被创建为一个bean实例。
 ====
 
 [source,java,indent=0]
@@ -8194,9 +8230,11 @@ Constructor injection in `@Configuration` classes is only supported as of Spring
 Framework 4.3. Note also that there is no need to specify `@Autowired` if the target
 bean defines only one constructor; in the example above, `@Autowired` is not necessary
 on the `RepositoryConfig` constructor.
+
+只有自Spring框架4.3起才支持 `@Configuration` 类中的构造方法注入。还要注意，如果目标bean只定义了一个构造函数，则不需要指定 `@Autowired`；在上面的例子中，在 `RepositoryConfig` 构造函数中的 `@Autowired` 是不必要的。
 ====
 
-.[[beans-java-injecting-imported-beans-fq]]Fully-qualifying imported beans for ease of navigation
+.[[beans-java-injecting-imported-beans-fq]]完全符合易于操作标准的引入的bean(Fully-qualifying imported beans for ease of navigation)
 --
 In the scenario above, using `@Autowired` works well and provides the desired
 modularity, but determining exactly where the autowired bean definitions are declared is
@@ -8208,9 +8246,13 @@ can render graphs showing how everything is wired up - that may be all you need.
 your Java IDE can easily find all declarations and uses of the `AccountRepository` type,
 and will quickly show you the location of `@Bean` methods that return that type.
 
+在上述情况下，使用 `@Autowired` 可以很好地提供所需的模块化功能，但确切地确定自动注入的bean定义的被声明的位置仍然有些模糊。例如，作为一名开发人员要查看 `ServiceConfig`，您如何确切的知道 `@Autowired AccountRepository` bean在哪里被声明？ 在代码中并不明确，这可能很好。请记住， https://spring.io/tools/sts[Spring Tool Suite] 提供了可以渲染图形的工具，显示了所有内容如何连接-这可能是所有您需要的。此外，您的Java IDE可以轻松找到所有的 `AccountRepository` 类型的声明和使用，并将快速显示返回该类型的 `@Bean` 方法的位置。
+
 In cases where this ambiguity is not acceptable and you wish to have direct navigation
 from within your IDE from one `@Configuration` class to another, consider autowiring the
 configuration classes themselves:
+
+在这种歧义不可接受而且您希望从IDE中的一个 `@Configuration` 类直接导航到另一个的情况下，请考虑自动注入配置类：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -8234,6 +8276,8 @@ In the situation above, it is completely explicit where `AccountRepository` is d
 However, `ServiceConfig` is now tightly coupled to `RepositoryConfig`; that's the
 tradeoff. This tight coupling can be somewhat mitigated by using interface-based or
 abstract class-based `@Configuration` classes. Consider the following:
+
+在上述情况下，完全明确了 `AccountRepository` 的定义位置。但是，`ServiceConfig` 现在紧紧耦合到 `RepositoryConfig`；这是折衷的办法。通过使用基于接口或抽象类的 `@Configuration` 类，可以稍微减轻这种紧耦合。考虑下面的代码：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -8291,11 +8335,13 @@ Now `ServiceConfig` is loosely coupled with respect to the concrete
 the developer to get a type hierarchy of `RepositoryConfig` implementations. In this
 way, navigating `@Configuration` classes and their dependencies becomes no different
 than the usual process of navigating interface-based code.
+
+现在，`ServiceConfig` 与具体的 `DefaultRepositoryConfig` 松散耦合，并且内置的IDE工具仍然有用：开发人员可以轻松获取 `RepositoryConfig` 实现的类型层次结构。以这种方式，导航 `@Configuration` 类及其依赖关系与导航基于接口的代码的过程没有什么不同。
 --
 
 
 [[beans-java-conditional]]
-==== Conditionally include @Configuration classes or @Bean methods
+==== 有条件地包括@Configuration类或@Bean方法(Conditionally include @Configuration classes or @Bean methods)
 
 It is often useful to conditionally enable or disable a complete `@Configuration` class,
 or even individual `@Bean` methods, based on some arbitrary system state. One common
@@ -8303,15 +8349,21 @@ example of this is to use the `@Profile` annotation to activate beans only when 
 profile has been enabled in the Spring `Environment` (see <<beans-definition-profiles>>
 for details).
 
+基于某些任意系统状态，有条件地启用或禁用完整的 `@Configuration` 类，甚至是单独的 `@Bean` 方法是非常有用的。一个常见的例子是使用 `@Profile` 注释来仅在Spring `环境` 中启用特定配置文件时激活bean（有关详细信息，请参阅<<beans-definition-profiles>>）。
+
 The `@Profile` annotation is actually implemented using a much more flexible annotation
 called {api-spring-framework}/context/annotation/Conditional.html[`@Conditional`].
 The `@Conditional` annotation indicates specific
 `org.springframework.context.annotation.Condition` implementations that should be
 consulted before a `@Bean` is registered.
 
+`@Profile` 注解实际上是使用更为灵活的注解 {api-spring-framework}/context/annotation/Conditional.html[`@Conditional`] 来实现的。`@Conditional` 注解表示在 `@Bean` 注册之前应该参考的具体的 `org.springframework.context.annotation.Condition` 实现。
+
 Implementations of the `Condition` interface simply provide a `matches(...)`
 method that returns `true` or `false`. For example, here is the actual
 `Condition` implementation used for `@Profile`:
+
+`Condition` 接口的实现只是提供一个 `matches(...)` 方法，返回 `true` 或 `false`。例如，这里是 `@Profile` 的实际 `Condition` 实现：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -8337,9 +8389,11 @@ method that returns `true` or `false`. For example, here is the actual
 See the {api-spring-framework}/context/annotation/Conditional.html[
 `@Conditional` javadocs] for more detail.
 
+有关更多详细信息，请参阅 {api-spring-framework}/context/annotation/Conditional.html[`@Conditional` javadocs]。
+
 
 [[beans-java-combining]]
-==== Combining Java and XML configuration
+==== 结合Java和XML配置(Combining Java and XML configuration)
 
 Spring's `@Configuration` class support does not aim to be a 100% complete replacement
 for Spring XML. Some facilities such as Spring XML namespaces remain an ideal way to
@@ -8349,8 +8403,10 @@ choice: either instantiate the container in an "XML-centric" way using, for exam
 `AnnotationConfigApplicationContext` and the `@ImportResource` annotation to import XML
 as needed.
 
+Spring的 `@Configuration` 类支持并不旨在成为Spring XML的100％完全替代品。一些工具，如Spring XML命名空间仍然是配置容器的理想方式。在XML方便或必要的情况下，您可以选择：“以XML为中心” 的方式，例如，使用 `ClassPathXmlApplicationContext` 来实例化容器，或“以Java为中心”方式，例如，使用 `AnnotationConfigApplicationContext` 并使用 `@ImportResource` 注解根据需要导入XML来实例化容器。
+
 [[beans-java-combining-xml-centric]]
-===== XML-centric use of @Configuration classes
+===== 以XML为中心使用@Configuration类(XML-centric use of @Configuration classes)
 
 It may be preferable to bootstrap the Spring container from XML and include
 `@Configuration` classes in an ad-hoc fashion. For example, in a large existing codebase
@@ -8358,7 +8414,9 @@ that uses Spring XML, it will be easier to create `@Configuration` classes on an
 as-needed basis and include them from the existing XML files. Below you'll find the
 options for using `@Configuration` classes in this kind of "XML-centric" situation.
 
-.[[beans-java-combining-xml-centric-declare-as-bean]]Declaring @Configuration classes as plain Spring `<bean/>` elements
+最好从XML引导Spring容器，并以ad-hoc方式包含 `@Configuration` 类。例如，在使用Spring XML的大型现有代码库中，根据需求创建 `@Configuration` 类并将其包含在现有的XML文件中将更容易。下面你可以找到在这种 “以XML为中心” 的情况下使用 `@Configuration` 类的选项。
+
+.[[beans-java-combining-xml-centric-declare-as-bean]]将@Configuration类声明为普通的Spring `<bean/>` 元素(Declaring @Configuration classes as plain Spring `<bean/>` elements)
 --
 Remember that `@Configuration` classes are ultimately just bean definitions in the
 container. In this example, we create a `@Configuration` class named `AppConfig` and
@@ -8366,6 +8424,8 @@ include it within `system-test-config.xml` as a `<bean/>` definition. Because
 `<context:annotation-config/>` is switched on, the container will recognize the
 `@Configuration` annotation and process the `@Bean` methods declared in `AppConfig`
 properly.
+
+记住 `@Configuration` 类根本上只是容器中的bean定义。在这个例子中，我们创建一个名为 `AppConfig` 的 `@Configuration` 类，并将它包含在 `system-test-config.xml` 作为 `<bean/>` 定义。因为 `<context：annotation-config/>` 被打开，容器将会识别 `@Configuration` 注解，并正确处理在AppConfig中声明的 `@Bean` 方法。
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -8436,10 +8496,12 @@ element. While it would be acceptable to do so, it is unnecessary given that no 
 bean will ever refer to it, and it is unlikely that it will be explicitly fetched from
 the container by name. Likewise with the `DataSource` bean - it is only ever autowired
 by type, so an explicit bean `id` is not strictly required.
+
+在上面的 `system-test-config.xml` 中，`AppConfig` `<bean/>` 没有声明一个 `id` 元素。虽然这样做（声明一个id元素）是可以接受的，但是没有其他bean引用它，因此这样做是不必要的，并且它不太可能以名称从容器显式提取。与 `DataSource` bean类似，它只能通过类型自动注入，因此不需要严格的显式bean `id`。
 ====
 --
 
-.[[beans-java-combining-xml-centric-component-scan]] Using <context:component-scan/> to pick up `@Configuration` classes
+.[[beans-java-combining-xml-centric-component-scan]] 使用<context:component-scan/>来获取 `@Configuration` 类(Using <context:component-scan/> to pick up `@Configuration` classes)
 --
 Because `@Configuration` is meta-annotated with `@Component`, `@Configuration`-annotated
 classes are automatically candidates for component scanning. Using the same scenario as
@@ -8447,6 +8509,8 @@ above, we can redefine `system-test-config.xml` to take advantage of component-s
 Note that in this case, we don't need to explicitly declare
 `<context:annotation-config/>`, because `<context:component-scan/>` enables the same
 functionality.
+
+因为 `@Configuration` 是用 `@Component` 进行元注解的，所以 `@Configuration` 注解的类是组件扫描的自动候选类。使用与上述相同的场景，我们可以重新定义 `system-test-config.xml` 以利用组件扫描。请注意，在这种情况下，我们不需要明确声明 `<context:annotation-config/>`，因为 `<context:component-scan/>` 启用相同的功能。
 
 *system-test-config.xml*:
 
@@ -8468,13 +8532,17 @@ functionality.
 --
 
 [[beans-java-combining-java-centric]]
-===== @Configuration class-centric use of XML with @ImportResource
+===== 以@Configuration类为中心使用XML和@ImportResource(@Configuration class-centric use of XML with @ImportResource)
 
 In applications where `@Configuration` classes are the primary mechanism for configuring
 the container, it will still likely be necessary to use at least some XML. In these
 scenarios, simply use `@ImportResource` and define only as much XML as is needed. Doing
 so achieves a "Java-centric" approach to configuring the container and keeps XML to a
 bare minimum.
+
+在 `@Configuration` 类是用于配置容器的主要机制的应用程序中，至少使用一些XML仍然可能是必要的。在这些情况下，只需使用 `@ImportResource`，并只根据需要定义XML。这样做实现了“以Java为中心”的方式来配置容器，并将XML的使用保持在最低限度。
+
+
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -8529,18 +8597,22 @@ jdbc.password=
 ----
 
 [[beans-environment]]
-== Environment abstraction
+== 环境抽象(Environment abstraction)
 
 The {api-spring-framework}/core/env/Environment.html[`Environment`]
 is an abstraction integrated in the container that models two key
 aspects of the application environment: <<beans-definition-profiles,_profiles_>>
 and <<beans-property-source-abstraction,_properties_>>.
 
+{api-spring-framework}/core/env/Environment.html[`Environment`] 是集成在容器中的一个抽象，用于模拟应用程序环境的两个关键方面：<<beans-definition-profiles,_profiles_>>和<<beans-property-source-abstraction,_properties_>>。
+
 A _profile_ is a named, logical group of bean definitions to be registered with the
 container only if the given profile is active. Beans may be assigned to a profile
 whether defined in XML or via annotations. The role of the `Environment` object with
 relation to profiles is in determining which profiles (if any) are currently active,
 and which profiles (if any) should be active by default.
+
+只有在给定的配置文件处于活动状态时，_profile_ 才是要向容器注册的一个已被命名的逻辑组的bean定义。不管是以XML定义还是通过注解配置，Bean都可以被分配到一个配置文件中。`Environment` 对象与配置文件关系的作用在于确定哪些配置文件（如果有）当前处于活动状态，哪些配置文件（如果有的话）默认情况下应该处于活动状态。
 
 Properties play an important role in almost all applications, and may originate from
 a variety of sources: properties files, JVM system properties, system environment
@@ -8549,13 +8621,17 @@ on. The role of the `Environment` object with relation to properties is to provi
 user with a convenient service interface for configuring property sources and resolving
 properties from them.
 
+属性在几乎所有应用程序中都起着重要的作用，可能源自各种来源：属性文件，JVM系统属性，系统环境变量，JNDI，servlet上下文参数，ad-hoc属性对象，Maps等。`Environment` 对象与属性关系的作用是为用户提供方便的服务接口，用于配置属性源并从中解析属性。
+
 [[beans-definition-profiles]]
-=== Bean definition profiles
+=== Bean定义配置文件(Bean definition profiles)
 
 Bean definition profiles is a mechanism in the core container that allows for
 registration of different beans in different environments. The word _environment_
 can mean different things to different users and this feature can help with many
 use cases, including:
+
+Bean定义配置文件是核心容器中允许在不同环境中注册不同bean的机制。这个词 _environment_ 对不同的用户意味着不同的东西，这个功能对于许多用例都有帮助，包括：
 
 * working against an in-memory datasource in development vs looking up that same
 datasource from JNDI when in QA or production
