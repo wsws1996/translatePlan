@@ -8597,7 +8597,7 @@ jdbc.password=
 ----
 
 [[beans-environment]]
-== Environment抽象的概念(Environment abstraction)
+== 环境抽象的概念(Environment abstraction)
 
 The {api-spring-framework}/core/env/Environment.html[`Environment`]
 is an abstraction integrated in the container that models two key
@@ -9115,6 +9115,8 @@ Any `${...}` placeholders present in a `@PropertySource` resource location will
 be resolved against the set of property sources already registered against the
 environment. For example:
 
+位于 `@PropertySource` 资源位置上的任何 `${...}` 占位符将针对已针对环境注册的属性资源集合解析。例如：
+
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -9139,9 +9141,11 @@ be resolved to the corresponding value. If not, then "default/path" will be used
 as a default. If no default is specified and a property cannot be resolved, an
 `IllegalArgumentException` will be thrown.
 
+假设"my.placeholder"存在于已经注册的一个属性资源中，例如 系统属性或环境变量，占位符将被解析为相应的值。如果没有，那么将使用"default/path"作为默认值。如果未指定默认值，并且无法解析属性，则将抛出 `IllegalArgumentException`。
 
 
-=== Placeholder resolution in statements
+
+=== 语句中的占位符解析(Placeholder resolution in statements)
 
 Historically, the value of placeholders in elements could be resolved only against
 JVM system properties or environment variables. No longer is this the case. Because
@@ -9151,8 +9155,12 @@ resolution process in any way you like: change the precedence of searching throu
 system properties and environment variables, or remove them entirely; add your
 own property sources to the mix as appropriate.
 
+历史上，元素中占位符的值仅可以针对JVM系统属性或环境变量来解析。（现在）不再是这种情况。由于环境抽象集成在整个容器中，因此可以很容易地通过它来分配占位符的解析。这意味着您可以以任何您喜欢的方式配置解析流程：更改通过系统属性和环境变量搜索的优先级，或者完全删除它们；根据需要将您自己的属性来源添加到混合环境中。
+
 Concretely, the following statement works regardless of where the `customer`
 property is defined, as long as it is available in the `Environment`:
+
+具体来说，无论 `customer` 属性是在哪里定义的，只要在 `Environment` 中可以使用 `customer` 属性，就可以使用以下语句：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -9166,13 +9174,17 @@ property is defined, as long as it is available in the `Environment`:
 
 
 [[context-load-time-weaver]]
-== Registering a LoadTimeWeaver
+== 注册一个LoadTimeWeaver(Registering a LoadTimeWeaver)
 
 The `LoadTimeWeaver` is used by Spring to dynamically transform classes as they are
 loaded into the Java virtual machine (JVM).
 
+当将类加载到Java虚拟机（JVM）中时 `LoadTimeWeaver` 被Spring用于动态的转换类。
+
 To enable load-time weaving add the `@EnableLoadTimeWeaving` to one of your
 `@Configuration` classes:
+
+要启用加载时织入，将 `@EnableLoadTimeWeaving` 添加到您的一个 `@Configuration` 类中：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -9185,6 +9197,8 @@ To enable load-time weaving add the `@EnableLoadTimeWeaving` to one of your
 ----
 
 Alternatively for XML configuration use the `context:load-time-weaver` element:
+
+或者，对于XML配置，使用 `context:load-time-weaver` 元素：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -9201,11 +9215,13 @@ support>> where load-time weaving may be necessary for JPA class transformation.
 the `LocalContainerEntityManagerFactoryBean` javadocs for more detail. For more on
 AspectJ load-time weaving, see <<aop-aj-ltw>>.
 
+一旦 `ApplicationContext` 配置完成。`ApplicationContext` 中的任何bean都可以实现 `LoadTimeWeaverAware`，从而接收对加载时织入器实例的引用。这在与<<orm-jpa,Spring的JPA支持>>联合使用时特别有用，JPA类转换可能需要加载时织入。有关更多的详细信息，请参阅 `LocalContainerEntityManagerFactoryBean` javadocs。有关AspectJ加载时织入的更多信息，请参见<<aop-aj-ltw>>。
+
 
 
 
 [[context-introduction]]
-== Additional Capabilities of the ApplicationContext
+== ApplicationContext的附加功能(Additional Capabilities of the ApplicationContext)
 
 As was discussed in the chapter introduction, the `org.springframework.beans.factory`
 package provides basic functionality for managing and manipulating beans, including in a
@@ -9218,8 +9234,12 @@ declarative fashion, not even creating it programmatically, but instead relying 
 support classes such as `ContextLoader` to automatically instantiate an
 `ApplicationContext` as part of the normal startup process of a Java EE web application.
 
+正如本章所介绍的那样，`org.springframework.beans.factory` 包提供了管理和操纵bean的基本功能，包括以编程的方式。`org.springframework.context` 包添加了 {api-spring-framework}/context/ApplicationContext.html[`ApplicationContext`] 接口，除了以一种更加__面向应用框架的风格__继承其他接口以提供额外的功能以外，它还继承了 `BeanFactory` 接口。许多人以完全声明的方式使用 `ApplicationContext`，甚至没有以编程方式创建它，而是依靠支持类，例如 `ContextLoader` 来自动实例化一个 `ApplicationContext`，作为Java EE Web应用程序正常启动过程的一部分。
+
 To enhance `BeanFactory` functionality in a more framework-oriented style the context
 package also provides the following functionality:
+
+为了在更加面向框架的风格中增强 `BeanFactory` 功能，上下文包还提供了以下功能：
 
 * __Access to messages in i18n-style__, through the `MessageSource` interface.
 * __Access to resources__, such as URLs and files, through the `ResourceLoader` interface.
@@ -9229,16 +9249,23 @@ package also provides the following functionality:
   particular layer, such as the web layer of an application, through the
   `HierarchicalBeanFactory` interface.
 
+* 通过 `MessageSource` 接口，__以i18n样式访问消息__。
+* 通过 `ResourceLoader` 接口__访问资源__，如URL和文件。
+* 通过使用 `ApplicationEventPublisher` 接口，__将事件发布到__实现 `ApplicationListener` 接口的bean上。
+* 通过 `HierarchicalBeanFactory` 接口，__加载多个（分层）上下文__，允许每个对象集中在一个特定的层，如应用程序的Web层。
+
 
 
 [[context-functionality-messagesource]]
-=== Internationalization using MessageSource
+=== 使用MessageSource进行国际化(Internationalization using MessageSource)
 
 The `ApplicationContext` interface extends an interface called `MessageSource`, and
 therefore provides internationalization (i18n) functionality. Spring also provides the
 interface `HierarchicalMessageSource`, which can resolve messages hierarchically.
 Together these interfaces provide the foundation upon which Spring effects message
 resolution. The methods defined on these interfaces include:
+
+`ApplicationContext` 接口继承了一个名为 `MessageSource` 的接口，因此提供国际化（i18n）功能。 Spring还提供了 `HierarchicalMessageSource` 接口，可以分层解析消息。这些接口一起为Spring有效的消息解析提供了基础。这些接口定义的方法包括：
 
 * `String getMessage(String code, Object[] args, String default, Locale loc)`: The basic
   method used to retrieve a message from the `MessageSource`. When no message is found
@@ -9252,6 +9279,10 @@ resolution. The methods defined on these interfaces include:
   used in the preceding methods are also wrapped in a class named
   `MessageSourceResolvable`, which you can use with this method.
 
+* `String getMessage(String code, Object[] args, String default, Locale loc)`:用于从 `MessageSource` 中检索消息的基本方法。当没有找到指定语言环境的消息时，将使用默认消息。传递的任何参数都成为替换值，使用标准库提供的 `MessageFormat` 功能。
+* `String getMessage(String code, Object[] args, Locale loc)`:与以前的方法基本相同，但有一个区别：不能指定默认消息；如果无法找到该消息，则抛出 `NoSuchMessageException`。
+* `String getMessage(MessageSourceResolvable resolvable, Locale locale)`:上述方法中使用的所有属性也都包含在名为 `MessageSourceResolvable` 的类中，您可以在此方法使用（这些属性）。
+
 When an `ApplicationContext` is loaded, it automatically searches for a `MessageSource`
 bean defined in the context. The bean must have the name `messageSource`. If such a bean
 is found, all calls to the preceding methods are delegated to the message source. If no
@@ -9261,11 +9292,15 @@ bean with the same name. If it does, it uses that bean as the `MessageSource`. I
 `DelegatingMessageSource` is instantiated in order to be able to accept calls to the
 methods defined above.
 
+当加载 `ApplicationContext` 时，它会自动搜索在上下文中定义的 `MessageSource` bean。bean必须具有名称 `messageSource`。如果找到这样的bean，则将所有上述方法的调用都委派给message source。如果没有找到message source，`ApplicationContext` 将尝试找到一个含有同名的bean的父上下文。如果找到了，它将使用该bean作为 `MessageSource`。如果 `ApplicationContext` 找不到任何消息源，则会将一个空的 `DelegatingMessageSource` 实例化，以便能够接受对上述方法的调用。
+
 Spring provides two `MessageSource` implementations, `ResourceBundleMessageSource` and
 `StaticMessageSource`. Both implement `HierarchicalMessageSource` in order to do nested
 messaging. The `StaticMessageSource` is rarely used but provides programmatic ways to
 add messages to the source. The `ResourceBundleMessageSource` is shown in the following
 example:
+
+Spring提供了两个 `MessageSource` 实现，`ResourceBundleMessageSource` 和 `StaticMessageSource`。两个都实现了 `HierarchicalMessageSource`，以便进行嵌套消息传递。`StaticMessageSource` 很少被使用，但提供了编程方式来向源添加消息。`ResourceBundleMessageSource` 在以下示例中演示：
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -9290,6 +9325,8 @@ handled in the JDK standard way of resolving messages through ResourceBundles. F
 purposes of the example, assume the contents of two of the above resource bundle files
 are...
 
+在这个例子中，假设你的类路径中定义了三个资源包，分别叫做 `format`，`exceptions` 和 `windows`。解析消息的任何请求将以JDK标准方式即通过ResourceBundles解析消息进行处理。为了示例的目的，假设上述两个资源包文件的内容是...
+
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -9308,6 +9345,8 @@ A program to execute the `MessageSource` functionality is shown in the next exam
 Remember that all `ApplicationContext` implementations are also `MessageSource`
 implementations and so can be cast to the `MessageSource` interface.
 
+在下一个示例中演示了执行 `MessageSource` 功能的程序。记住，所有的 `ApplicationContext` 实现也是 `MessageSource` 实现，因此可以转换为 `MessageSource` 接口。
+
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -9319,6 +9358,8 @@ implementations and so can be cast to the `MessageSource` interface.
 ----
 
 The resulting output from the above program will be...
+
+上述程序的结果将是...
 
 [literal]
 [subs="verbatim,quotes"]
@@ -9333,8 +9374,12 @@ passed in the list to the `basenames` property exist as files at the root of you
 classpath and are called `format.properties`, `exceptions.properties`, and
 `windows.properties` respectively.
 
+所以总结一下，`MessageSource` 是在一个名为 `beans.xml` 的文件中定义的，它存在于你的类路径的根目录下。`messageSource` bean定义通过它的 `basenames` 属性引用了一些资源包。在列表中传递给 `basenames` 属性的三个文件作为类路径根目录中的文件存在，分别称为 `format.properties`，`exceptions.properties` 和 `windows.properties`。
+
 The next example shows arguments passed to the message lookup; these arguments will be
 converted into Strings and inserted into placeholders in the lookup message.
+
+下一个示例显示传递给消息查找的参数；这些参数将被转换为字符串并插入到查找消息中的占位符中。
 
 [source,xml,indent=0]
 [subs="verbatim,quotes"]
@@ -9376,6 +9421,8 @@ converted into Strings and inserted into placeholders in the lookup message.
 
 The resulting output from the invocation of the `execute()` method will be...
 
+`execute()` 方法调用的结果输出将是...
+
 [literal]
 [subs="verbatim,quotes"]
 ----
@@ -9389,9 +9436,13 @@ previously, if you want to resolve messages against the British (`en-GB`) locale
 would create files called `format_en_GB.properties`, `exceptions_en_GB.properties`, and
 `windows_en_GB.properties` respectively.
 
+关于国际化（i18n），Spring的各种 `MessageSource` 实现遵循与标准JDK `ResourceBundle` 相同的语言环境解决方案和回退规则。简而言之，继续以前面定义的 `messageSource` 示例，如果要针对英国（`en-GB`）语言环境解析消息，您将分别创建名为 `format_en_GB.properties`，`exceptions_en_GB.properties` 和 `windows_en_GB.properties` 的文件。
+
 Typically, locale resolution is managed by the surrounding environment of the
 application. In this example, the locale against which (British) messages will be
 resolved is specified manually.
+
+通常，语言环境解决方案由应用程序的周边环境进行管理。在此示例中，手动指定针对（英国）的消息将被解析的语言环境。
 
 [literal]
 [subs="verbatim,quotes"]
@@ -9413,6 +9464,8 @@ argument.required=Ebagum lad, the {0} argument is required, I say, required.
 
 The resulting output from the running of the above program will be...
 
+上述程序的运行结果将是...
+
 [literal]
 [subs="verbatim,quotes"]
 ----
@@ -9424,6 +9477,8 @@ You can also use the `MessageSourceAware` interface to acquire a reference to an
 `ApplicationContext` that implements the `MessageSourceAware` interface is injected with
 the application context's `MessageSource` when the bean is created and configured.
 
+您还可以使用 `MessageSourceAware` 接口获取对已定义的任何 `MessageSource` 的引用。在创建和配置bean时，在 `ApplicationContext` 中定义的实现 `MessageSourceAware` 接口的任何bean都会注入应用程序上下文的 `MessageSource`。
+
 [NOTE]
 ====
 __As an alternative to `ResourceBundleMessageSource`, Spring provides a
@@ -9433,18 +9488,22 @@ file format but is more flexible than the standard JDK based
 files from any Spring resource location (not just from the classpath) and supports hot
 reloading of bundle property files (while efficiently caching them in between). Check
 out the `ReloadableResourceBundleMessageSource` javadocs for details.
+
+__作为 `ResourceBundleMessageSource` 的替代方法，Spring提供了一个 `ReloadableResourceBundleMessageSource` 类。此变体支持相同的文件包格式，但比基于标准JDK的 `ResourceBundleMessageSource` 实现更为灵活。__特别是，它允许从任何Spring资源位置读取文件（而不仅仅是类路径），并支持属性文件包的热重新加载（同时有效地缓存它们之间）。查看 `ReloadableResourceBundleMessageSource` javadocs了解详细信息。
 ====
 
 
 
 [[context-functionality-events]]
-=== Standard and Custom Events
+=== 标准的和自定义的事件(Standard and Custom Events)
 
 Event handling in the `ApplicationContext` is provided through the `ApplicationEvent`
 class and `ApplicationListener` interface. If a bean that implements the
 `ApplicationListener` interface is deployed into the context, every time an
 `ApplicationEvent` gets published to the `ApplicationContext`, that bean is notified.
 Essentially, this is the standard __Observer__ design pattern.
+
+`ApplicationContext` 中的事件处理通过 `ApplicationEvent` 类和 `ApplicationListener` 接口提供。如果一个实现 `ApplicationListener` 接口的bean被部署到上下文中，每当一个 `ApplicationEvent` 被发布到 `ApplicationContext` 时，就会通知该bean。本质上，这是标准的__观察者__设计模式。
 
 [TIP]
 ====
@@ -9453,14 +9512,18 @@ an <<context-functionality-events-annotation,annotation-based model>> as well as
 ability to publish any arbitrary event, that is an object that does not necessarily
 extend from `ApplicationEvent`. When such an object is published we wrap it in an
 event for you.
+
+从Spring 4.2开始，事件基础架构得到了显着改善，并提供了一个<<context-functionality-events-annotation,基于注解的模型>>，以及发布任意事件的能力，这是一个不需要继承自 `ApplicationEvent` 的对象。当这样的对象被发布时，我们将它包装在一个事件中。
 ====
 
 Spring provides the following standard events:
 
+Spring提供以下标准事件：
+
 [[beans-ctx-events-tbl]]
-.Built-in Events
+.内置事件(Built-in Events)
 |===
-| Event| Explanation
+| 事件(Event)| 说明(Explanation)
 
 | `ContextRefreshedEvent`
 | Published when the `ApplicationContext` is initialized or refreshed, for example,
@@ -9471,6 +9534,8 @@ Spring provides the following standard events:
   multiple times, provided that the chosen `ApplicationContext` actually supports such
   "hot" refreshes. For example, `XmlWebApplicationContext` supports hot refreshes, but
   `GenericApplicationContext` does not.
+
+  当 `ApplicationContext` 已被初始化或已刷新时，例如在 `ConfigurableApplicationContext` 接口上使用 `refresh()` 方法时发布。这里的“已初始化”表示所有的bean都已被加载，后处理器bean已被检测和激活，单例已被预先实例化，并且 `ApplicationContext` 对象可以使用。只要上下文尚未关闭，就可以多次触发刷新，前提是所选的 `ApplicationContext` 实际上支持这种“热”刷新。例如，`XmlWebApplicationContext` 支持热刷新，但是 `GenericApplicationContext` 没有支持。
 
 | `ContextStartedEvent`
 | Published when the `ApplicationContext` is started, using the `start()` method on the
