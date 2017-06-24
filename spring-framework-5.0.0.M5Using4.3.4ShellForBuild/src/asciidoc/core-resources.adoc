@@ -1,10 +1,10 @@
 
 [[resources]]
-= Resources
+= 资源(Resources)
 
 
 [[resources-introduction]]
-== Introduction
+== 介绍(Introduction)
 Java's standard `java.net.URL` class and standard handlers for various URL prefixes
 unfortunately are not quite adequate enough for all access to low-level resources. For
 example, there is no standardized `URL` implementation that may be used to access a
@@ -14,12 +14,16 @@ prefixes (similar to existing handlers for prefixes such as `http:`), this is ge
 quite complicated, and the `URL` interface still lacks some desirable functionality,
 such as a method to check for the existence of the resource being pointed to.
 
+Java的标准 `java.net.URL` 类和各种URL前缀的标准处理程序不幸不足以满足对低级资源的所有访问。例如，没有标准化的 `URL` 实现可用于访问需要从类路径获取的或与 `ServletContext` 有关的资源。虽然可以为专门的 `URL` 前缀注册新的处理程序（类似于前缀如 `http:` 的现有处理程序），但这通常是相当复杂的，而且 `URL` 接口仍然缺少一些令人满意的功能，例如检查所指向的资源的存在性的方法。
+
 
 [[resources-resource]]
-== The Resource interface
+== 资源接口(The Resource interface)
 
 Spring's `Resource` interface is meant to be a more capable interface for abstracting
 access to low-level resources.
+
+Spring的 `Resource` 接口旨在成为一个更有能力的接口，用于抽象对低级资源的访问。
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -55,6 +59,8 @@ access to low-level resources.
 
 Some of the most important methods from the `Resource` interface are:
 
+`资源` 接口的一些最重要的方法是：
+
 * `getInputStream()`: locates and opens the resource, returning an `InputStream` for
   reading from the resource. It is expected that each invocation returns a fresh
   `InputStream`. It is the responsibility of the caller to close the stream.
@@ -68,9 +74,16 @@ Some of the most important methods from the `Resource` interface are:
   output when working with the resource. This is often the fully qualified file name or
   the actual URL of the resource.
 
+* `getInputStream()`：找到并打开资源，返回一个 `InputStream` 用于从资源读取。预计每次调用都会返回一个新的 `InputStream`。调用者有责任关闭流。
+* `exists()`：返回一个 `布尔值`，指示该资源是否实际上以物理形式存在。
+* `isOpen()`：返回一个 `布尔值`，指示该资源是否具有开放流的句柄。如果 `true`，`InputStream` 不能被多次读取，并且必须只读取一次，然后关闭以避免资源泄漏。对于所有通常的资源实现来说，它将是 `false`，但 `InputStreamResource` 除外。
+* `getDescription()`：返回此资源的描述，用于处理资源时的错误输出。这通常是完全限定的文件名（完整类路径）或资源的实际URL。
+
 Other methods allow you to obtain an actual `URL` or `File` object representing the
 resource (if the underlying implementation is compatible, and supports that
 functionality).
+
+其他方法允许您获取一个表示资源的实际 `URL` 或 `File` 对象（如果底层实现是兼容的，并且支持该功能）。
 
 The `Resource` abstraction is used extensively in Spring itself, as an argument type in
 many method signatures when a resource is needed. Other methods in some Spring APIs
