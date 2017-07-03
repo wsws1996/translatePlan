@@ -579,10 +579,14 @@ resolved at construction time. It has nothing to do with the `Resource` type its
 It's not possible to use the `classpath*:` prefix to construct an actual `Resource`, as
 a resource points to just one resource at a time.
 
+请注意，此通配符是特定于在应用程序上下文构造函数中使用资源路径（或在直接使用 `PathMatcher` 实用程序类的层面上），并在构建时解析。它与 `资源` 类型本身无关。不能使用 `classpath*:` 前缀构造一个实际的 `资源`，因为资源一次只能指向一个资源。
+
 
 [[resources-app-ctx-ant-patterns-in-paths]]
-==== Ant-style Patterns
+==== Ant风格模式(Ant-style Patterns)
 When the path location contains an Ant-style pattern, for example:
+
+当路径位置包含Ant样式模式时，例如：
 
 [literal]
 [subs="verbatim"]
@@ -602,11 +606,15 @@ case of a jar URL, the resolver either gets a `java.net.JarURLConnection` from i
 manually parses the jar URL and then traverses the contents of the jar file to resolve
 the wildcards.
 
+解析器遵循更复杂但已定义的过程来尝试解析通配符。它为最后一个非通配符段的路径生成一个资源，并从中获取一个URL。如果此URL不是 `jar:` URL或容器特定的变体（例如WebLogic中的 `zip:`，WebSphere中的 `wsjar` 等）），则会从中获取一个 `java.io.File`，并用于通过遍历文件系统来解析通配符。在jar URL的情况下，解析器可以从中获取一个 `java.net.JarURLConnection`，或者手动解析jar URL，然后遍历jar文件的内容来解析通配符。
+
 [[resources-app-ctx-portability]]
-===== Implications on portability
+===== 对可移植性的影响(Implications on portability)
 If the specified path is already a file URL (either explicitly, or implicitly because
 the base `ResourceLoader` is a filesystem one, then wildcarding is guaranteed to work in
 a completely portable fashion.
+
+如果指定的路径已经是明确或隐含的文件URL，因为基本的 `ResourceLoader` 是一个文件系统，所以通配符保证以完全可移植的方式工作。
 
 If the specified path is a classpath location, then the resolver must obtain the last
 non-wildcard path segment URL via a `Classloader.getResource()` call. Since this is just
@@ -617,6 +625,8 @@ resource resolves to a filesystem location, or a jar URL of some sort, where the
 classpath resource resolves to a jar location. Still, there is a portability concern on
 this operation.
 
+如果指定的路径是类路径位置，则解析器必须通过 `Classloader.getResource()` 调用获取最后一个非通配符路径段URL。由于这只是路径的一个节点（而不是最后的文件），所以在这种情况下，返回什么样的URL实际上是未定义的（在 `ClassLoader` javadocs中）。在实践中，它始终是一个 `java.io.File`，它表示类路径资源解析为文件系统位置时的目录或某个类别的jar URL，其中classpath资源解析为一个jar位置。不过，这个操作有可移植性的担忧。
+
 If a jar URL is obtained for the last non-wildcard segment, the resolver must be able to
 get a `java.net.JarURLConnection` from it, or manually parse the jar URL, to be able to
 walk the contents of the jar, and resolve the wildcard. This will work in most
@@ -624,12 +634,16 @@ environments, but will fail in others, and it is strongly recommended that the w
 resolution of resources coming from jars be thoroughly tested in your specific
 environment before you rely on it.
 
+如果为最后一个非通配符段获取了一个jar URL，则解析器必须能够从中获取一个 `java.net.JarURLConnection`，或者手动解析jar URL，以便能够遍历该jar的内容，并解析通配符。这将在大多数环境中工作，但在其他环境中将会失败，并且强烈建议您在依赖该文件之前，根据具体环境彻底测试来自jar的资源的通配符解析。
+
 
 [[resources-classpath-wildcards]]
-==== The Classpath*: portability classpath*: prefix
+==== Classpath*:可移植性classpath*:前缀(The Classpath*: portability classpath*: prefix)
 
 When constructing an XML-based application context, a location string may use the
 special `classpath*:` prefix:
+
+当构建基于XML的应用程序上下文时，位置字符串可以使用特殊的 `classpath*:` 前缀：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -643,6 +657,8 @@ must be obtained (internally, this essentially happens via a
 `ClassLoader.getResources(...)` call), and then merged to form the final application
 context definition.
 
+这个特殊的前缀指定必须获得与给定名称相匹配的所有类路径资源（在内部获取，这通常通过 `ClassLoader.getResources(...)` 调用），然后合并形成最终的应用程序上下文定义。
+
 [NOTE]
 ====
 The wildcard classpath relies on the `getResources()` method of the underlying
@@ -654,6 +670,8 @@ within a jar on the classpath:
 files that have the same name but are placed inside two different locations. In case an
 inappropriate result is returned, check the application server documentation for
 settings that might affect the classloader behavior.
+
+通配符类路径依赖于底层类加载器的 `getResources()` 方法。由于大多数应用程序服务器现在都提供自己的类加载器实现，所以在处理jar文件时行为可能会有所不同。一个简单的测试来检查 `classpath*` 是否可以使用是classloader从classpath中的一个jar中加载一个文件： `getClass().getClassLoader().getResources("<someFileInsideTheJar>")`。尝试使用具有相同名称但放在两个不同位置的文件进行此测试。如果返回不正确的结果，请检查应用程序服务器文档中是否有可能影响类加载器行为的设置。
 ====
 
 The `classpath*:` prefix can also be combined with a `PathMatcher` pattern in the
@@ -663,9 +681,11 @@ used on the last non-wildcard path segment to get all the matching resources in 
 class loader hierarchy, and then off each resource the same PathMatcher resolution
 strategy described above is used for the wildcard subpath.
 
+`classpath*:` 前缀也可以使用 `PathMatcher` 模式与位置路径的其余部分相结合，例如 `classpath*:META-INF/*-beans.xml`。在这种情况下，解析策略是相当简单的：在最后一个非通配符路径段上使用一个 `ClassLoader.getResources()` 调用来获取类加载器层面上的所有匹配资源，然后对每个资源使用相同的上述PathMatcher解析策略用于通配符子路径。
+
 
 [[resources-wildcards-in-path-other-stuff]]
-==== Other notes relating to wildcards
+==== 有关通配符的其他笔记(Other notes relating to wildcards)
 Please note that `classpath*:` when combined with Ant-style patterns will only work
 reliably with at least one root directory before the pattern starts, unless the actual
 target files reside in the file system. This means that a pattern like
@@ -674,9 +694,13 @@ from the root of expanded directories. This originates from a limitation in the 
 `ClassLoader.getResources()` method which only returns file system locations for a
 passed-in empty string (indicating potential roots to search).
 
+请注意，除非实际的目标文件驻留在文件系统中，`classpath*:` 与Ant样式模式结合后，在模式启动前至少与一个根目录一起才能可靠的工作。这意味着像 `classpath*:*.xml` 这样的模式不会从jar文件的根目录中检索文件，而只能从扩展目录的根目录中检索文件。这源于JDK的 `ClassLoader.getResources()` 方法中的限制，该方法仅返回传入的空字符串的文件系统位置（指示潜在的搜索根）。
+
 Ant-style patterns with `classpath:` resources are not guaranteed to find matching
 resources if the root package to search is available in multiple class path locations.
 This is because a resource such as
+
+如果要搜索的根包在多个类路径位置可用，则不能保证具有 `classpath:` 资源的Ant样式模式可以找到匹配的资源。这是因为一个资源，如
 
 [literal]
 [subs="verbatim,quotes"]
@@ -685,6 +709,8 @@ com/mycompany/package1/service-context.xml
 ----
 
 may be in only one location, but when a path such as
+
+可能只在一个位置，但是当一个路径如
 
 [literal]
 [subs="verbatim,quotes"]
@@ -698,10 +724,12 @@ classloader locations, the actual end resource may not be underneath. Therefore,
 preferably, use " `classpath*:`" with the same Ant-style pattern in such a case, which
 will search all class path locations that contain the root package.
 
+来尝试解析它时，解析器将解析由 `getResource("com/mycompany")`；。返回的（第一个）URL。如果此基本包节点存在于多个类加载器位置中，则实际的最终资源可能不在下面。因此，在这种情况下，最好使用具有相同Ant风格模式的“`classpath*:`”，这将搜索包含根包的所有类路径位置。
+
 
 
 [[resources-filesystemresource-caveats]]
-=== FileSystemResource caveats
+=== FileSystemResource注意事项(FileSystemResource caveats)
 
 A `FileSystemResource` that is not attached to a `FileSystemApplicationContext` (that
 is, a `FileSystemApplicationContext` is not the actual `ResourceLoader`) will treat
@@ -709,11 +737,15 @@ absolute vs. relative paths as you would expect. Relative paths are relative to 
 current working directory, while absolute paths are relative to the root of the
 filesystem.
 
+没有附加到 `FileSystemApplicationContext`（即 `FileSystemApplicationContext` 并不是实际的 `ResourceLoader`）的 `FileSystemResource` 将像你所期望的那样对待绝对和相对路径。相对路径相对于当前工作目录，而绝对路径相对于文件系统的根。
+
 For backwards compatibility (historical) reasons however, this changes when the
 `FileSystemApplicationContext` is the `ResourceLoader`. The
 `FileSystemApplicationContext` simply forces all attached `FileSystemResource` instances
 to treat all location paths as relative, whether they start with a leading slash or not.
 In practice, this means the following are equivalent:
+
+为了向后兼容（历史）原因，当 `FileSystemApplicationContext` 是 `ResourceLoader` 时，这会改变。`FileSystemApplicationContext` 只是强制所有附加的 `FileSystemResource` 实例把所有的位置路径视为相对的，不管它们是不是以一个打头的的斜杠开始的。实际上，这意味着以下的写法是等同的：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -732,6 +764,8 @@ In practice, this means the following are equivalent:
 As are the following: (Even though it would make sense for them to be different, as one
 case is relative and the other absolute.)
 
+如下所示：（尽管它们是不同的，因为一个例子是相对的，另一个是绝对的）。
+
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -749,6 +783,8 @@ case is relative and the other absolute.)
 In practice, if true absolute filesystem paths are needed, it is better to forgo the use
 of absolute paths with `FileSystemResource` / `FileSystemXmlApplicationContext`, and
 just force the use of a `UrlResource`, by using the `file:` URL prefix.
+
+实际上，如果需要真正的绝对文件系统路径，最好放弃使用 `FileSystemResource`/`FileSystemXmlApplicationContext` 的绝对路径，只需通过使用 `file:` URL前缀强制使用 `UrlResource`。
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
