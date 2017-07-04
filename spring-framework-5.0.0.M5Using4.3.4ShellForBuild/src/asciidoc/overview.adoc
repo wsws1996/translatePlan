@@ -123,7 +123,7 @@ first-class objects that you can integrate into your own application(s). Numerou
 organizations and institutions use the Spring Framework in this manner to engineer
 robust, __maintainable__ applications.
 
-Spring框架__控制翻转__（IoC）组件通过提供一种形式化的方法将不同的组件组成一个完全可用的应用程序来解决这个问题。Spring框架将形式化的设计模式编译为可以集成到自己的应用程序中的第一类对象。许多组织和机构以这种方式使用Spring框架来设计健壮的，__可维护的__应用程序。（就是将各种设计模式融合到框架中，而开发人员只需要关注自己的逻辑，在不知不觉中就已经用到了最佳的设计模式，自己的代码也得以健壮）
+Spring框架__控制翻转__（IoC）组件通过提供一种正式的方法将不同的组件组成一个完全可用的应用程序来解决这个问题。Spring框架将形式化的设计模式编译为可以集成到自己的应用程序中的第一类对象。许多组织和机构以这种方式使用Spring框架来设计健壮的，__可维护的__应用程序。（就是将各种设计模式融合到框架中，而开发人员只需要关注自己的逻辑，在不知不觉中就已经用到了最佳的设计模式，自己的代码也得以健壮）
 
 [[background-ioc]]
 .背景(Background)
@@ -197,7 +197,7 @@ logical and arithmetic operators, named variables, and retrieval of objects by n
 Spring's IoC container. It also supports list projection and selection as well as common
 list aggregations.
 
-`spring-expression` 模块提供了强大的<<expressions,__表达式语言__>>用来在运行时查询和操作对象图。它是JSP 2.1规范中统一表达式语言(unified EL)的扩展。这个语言支持setting和getting属性值，属性分配，方法调用，访问数组、集合和索引器的内容，逻辑和算术操作，变量命名，从Spring Ioc容器中通过名字检索对象。它也支持它还支持列表投影、选择以及常见的列表聚合。
+`spring-expression` 模块提供了强大的<<expressions,__表达式语言__>>用来在运行时查询和操作对象图。它是JSP 2.1规范中统一表达式语言(unified EL)的扩展。这个语言支持setting和getting属性值，属性分配，方法调用，访问数组、集合和索引器的内容，逻辑和算术操作，变量命名，从Spring Ioc容器中通过名字检索对象。它也支持列表投影和选择以及常见的列表聚合。
 
 
 [[overview-aop-instrumentation]]
@@ -345,7 +345,7 @@ you to use Spring transaction features. You simply need to wire up your business
 using an `ApplicationContext` and use a `WebApplicationContext` to integrate your web
 layer.
 
-有时候环境不允许你完全转成一个不同的框架。Spring框架__不__强迫你采用它内部的所有东西；它不是一个__要么全有要么全无__的解决方案。现有的采用Struts，Tapestry，JSF或其它UI框架构建的前端可以与基于Spring的中间层进行集成，这可以让你使用Spring的事务功能。你只需要简单的使用一个 `ApplicationContext` 和一个 `WebApplicationContext` 绑定你的业务逻辑然后集成到web层即可。
+有时候环境不允许你完全转成一个不同的框架。Spring框架__不__强迫你采用它内部的所有东西；它不是一个__要么全有要么全无__的解决方案。现有的采用Struts，Tapestry，JSF或其它UI框架构建的前端可以与基于Spring的中间层进行集成，这可以让你使用Spring的事务功能。您只需使用 `ApplicationContext` 连接您的业务逻辑，并使用 `WebApplicationContext` 来集成Web层。
 
 .远程处理的应用场景(Remoting usage scenario)
 image::images/overview-remoting.png[width=400]
