@@ -196,6 +196,8 @@ of Spring Web MVC you can use `<spring:bind/>` tag to inspect the error messages
 course you can also inspect the errors object yourself. More information about the
 methods it offers can be found in the javadocs.
 
+验证错误报告给传递给验证器的 `错误` 对象。在Spring Web MVC的情况下，您可以使用 `<spring:bind/>` 标签来检查错误消息，但是当然你也可以自己检查错误对象。有关其提供的方法的更多信息可以在javadoc中找到。
+
 
 
 
