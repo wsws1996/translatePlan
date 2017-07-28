@@ -202,7 +202,7 @@ methods it offers can be found in the javadocs.
 
 
 [[validation-conversion]]
-== Resolving codes to error messages
+== 解析错误消息的代码(Resolving codes to error messages)
 We've talked about databinding and validation. Outputting messages corresponding to
 validation errors is the last thing we need to discuss. In the example we've shown
 above, we rejected the `name` and the `age` field. If we're going to output the error
@@ -220,6 +220,8 @@ also register `too.darn.old.age` and `too.darn.old.age.int` (so the first will i
 the field name and the second will include the type of the field); this is done as a
 convenience to aid developers in targeting error messages and suchlike.
 
+我们已经讨论了数据绑定和验证。输出与验证错误相对应的消息是我们需要讨论的最后一件事。在我们上面显示的例子中，我们拒绝了 `name` 和 `age` 字段。如果要使用 `MessageSource` 输出错误消息，我们将使用我们在拒绝该字段时给出的错误代码（在这种情况下为'name'和'age'）来做这件事。当您（直接或间接地，例如使用 `ValidationUtils` 类）调用 `rejectValue` 或 `Errors` 接口中的另一个 `reject` 方法时，底层的实现不仅会注册你所使用的代码，还有一些额外的错误代码。它所注册的错误代码由使用的 `MessageCodesResolver` 决定。默认情况下，使用 `DefaultMessageCodesResolver`，例如它不仅注册了您提供的代码的消息，还包括传递给reject方法的字段名称的消息。所以如果你使用 `rejectValue（“age”，“too.darn.old”）` 拒绝一个字段，除了 `too.darn.old` 代码，Spring也会注册 `too.darn.old.age` 和 `too.darn.old.age.int`（所以第一个将包括字段名称，第二个将包括该字段的类型）；这样做是为了方便开发人员定位错误消息等。
+
 More information on the `MessageCodesResolver` and the default strategy can be found
 online in the javadocs of
 {api-spring-framework}/validation/MessageCodesResolver.html[`MessageCodesResolver`]
@@ -227,11 +229,13 @@ and
 {api-spring-framework}/validation/DefaultMessageCodesResolver.html[`DefaultMessageCodesResolver`],
 respectively.
 
+有关 `MessageCodesResolver` 和默认策略的更多信息可以分别在 {api-spring-framework}/validation/MessageCodesResolver.html[`MessageCodesResolver`] 和 {api-spring-framework}/validation/DefaultMessageCodesResolver.html[`DefaultMessageCodesResolver`] 的javadoc中在线查找。
+
 
 
 
 [[beans-beans]]
-== Bean manipulation and the BeanWrapper
+== Bean操作和BeanWrapper(Bean manipulation and the BeanWrapper)
 
 The `org.springframework.beans` package adheres to the JavaBeans standard provided by
 Oracle. A JavaBean is simply a class with a default no-argument constructor, which follows
@@ -239,6 +243,8 @@ a naming convention where (by way of an example) a property named `bingoMadness`
 have a setter method `setBingoMadness(..)` and a getter method `getBingoMadness()`. For
 more information about JavaBeans and the specification, please refer to Oracle's website (
 http://docs.oracle.com/javase/6/docs/api/java/beans/package-summary.html[javabeans]).
+
+`org.springframework.beans` 包遵循Oracle提供的JavaBeans标准。JavaBean只是带有一个默认无参数构造函数的类，它遵循一个命名约定（举个例子）一个名为 `bingoMadness` 的属性将有一个setter方法 `setBingoMadness(..)` 和一个getter方法 `getBingoMadness()`。有关JavaBeans和规范的更多信息，请参阅Oracle的网站(http://docs.oracle.com/javase/6/docs/api/java/beans/package-summary.html[javabeans])。
 
 One quite important class in the beans package is the `BeanWrapper` interface and its
 corresponding implementation ( `BeanWrapperImpl`). As quoted from the javadocs, the
@@ -252,50 +258,62 @@ Last but not least, the `BeanWrapper` provides support for the setting of indexe
 properties. The `BeanWrapper` usually isn't used by application code directly, but by
 the `DataBinder` and the `BeanFactory`.
 
+Bean包中的一个相当重要的类是 `BeanWrapper` 接口及其相应的实现（`BeanWrapperImpl`）。就像从javadocs引用的那样，`BeanWrapper` 提供了设置和获取属性值（单独或批量），获取属性描述符和查询属性以确定它们是否可读或可写的功能。此外，`BeanWrapper` 还提供对嵌套属性的支持，可以将子属性的属性设置扩展到无限深度。然后，`BeanWrapper` 支持添加标准JavaBeans的 `PropertyChangeListeners` 和 `VetoableChangeListeners` 的功能，没有对目标类中支持代码的需求。最后但并非最不重要的是，`BeanWrapper` 提供对已索引的属性的设置的支持。`BeanWrapper` 通常不被应用程序代码直接使用，而是由 `DataBinder` 和 `BeanFactory` 使用。
+
 The way the `BeanWrapper` works is partly indicated by its name: __it wraps a bean__ to
 perform actions on that bean, like setting and retrieving properties.
+
+`BeanWrapper` 工作的方式部分地由它的名称表示：它包装一个bean以对该bean执行操作，例如设置和检索属性。
 
 
 
 [[beans-beans-conventions]]
-=== Setting and getting basic and nested properties
+=== 设置并获取基本和嵌套的属性(Setting and getting basic and nested properties)
 Setting and getting properties is done using the `setPropertyValue(s)` and
 `getPropertyValue(s)` methods that both come with a couple of overloaded variants.
 They're all described in more detail in the javadocs Spring comes with. What's important
 to know is that there are a couple of conventions for indicating properties of an
 object. A couple of examples:
 
+使用 `setPropertyValue(s)` 和 `getPropertyValue(s)` 方法进行设置和获取属性，这两种方法都带有几个重载变体。它们都在Spring附带的javadocs中有更详细的描述。重要的是有一些指示一个对象属性的约定。几个例子：
+
 [[beans-beans-conventions-properties-tbl]]
-.Examples of properties
+.属性的例子(Examples of properties)
 |===
-| Expression| Explanation
+| 表达式(Expression)| 解释(Explanation)
 
 | `name`
-| Indicates the property `name` corresponding to the methods `getName()` or `isName()`
-  and `setName(..)`
+| 表示属性 `name` 对应于 `getName()` 或 `isName()` 和 `setName(..)` 方法(Indicates the property `name` corresponding to the methods `getName()` or `isName()`
+  and `setName(..)`)
 
 | `account.name`
-| Indicates the nested property `name` of the property `account` corresponding e.g. to
-  the methods `getAccount().setName()` or `getAccount().getName()`
+| 表示属性 `account` 的嵌套属性 `name` 对应于（举例来说）方法 `getAccount().setName()` 或 `getAccount().getName()`(Indicates the nested property `name` of the property `account` corresponding e.g. to
+  the methods `getAccount().setName()` or `getAccount().getName()`)
 
 | `account[2]`
-| Indicates the __third__ element of the indexed property `account`. Indexed properties
-  can be of type `array`, `list` or other __naturally ordered__ collection
+| 表示已索引的属性 `account` 的__第三个__元素。已索引的属性可以是 `array`，`list` 或其他自然有序集合的类型(Indicates the __third__ element of the indexed property `account`. Indexed properties
+  can be of type `array`, `list` or other __naturally ordered__ collection)
 
 | `account[COMPANYNAME]`
-| Indicates the value of the map entry indexed by the key __COMPANYNAME__ of the Map
-  property `account`
+| 指示由Map属性 `account` 的__COMPANYNAME__键索引的Map项的值(Indicates the value of the map entry indexed by the key __COMPANYNAME__ of the Map
+  property `account`)
 |===
 
 Below you'll find some examples of working with the `BeanWrapper` to get and set
 properties.
+
+下面你可以找到一些使用 `BeanWrapper` 来获取和设置属性的例子。
 
 __(This next section is not vitally important to you if you're not planning to work with
 the `BeanWrapper` directly. If you're just using the `DataBinder` and the `BeanFactory`
 and their out-of-the-box implementation, you should skip ahead to the section about
 `PropertyEditors`.)__
 
+__（如果您不打算直接使用 `BeanWrapper`，下一节对您来说并不重要。如果您只是使用 `DataBinder` 和 `BeanFactory` 及它们开箱即用的实现，则应该跳过关于 `PropertyEditors` 的部分。）__
+
 Consider the following two classes:
+
+考虑以下两个类：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -353,6 +371,8 @@ Consider the following two classes:
 The following code snippets show some examples of how to retrieve and manipulate some of
 the properties of instantiated `Companies` and `Employees`:
 
+以下代码片段显示了如何检索和操作实例化的 `Companies` 和 `Employees` 的一些属性的示例：
+
 [source,java,indent=0]
 [subs="verbatim,quotes"]
 ----
@@ -375,7 +395,7 @@ the properties of instantiated `Companies` and `Employees`:
 
 
 [[beans-beans-conversion]]
-=== Built-in PropertyEditor implementations
+=== 内置PropertyEditor实现(Built-in PropertyEditor implementations)
 
 Spring uses the concept of `PropertyEditors` to effect the conversion between an
 `Object` and a `String`. If you think about it, it sometimes might be handy to be able
