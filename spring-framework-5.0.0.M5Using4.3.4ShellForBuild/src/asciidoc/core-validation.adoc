@@ -409,16 +409,22 @@ alternately in a specific IoC container as mentioned in the previous chapter, gi
 the knowledge of how to convert properties to the desired type. Read more about
 `PropertyEditors` in the javadocs of the `java.beans` package provided by Oracle.
 
+Spring使用 `PropertyEditors` 的概念来实现 `Object` 和 `String` 之间的转换。如果你仔细想想，有时不以对象本身而是以一种不同的方式来表示属性可能更得心应手。例如，`Date` 可以用人类可读的方式表示（如 `String` `'2007-14-09'`），而我们仍然可以将人类可读的形式转换回原始日期（甚至更好：将以人类可读形式输入的任何日期转换回 `Date` 对象）。可以通过__注册 `java.beans.PropertyEditor` 类型的自定义编辑器__来实现此行为。在 `BeanWrapper` 中或在上一章中提到的特定IoC容器中注册自定义编辑器，可以了解如何将属性转换为所需类型。在Oracle提供的 `java.beans` 包的javadoc中阅读更多关于 `PropertyEditors` 的信息。
+
 A couple of examples where property editing is used in Spring:
+
+Spring中使用了属性编辑的一些例子：
 
 * __setting properties on beans__ is done using `PropertyEditors`. When mentioning
   `java.lang.String` as the value of a property of some bean you're declaring in XML
   file, Spring will (if the setter of the corresponding property has a
   `Class`-parameter) use the `ClassEditor` to try to resolve the parameter to a `Class`
   object.
+* __在bean上设置属性__是使用 `PropertyEditors` 完成的。当把 `java.lang.String` 作为你在XML文件中声明的某个bean的属性的值来提到时，Spring将（如果相应属性的setter有一个 `Class` 参数）使用 `ClassEditor` 尝试将参数解析为一个 `Class` 对象。
 * __parsing HTTP request parameters__ in Spring's MVC framework is done using all kinds
   of `PropertyEditors` that you can manually bind in all subclasses of the
   `CommandController`.
+* 在Spring的MVC框架中__解析HTTP请求参数__是使用各种 `PropertyEditors` 完成的，您可以在 `CommandController` 的所有子类中手动绑定（PropertyEditors）。
 
 Spring has a number of built-in `PropertyEditors` to make life easy. Each of those is
 listed below and they are all located in the `org.springframework.beans.propertyeditors`
@@ -426,68 +432,70 @@ package. Most, but not all (as indicated below), are registered by default by
 `BeanWrapperImpl`. Where the property editor is configurable in some fashion, you can of
 course still register your own variant to override the default one:
 
+Spring有一些内置的 `PropertyEditors`，使生活变得简单。它们中的每一个都列在下面，它们都位于 `org.springframework.beans.propertyeditors` 包中。大多数但不是全部（如下所示），默认情况下由 `BeanWrapperImpl` 注册。在某种情况下，属性编辑器是可配置的，您当然仍然可以注册自己的变体来覆盖默认的变体：
+
 [[beans-beans-property-editors-tbl]]
-.Built-in PropertyEditors
+.内置PropertyEditors(Built-in PropertyEditors)
 |===
-| Class| Explanation
+| 类(Class)| 说明(Explanation)
 
 | `ByteArrayPropertyEditor`
-| Editor for byte arrays. Strings will simply be converted to their corresponding byte
-  representations. Registered by default by `BeanWrapperImpl`.
+| 字节数组编辑器。字符串将简单地转换为相应的字节表示。由 `BeanWrapperImpl` 默认注册。(Editor for byte arrays. Strings will simply be converted to their corresponding byte
+  representations. Registered by default by `BeanWrapperImpl`.)
 
 | `ClassEditor`
-| Parses Strings representing classes to actual classes and the other way around. When a
+| 将字符串表达的类解析为实际的类或将实际的类解析为字符串表达的类。当找不到类时，会抛出一个 `IllegalArgumentException`。由 `BeanWrapperImpl` 默认注册。(Parses Strings representing classes to actual classes and the other way around. When a
   class is not found, an `IllegalArgumentException` is thrown. Registered by default by
-  `BeanWrapperImpl`.
+  `BeanWrapperImpl`.)
 
 | `CustomBooleanEditor`
-| Customizable property editor for `Boolean` properties. Registered by default by
+| `布尔` 属性的可定制属性编辑器。通过 `BeanWrapperImpl` 默认注册，但可以通过将它的自定义实例注册为自定义编辑器来覆盖。(Customizable property editor for `Boolean` properties. Registered by default by
   `BeanWrapperImpl`, but, can be overridden by registering custom instance of it as
-  custom editor.
+  custom editor.)
 
 | `CustomCollectionEditor`
-| Property editor for Collections, converting any source `Collection` to a given target
-  `Collection` type.
+| 集合的属性编辑器，将任何源 `Collection` 转换为给定的目标 `Collection` 类型。(Property editor for Collections, converting any source `Collection` to a given target
+  `Collection` type.)
 
 | `CustomDateEditor`
-| Customizable property editor for java.util.Date, supporting a custom DateFormat. NOT
-  registered by default. Must be user registered as needed with appropriate format.
+| 可定制的java.util.Date属性编辑器，支持自定义日期格式。默认情况下未注册。必须由用户根据需要使用适当的格式进行注册。(Customizable property editor for java.util.Date, supporting a custom DateFormat. NOT
+  registered by default. Must be user registered as needed with appropriate format.)
 
 | `CustomNumberEditor`
-| Customizable property editor for any Number subclass like `Integer`, `Long`, `Float`,
+| 任何Number子类的可定制属性编辑器，如 `Integer`，`Long`，`Float`，`Double`。通过 `BeanWrapperImpl` 默认注册，但可以通过将其自定义实例注册为自定义编辑器来覆盖。(Customizable property editor for any Number subclass like `Integer`, `Long`, `Float`,
   `Double`. Registered by default by `BeanWrapperImpl`, but can be overridden by
-  registering custom instance of it as a custom editor.
+  registering custom instance of it as a custom editor.)
 
 | `FileEditor`
-| Capable of resolving Strings to `java.io.File` objects. Registered by default by
-  `BeanWrapperImpl`.
+| 能够将字符串解析为 `java.io.File` 对象。由 `BeanWrapperImpl` 默认注册。(Capable of resolving Strings to `java.io.File` objects. Registered by default by
+  `BeanWrapperImpl`.)
 
 | `InputStreamEditor`
-| One-way property editor, capable of taking a text string and producing (via an
+| 单向属性编辑器，能够获取文本字符串并生成（通过一个中间的 `ResourceEditor` 和 `Resource`）一个 `InputStream`，所以 `InputStream` 属性可以直接设置为字符串。请注意，默认的用法不会为您关闭 `InputStream`！由 `BeanWrapperImpl` 默认注册。(One-way property editor, capable of taking a text string and producing (via an
   intermediate `ResourceEditor` and `Resource`) an `InputStream`, so `InputStream`
   properties may be directly set as Strings. Note that the default usage will not close
-  the `InputStream` for you! Registered by default by `BeanWrapperImpl`.
+  the `InputStream` for you! Registered by default by `BeanWrapperImpl`.)
 
 | `LocaleEditor`
-| Capable of resolving Strings to `Locale` objects and vice versa (the String format is
+| 能够将字符串解析为 `Locale` 对象，反之亦然（String格式是 [语言]_[国家]_[变体]，这与Locale提供的toString()方法是一样的）。由 `BeanWrapperImpl` 默认注册。(Capable of resolving Strings to `Locale` objects and vice versa (the String format is
   [language]_[country]_[variant], which is the same thing the toString() method of
-  Locale provides). Registered by default by `BeanWrapperImpl`.
+  Locale provides). Registered by default by `BeanWrapperImpl`.)
 
 | `PatternEditor`
-| Capable of resolving Strings to `java.util.regex.Pattern` objects and vice versa.
+| 能够将字符串解析为 `java.util.regex.Pattern` 对象，反之亦然。(Capable of resolving Strings to `java.util.regex.Pattern` objects and vice versa.)
 
 | `PropertiesEditor`
-| Capable of converting Strings (formatted using the format as defined in the javadocs
+| 能够转换字符串（使用 `java.util.Properties` 类的javadocs中定义的格式格式化）为 `属性` 对象。由 `BeanWrapperImpl` 默认注册。(Capable of converting Strings (formatted using the format as defined in the javadocs
   of the `java.util.Properties` class) to `Properties` objects. Registered by default
-  by `BeanWrapperImpl`.
+  by `BeanWrapperImpl`.)
 
 | `StringTrimmerEditor`
-| Property editor that trims Strings. Optionally allows transforming an empty string
-  into a `null` value. NOT registered by default; must be user registered as needed.
+| 修整字符串的属性编辑器。（可选的）允许将空字符串转换为 `null` 值。默认未注册；必须由用户根据需要进行注册。(Property editor that trims Strings. Optionally allows transforming an empty string
+  into a `null` value. NOT registered by default; must be user registered as needed.)
 
 | `URLEditor`
-| Capable of resolving a String representation of a URL to an actual `URL` object.
-  Registered by default by `BeanWrapperImpl`.
+| 能够将URL的String表示解析为实际的 `URL` 对象。由 `BeanWrapperImpl` 默认注册。(Capable of resolving a String representation of a URL to an actual `URL` object.
+  Registered by default by `BeanWrapperImpl`.)
 |===
 
 Spring uses the `java.beans.PropertyEditorManager` to set the search path for property
@@ -500,6 +508,8 @@ name as that class, with `'Editor'` appended; for example, one could have the fo
 class and package structure, which would be sufficient for the `FooEditor` class to be
 recognized and used as the `PropertyEditor` for `Foo`-typed properties.
 
+Spring使用 `java.beans.PropertyEditorManager` 设置可能需要的属性编辑器的搜索路径。搜索路径还包括 `sun.bean.editors`，其中包含用于 `Font`，`Color` 等类型和大部分原始类型的 `PropertyEditor` 实现。还要注意的是，标准的JavaBeans基础架构将自动发现 `PropertyEditor` 类（你不必明确地注册它们），如果它们与它们处理的类处于同一个包中，并且与该类具有相同的名称，并附加有 `'Editor'`；例如，它可能具有以下类和包结构，这足以使 `FooEditor` 类被识别并用作 `Foo` 类型属性的 `PropertyEditor`。
+
 [literal]
 [subs="verbatim,quotes"]
 ----
@@ -507,7 +517,7 @@ com
   chank
     pop
       Foo
-      FooEditor // the PropertyEditor for the Foo class
+      FooEditor // Foo类的PropertyEditor(the PropertyEditor for the Foo class)
 ----
 
 Note that you can also use the standard `BeanInfo` JavaBeans mechanism here as well
@@ -517,6 +527,8 @@ not-amazing-detail here]). Find below an example of using the `BeanInfo` mechani
 explicitly registering one or more `PropertyEditor` instances with the properties of an
 associated class.
 
+请注意，您也可以在这里使用标准的 `BeanInfo` JavaBeans机制（ http://docs.oracle.com/javase/tutorial/javabeans/advanced/customization.html[在这里不详细的描述]）。在下面的一个示例中，使用 `BeanInfo` 机制显式注册一个相关类的属性的一个或多个 `PropertyEditor` 实例。
+
 [literal]
 [subs="verbatim,quotes"]
 ----
@@ -524,11 +536,13 @@ com
   chank
     pop
       Foo
-      FooBeanInfo // the BeanInfo for the Foo class
+      FooBeanInfo // 用于Foo类的BeanInfo(the BeanInfo for the Foo class)
 ----
 
 Here is the Java source code for the referenced `FooBeanInfo` class. This would
 associate a `CustomNumberEditor` with the `age` property of the `Foo` class.
+
+以下是供参考的 `FooBeanInfo` 类的Java源代码。这将把 `CustomNumberEditor` 与 `Foo` 类的 `age` 属性关联起来。
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
