@@ -949,16 +949,22 @@ TypeDescriptor) to implement your conversion logic. The source TypeDescriptor pr
 access to the source field holding the value being converted. The target TypeDescriptor
 provides access to the target field where the converted value will be set.
 
+要实现GenericConverter，使getConvertibleTypes()返回支持的源->目标类型对。然后实现convert(Object，TypeDescriptor，TypeDescriptor)来实现你的转换逻辑。源TypeDescriptor提供对保存正在转换的值的源字段的访问。目标TypeDescriptor提供对转换值将被设置到的目标字段的访问。
+
 A good example of a GenericConverter is a converter that converts between a Java Array
 and a Collection. Such an ArrayToCollectionConverter introspects the field that declares
 the target Collection type to resolve the Collection's element type. This allows each
 element in the source array to be converted to the Collection element type before the
 Collection is set on the target field.
 
+GenericConverter的一个很好的例子是在Java Array和Collection之间进行转换的转换器。这样一个ArrayToCollectionConverter会内部检查声明目标集合类型的字段以解析集合元素类型。这允许在源数组中的每个元素在目标字段上设置集合之前转换为集合元素类型。
+
 [NOTE]
 ====
 Because GenericConverter is a more complex SPI interface, only use it when you need it.
 Favor Converter or ConverterFactory for basic type conversion needs.
+
+因为GenericConverter是一个更复杂的SPI接口，只有当你需要它时才使用它。偏重于使用转换器或ConverterFactory进行基本类型转换的需要。
 ====
 
 
@@ -970,6 +976,8 @@ on the target field. Or you might only want to execute a `Converter` if a specif
 such as a `static valueOf` method, is defined on the target class.
 `ConditionalGenericConverter` is the union of the `GenericConverter` and
 `ConditionalConverter` interfaces that allows you to define such custom matching criteria:
+
+有时你只需要一个特定的条件成立时，一个 `转换器` 才会执行。例如，您可能只想在目标字段中存在特定注解时，才需要执行 `转换器`。或者，您可能只想在目标类上定义了一个特定的方法，例如 `static valueOf` 方法时，才执行一个 `转换器`。`ConditionalGenericConverter` 是 `GenericConverter` 和 `ConditionalConverter` 接口的联合，它允许你定义这样的自定义匹配条件：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -988,12 +996,16 @@ might only match if the target entity type declares a static finder method e.g.
 `findAccount(Long)`. You would perform such a finder method check in the implementation of
 `matches(TypeDescriptor, TypeDescriptor)`.
 
+`ConditionalGenericConverter` 的一个很好的例子是一个EntityConverter，它在持久性实体标识符和实体引用之间进行转换。此类EntityConverter可能仅在目标实体类型声明有静态查找器方法（例如：`findAccount(Long)`）时匹配。您将在 `matches(TypeDescriptor，TypeDescriptor)` 的实现中执行这样一个finder方法检查。
+
 
 
 [[core-convert-ConversionService-API]]
 === ConversionService API
 The ConversionService defines a unified API for executing type conversion logic at
 runtime. Converters are often executed behind this facade interface:
+
+ConversionService定义了一个用于在运行时执行类型转换逻辑的统一API。转换器通常在这个表面接口后执行：
 
 [source,java,indent=0]
 [subs="verbatim,quotes"]
@@ -1017,10 +1029,14 @@ Most ConversionService implementations also implement `ConverterRegistry`, which
 provides an SPI for registering converters. Internally, a ConversionService
 implementation delegates to its registered converters to carry out type conversion logic.
 
+大多数ConversionService实现还实现了 `ConverterRegistry`，它提供了一个用于注册转换器的SPI。在内部，ConversionService实现委托给其注册的转换器来执行类型转换逻辑。
+
 A robust ConversionService implementation is provided in the `core.convert.support`
 package. `GenericConversionService` is the general-purpose implementation suitable for
 use in most environments. `ConversionServiceFactory` provides a convenient factory for
 creating common ConversionService configurations.
+
+`core.convert.support` 包中提供了强大的ConversionService实现。`GenericConversionService` 是适用于大多数环境的通用实现。`ConversionServiceFactory` 为创建常用的ConversionService配置提供了便利的工厂。
 
 
 
